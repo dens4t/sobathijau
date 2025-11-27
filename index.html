@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SOBAT HIJAU - Portal Digital DLH Kota Pontianak</title>
+    <meta
+      name="description"
+      content="SOBAT HIJAU adalah portal digital Dinas Lingkungan Hidup Kota Pontianak untuk permohonan, pengaduan, dan konsultasi lingkungan."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      referrerpolicy="no-referrer"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ['"Poppins"', 'sans-serif'],
+              body: ['"Inter"', 'sans-serif'],
+            },
+            colors: {
+              hijau: {
+                50: '#ecfdf3',
+                200: '#a7f3d0',
+                400: '#34d399',
+                500: '#10b981',
+                700: '#047857',
+              },
+            },
+            boxShadow: {
+              glow: '0 25px 50px -12px rgba(16, 185, 129, 0.3)',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-slate-950 font-body text-white antialiased">
+    <div class="relative overflow-hidden">
+      <div class="pointer-events-none absolute -top-20 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-emerald-500/20 blur-[120px]"></div>
+      <div class="pointer-events-none absolute bottom-0 right-0 h-80 w-80 translate-x-24 rounded-full bg-green-400/20 blur-[140px]"></div>
+
+      <header class="relative z-20">
+        <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+          <div class="flex items-center gap-3">
+            <div class="rounded-2xl bg-white/10 p-3 text-emerald-300">
+              <i class="fa-solid fa-leaf text-xl"></i>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-[0.4em] text-emerald-200">Portal Resmi</p>
+              <p class="font-display text-2xl tracking-tight">SOBAT HIJAU</p>
+            </div>
+          </div>
+          <div class="hidden items-center gap-8 text-sm text-white/70 md:flex">
+            <a href="#statistik" class="hover:text-white">Statistik</a>
+            <a href="#services" class="hover:text-white">Layanan</a>
+            <a href="#tracking" class="hover:text-white">Pelacakan</a>
+            <button
+              type="button"
+              data-open-modal
+              class="rounded-full bg-gradient-to-r from-emerald-400 to-green-300 px-5 py-2 font-semibold text-slate-950 shadow-glow transition hover:scale-[1.03]"
+            >
+              Ajukan Permohonan
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <main class="relative z-10">
+        <section class="px-6 pb-16 pt-6 md:pt-10 lg:pb-24">
+          <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+            <div class="space-y-8">
+              <p class="text-sm uppercase tracking-[0.3em] text-emerald-200">Portal Digital DLH Kota Pontianak</p>
+              <h1 class="font-display text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
+                <span class="bg-gradient-to-r from-emerald-300 to-green-100 bg-clip-text text-transparent">SOBAT HIJAU</span>
+                <br />
+                Solusi Layanan Lingkungan dalam Genggaman
+              </h1>
+              <p class="text-lg text-white/70">
+                Bangun lingkungan kota yang sehat dengan layanan digital terpadu untuk permohonan izin, pengaduan,
+                permintaan data, hingga konsultasi langsung dengan Dinas Lingkungan Hidup Kota Pontianak.
+              </p>
+              <div class="grid gap-4 text-sm text-white/80 sm:grid-cols-2">
+                <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <span class="rounded-xl bg-emerald-500/20 p-2 text-emerald-300"><i class="fa-solid fa-shield"></i></span>
+                  Akses aman & transparan
+                </div>
+                <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <span class="rounded-xl bg-emerald-500/20 p-2 text-emerald-300"><i class="fa-solid fa-bolt"></i></span>
+                  Respons cepat 24/7
+                </div>
+              </div>
+              <div class="flex flex-col gap-4 sm:flex-row">
+                <button
+                  type="button"
+                  data-open-modal
+                  class="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-emerald-400 to-green-300 px-7 py-3 text-base font-semibold text-slate-950 shadow-glow transition hover:scale-105"
+                >
+                  Ajukan Permohonan
+                  <i class="fa-solid fa-arrow-right-long transition group-hover:translate-x-1"></i>
+                </button>
+                <a
+                  href="#services"
+                  class="inline-flex items-center justify-center gap-3 rounded-full border border-white/20 px-7 py-3 text-base font-semibold text-white/80 transition hover:border-emerald-300 hover:text-white"
+                >
+                  Lihat Layanan
+                  <i class="fa-solid fa-layer-group"></i>
+                </a>
+              </div>
+            </div>
+
+            <div class="relative">
+              <div class="absolute -right-6 -top-6 h-36 w-36 rounded-3xl bg-gradient-to-br from-emerald-400/30 to-green-600/30 blur-[90px]"></div>
+              <div class="relative rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/40 to-slate-900/80 p-8 shadow-2xl">
+                <div class="flex items-center justify-between text-sm text-white/60">
+                  <p>Panel Pemantauan</p>
+                  <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-emerald-300">Real-time</span>
+                </div>
+                <div class="mt-6 space-y-4">
+                  <div class="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
+                    <p class="text-sm text-white/60">Permohonan Aktif</p>
+                    <p class="text-3xl font-display">182</p>
+                    <div class="mt-4 flex items-center gap-2 text-emerald-300">
+                      <i class="fa-solid fa-arrow-trend-up"></i>
+                      <span>+12% minggu ini</span>
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-white/10 bg-slate-900/80 p-4">
+                    <p class="text-sm text-white/60">Rata-rata Penyelesaian</p>
+                    <div class="mt-2 flex items-end gap-4">
+                      <p class="text-4xl font-display">3.2</p>
+                      <span class="text-sm text-white/60">hari kerja</span>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 text-emerald-300">
+                      <i class="fa-solid fa-circle-check"></i>
+                      <span>98% tepat waktu</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-6 rounded-2xl border border-white/10 bg-emerald-500/10 p-4">
+                  <p class="text-sm text-white/60">Prioritas Terkini</p>
+                  <div class="mt-3 space-y-3 text-sm">
+                    <div class="flex items-center justify-between">
+                      <span>Pengelolaan Limbah Cair</span>
+                      <span class="rounded-full bg-white/10 px-3 py-1 text-emerald-200">Proses</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span>Audit Emisi Area Timur</span>
+                      <span class="rounded-full bg-white/10 px-3 py-1 text-emerald-200">Lapangan</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="statistik" class="px-6 py-16">
+          <div class="mx-auto max-w-6xl rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-950/90 via-slate-900/70 to-slate-950/90 p-10 shadow-2xl">
+            <div class="flex flex-col gap-6 text-center">
+              <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-emerald-200">Dashboard Statistik</p>
+                <h2 class="mt-2 font-display text-3xl text-white sm:text-4xl">Kinerja Layanan Terkini</h2>
+                <p class="mx-auto mt-4 max-w-2xl text-base text-white/70">
+                  Pantau volume permohonan dan penyelesaian layanan lingkungan secara transparan, diperbarui secara
+                  berkala oleh tim operasional DLH Kota Pontianak.
+                </p>
+              </div>
+
+              <div class="grid gap-6 md:grid-cols-2">
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-8 text-left shadow-xl">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm uppercase tracking-widest text-white/60">Total Permohonan</p>
+                      <p class="mt-3 text-5xl font-display">
+                        <span class="counter" data-target="1845">0</span>
+                      </p>
+                      <p class="mt-3 text-sm text-white/60">Periode Januari - Oktober 2024</p>
+                    </div>
+                    <div class="rounded-2xl bg-emerald-500/10 p-4 text-4xl text-emerald-300">
+                      <i class="fa-solid fa-chart-column"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-8 text-left shadow-xl">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm uppercase tracking-widest text-white/60">Total Penyelesaian</p>
+                      <p class="mt-3 text-5xl font-display">
+                        <span class="counter" data-target="1722">0</span>
+                      </p>
+                      <p class="mt-3 text-sm text-white/60">96,7% penyelesaian tepat waktu</p>
+                    </div>
+                    <div class="rounded-2xl bg-emerald-500/10 p-4 text-4xl text-emerald-300">
+                      <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs uppercase tracking-[0.3em] text-white/40">* Data otomatis diperbarui setiap 6 jam</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="services" class="px-6 py-16">
+          <div class="mx-auto max-w-6xl">
+            <div class="text-center">
+              <p class="text-sm uppercase tracking-[0.4em] text-emerald-200">Layanan Utama</p>
+              <h2 class="mt-3 font-display text-3xl sm:text-4xl">Kemudahan Layanan dalam 4 Pilar</h2>
+              <p class="mx-auto mt-4 max-w-3xl text-base text-white/70">
+                Setiap layanan dirancang dengan panduan yang jelas, formulir digital, serta notifikasi otomatis agar
+                masyarakat dapat memonitor status permohonan dari mana saja.
+              </p>
+            </div>
+            <div class="mt-12 grid gap-6 md:grid-cols-2">
+              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
+                <div class="flex items-center justify-between">
+                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
+                    <i class="fa-solid fa-file-signature"></i>
+                  </div>
+                  <span class="text-sm text-white/60">#01</span>
+                </div>
+                <h3 class="mt-6 font-display text-2xl">Permohonan Izin Lingkungan</h3>
+                <p class="mt-4 text-base text-white/70">
+                  Ajukan izin lingkungan untuk usaha atau kegiatan baru dengan format digital yang mengikuti regulasi
+                  terbaru.
+                </p>
+                <button
+                  type="button"
+                  data-open-modal
+                  data-service="Permohonan Izin Lingkungan"
+                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
+                >
+                  Ajukan Permohonan
+                  <i class="fa-solid fa-arrow-right-long"></i>
+                </button>
+              </article>
+
+              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
+                <div class="flex items-center justify-between">
+                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                  </div>
+                  <span class="text-sm text-white/60">#02</span>
+                </div>
+                <h3 class="mt-6 font-display text-2xl">Pengaduan Lingkungan</h3>
+                <p class="mt-4 text-base text-white/70">
+                  Laporkan gangguan lingkungan secara daring dengan bukti foto/video dan pantau proses tindak lanjutnya.
+                </p>
+                <button
+                  type="button"
+                  data-open-modal
+                  data-service="Pengaduan Lingkungan"
+                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
+                >
+                  Ajukan Permohonan
+                  <i class="fa-solid fa-arrow-right-long"></i>
+                </button>
+              </article>
+
+              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
+                <div class="flex items-center justify-between">
+                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
+                    <i class="fa-solid fa-database"></i>
+                  </div>
+                  <span class="text-sm text-white/60">#03</span>
+                </div>
+                <h3 class="mt-6 font-display text-2xl">Permohonan Data Lingkungan</h3>
+                <p class="mt-4 text-base text-white/70">
+                  Dapatkan data kualitas udara, air, hingga dokumen AMDAL melalui kanal permintaan resmi yang terintegrasi.
+                </p>
+                <button
+                  type="button"
+                  data-open-modal
+                  data-service="Permohonan Data Lingkungan"
+                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
+                >
+                  Ajukan Permohonan
+                  <i class="fa-solid fa-arrow-right-long"></i>
+                </button>
+              </article>
+
+              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
+                <div class="flex items-center justify-between">
+                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
+                    <i class="fa-solid fa-comments"></i>
+                  </div>
+                  <span class="text-sm text-white/60">#04</span>
+                </div>
+                <h3 class="mt-6 font-display text-2xl">Konsultasi Lingkungan</h3>
+                <p class="mt-4 text-base text-white/70">
+                  Jadwalkan konsultasi daring dengan tim ahli untuk memastikan kepatuhan lingkungan proyek Anda.
+                </p>
+                <button
+                  type="button"
+                  data-open-modal
+                  data-service="Konsultasi Lingkungan"
+                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
+                >
+                  Ajukan Permohonan
+                  <i class="fa-solid fa-arrow-right-long"></i>
+                </button>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="tracking" class="px-6 pb-20">
+          <div class="mx-auto max-w-6xl rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-950 to-emerald-950/60 p-10 shadow-2xl">
+            <div class="grid gap-12 md:grid-cols-2">
+              <div class="space-y-6">
+                <p class="text-sm uppercase tracking-[0.4em] text-emerald-200">Pelacakan Permohonan</p>
+                <h2 class="font-display text-3xl sm:text-4xl">Lacak Permohonan Anda Secara Real-time</h2>
+                <p class="text-base text-white/70">
+                  Masukkan nomor registrasi untuk melihat ringkasan status, petugas penanggung jawab, serta langkah
+                  tindak lanjut yang sudah dijadwalkan.
+                </p>
+                <div class="space-y-4">
+                  <label for="tracking-number" class="text-sm text-white/60">Nomor Registrasi</label>
+                  <div class="flex flex-col gap-4 sm:flex-row">
+                    <input
+                      id="tracking-number"
+                      type="text"
+                      placeholder="Contoh: REG-2024-001"
+                      class="w-full rounded-2xl border border-white/20 bg-white/5 px-5 py-3 text-white placeholder-white/30 focus:border-emerald-300 focus:outline-none"
+                    />
+                    <button
+                      id="track-button"
+                      class="rounded-2xl bg-gradient-to-r from-emerald-400 to-green-300 px-6 py-3 font-semibold text-slate-950 shadow-glow transition hover:scale-[1.02]"
+                    >
+                      Lacak Permohonan
+                    </button>
+                  </div>
+                </div>
+                <p class="text-sm text-white/60">
+                  Butuh bantuan? Hubungi Pusat Informasi DLH melalui WhatsApp resmi di <span class="font-semibold text-white">+62 811 900 123</span>.
+                </p>
+              </div>
+              <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-6">
+                <div id="tracking-result" class="min-h-[220px] space-y-4 text-sm text-white/80">
+                  <p class="text-center text-white/60">
+                    Masukkan nomor registrasi untuk melihat detail progres permohonan Anda.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="border-t border-white/5 px-6 py-12">
+        <div class="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:justify-between">
+          <div class="space-y-3">
+            <p class="text-sm uppercase tracking-[0.4em] text-emerald-200">DLH Kota Pontianak</p>
+            <h3 class="font-display text-2xl">SOBAT HIJAU</h3>
+            <p class="max-w-md text-sm text-white/70">
+              Portal terintegrasi untuk layanan lingkungan hidup yang transparan, profesional, dan berorientasi pada
+              keberlanjutan kota Pontianak.
+            </p>
+          </div>
+          <div class="space-y-2 text-sm text-white/70">
+            <p class="font-semibold text-white">Kontak & Alamat</p>
+            <p>
+              Dinas Lingkungan Hidup Kota Pontianak<br />
+              Jl. Ahmad Yani No. 1, Pontianak 78124<br />
+              Telp: (0561) 123456
+            </p>
+            <p>Email: dlh@pontianak.go.id</p>
+          </div>
+          <div class="space-y-4">
+            <p class="font-semibold text-white">Ikuti Kami</p>
+            <div class="flex gap-4 text-xl text-white/70">
+              <a href="https://facebook.com" target="_blank" rel="noopener" class="transition hover:text-white">
+                <i class="fa-brands fa-facebook"></i>
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener" class="transition hover:text-white">
+                <i class="fa-brands fa-instagram"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener" class="transition hover:text-white">
+                <i class="fa-brands fa-x-twitter"></i>
+              </a>
+              <a href="https://youtube.com" target="_blank" rel="noopener" class="transition hover:text-white">
+                <i class="fa-brands fa-youtube"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <p class="mx-auto mt-8 max-w-6xl text-xs text-white/40">
+          &copy; <span id="current-year"></span> Dinas Lingkungan Hidup Kota Pontianak. Seluruh hak cipta dilindungi.
+        </p>
+      </footer>
+    </div>
+
+    <div id="request-modal" class="fixed inset-0 z-40 hidden items-center justify-center px-6">
+      <div class="absolute inset-0 bg-black/70" data-close-modal></div>
+      <div class="relative w-full max-w-lg rounded-[32px] border border-white/10 bg-slate-900 p-8 shadow-2xl">
+        <button
+          class="absolute right-6 top-6 text-white/60 transition hover:text-white"
+          type="button"
+          aria-label="Tutup"
+          data-close-modal
+        >
+          <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
+        <p class="text-sm uppercase tracking-[0.4em] text-emerald-200">Formulir Permohonan</p>
+        <h3 class="mt-3 font-display text-3xl">Lengkapi Data Anda</h3>
+        <p class="mt-3 text-sm text-white/70">
+          Isikan informasi berikut untuk mulai memproses permohonan. Petugas kami akan melakukan verifikasi awal setelah
+          formulir dikirimkan.
+        </p>
+        <form id="request-form" class="mt-6 space-y-4">
+          <div class="space-y-2">
+            <label class="text-sm text-white/70" for="applicant-name">Nama Lengkap</label>
+            <input
+              id="applicant-name"
+              type="text"
+              required
+              class="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-emerald-300 focus:outline-none"
+              placeholder="Nama pemohon"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm text-white/70" for="applicant-email">Email Aktif</label>
+            <input
+              id="applicant-email"
+              type="email"
+              required
+              class="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-emerald-300 focus:outline-none"
+              placeholder="nama@contoh.com"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm text-white/70" for="service-type">Jenis Layanan</label>
+            <select
+              id="service-type"
+              class="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-white focus:border-emerald-300 focus:outline-none"
+              required
+            >
+              <option value="" disabled selected>Pilih layanan</option>
+              <option value="Permohonan Izin Lingkungan">Permohonan Izin Lingkungan</option>
+              <option value="Pengaduan Lingkungan">Pengaduan Lingkungan</option>
+              <option value="Permohonan Data Lingkungan">Permohonan Data Lingkungan</option>
+              <option value="Konsultasi Lingkungan">Konsultasi Lingkungan</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm text-white/70" for="applicant-notes">Catatan Singkat</label>
+            <textarea
+              id="applicant-notes"
+              rows="3"
+              class="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/30 focus:border-emerald-300 focus:outline-none"
+              placeholder="Tuliskan gambaran singkat permohonan"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="w-full rounded-2xl bg-gradient-to-r from-emerald-400 to-green-300 px-6 py-3 font-semibold text-slate-950 shadow-glow transition hover:scale-[1.02]"
+          >
+            Kirim Permohonan
+          </button>
+          <p id="request-feedback" class="hidden text-center text-sm text-emerald-300">
+            Permohonan Anda berhasil direkam. Petugas kami akan segera menghubungi Anda.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const yearSpan = document.getElementById('current-year');
+        yearSpan.textContent = new Date().getFullYear();
+
+        const modal = document.getElementById('request-modal');
+        const requestForm = document.getElementById('request-form');
+        const requestFeedback = document.getElementById('request-feedback');
+        const serviceSelect = document.getElementById('service-type');
+
+        const openModal = (service = '') => {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          if (service) {
+            serviceSelect.value = service;
+          } else {
+            serviceSelect.selectedIndex = 0;
+          }
+        };
+
+        const closeModal = () => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          requestForm.reset();
+          requestFeedback.classList.add('hidden');
+        };
+
+        document.querySelectorAll('[data-open-modal]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const service = button.dataset.service || '';
+            openModal(service);
+          });
+        });
+
+        document.querySelectorAll('[data-close-modal]').forEach((element) => {
+          element.addEventListener('click', closeModal);
+        });
+
+        requestForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+          requestFeedback.classList.remove('hidden');
+          requestFeedback.textContent = 'Permohonan Anda berhasil direkam. Petugas kami akan menghubungi dalam 1x24 jam.';
+          setTimeout(() => {
+            requestFeedback.classList.add('hidden');
+            closeModal();
+          }, 2000);
+        });
+
+        const counters = document.querySelectorAll('.counter');
+        const animateCounter = (counter) => {
+          const target = parseInt(counter.dataset.target, 10);
+          const duration = 2000;
+          const startTime = performance.now();
+
+          const updateCounter = (currentTime) => {
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            const value = Math.floor(progress * target);
+            counter.textContent = value.toLocaleString('id-ID');
+            if (progress < 1) {
+              requestAnimationFrame(updateCounter);
+            }
+          };
+
+          requestAnimationFrame(updateCounter);
+        };
+
+        const observer = new IntersectionObserver(
+          (entries, obs) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                obs.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.6 }
+        );
+
+        counters.forEach((counter) => observer.observe(counter));
+
+        const mockTrackingData = {
+          'REG-2024-001': {
+            pemohon: 'PT Hijau Nusantara',
+            status: 'Sedang Diverifikasi',
+            petugas: 'Rina Kurniawati',
+            estimasi: '28 November 2024',
+            langkah: ['Dokumen lengkap', 'Survey lapangan dijadwalkan', 'Validasi teknis menunggu'],
+          },
+          'REG-2024-042': {
+            pemohon: 'CV Pontianak Berseri',
+            status: 'Selesai',
+            petugas: 'Budi Hartanto',
+            estimasi: '15 November 2024',
+            langkah: ['Persetujuan diterbitkan', 'Dokumen digital dikirim', 'Salinan fisik siap diambil'],
+          },
+          'REG-2024-128': {
+            pemohon: 'Masyarakat - Dewi Lestari',
+            status: 'Dalam Peninjauan Lapangan',
+            petugas: 'Fajar Ramadhan',
+            estimasi: '02 Desember 2024',
+            langkah: ['Tim lapangan menuju lokasi', 'Verifikasi bukti tambahan', 'Laporan rekomendasi disusun'],
+          },
+        };
+
+        const trackingResult = document.getElementById('tracking-result');
+        const trackingInput = document.getElementById('tracking-number');
+        const trackingButton = document.getElementById('track-button');
+
+        const renderTracking = (payload, registration) => {
+          if (!payload) {
+            trackingResult.innerHTML = `
+              <div class="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-5 text-center text-sm">
+                <p class="font-semibold text-rose-200">Data tidak ditemukan</p>
+                <p class="mt-2 text-white/70">Nomor <span class="font-mono">${registration}</span> belum terdaftar atau masih diproses inputnya.</p>
+              </div>`;
+            return;
+          }
+
+          trackingResult.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p class="text-xs uppercase tracking-[0.4em] text-emerald-200">Status Saat Ini</p>
+                <p class="mt-2 text-2xl font-display">${payload.status}</p>
+              </div>
+              <span class="rounded-full bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">${registration}</span>
+            </div>
+            <div class="mt-6 grid gap-4 text-sm text-white/80">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-white/60">Pemohon</p>
+                <p class="font-semibold text-white">${payload.pemohon}</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-white/60">Petugas Penanggung Jawab</p>
+                <p class="font-semibold text-white">${payload.petugas}</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-white/60">Estimasi Penyelesaian</p>
+                <p class="font-semibold text-white">${payload.estimasi}</p>
+              </div>
+            </div>
+            <div class="mt-6">
+              <p class="text-xs uppercase tracking-[0.4em] text-emerald-200">Langkah Berikutnya</p>
+              <ul class="mt-3 space-y-3">
+                ${payload.langkah
+                  .map(
+                    (item, index) => `
+                      <li class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-sm font-semibold text-emerald-200">${
+                          index + 1
+                        }</span>
+                        <span class="text-white/80">${item}</span>
+                      </li>`
+                  )
+                  .join('')}
+              </ul>
+            </div>`;
+        };
+
+        const handleTracking = () => {
+          const registration = trackingInput.value.trim().toUpperCase();
+          if (!registration) {
+            trackingResult.innerHTML = '<p class="text-center text-rose-200">Masukkan nomor registrasi terlebih dahulu.</p>';
+            return;
+          }
+          const payload = mockTrackingData[registration];
+          renderTracking(payload, registration);
+        };
+
+        trackingButton.addEventListener('click', handleTracking);
+        trackingInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            handleTracking();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
