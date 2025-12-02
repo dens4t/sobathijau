@@ -1,0 +1,24 @@
+{
+  "name": "sobat-hijau",
+  "version": "1.0.0",
+  "description": "Portal Digital Dinas Lingkungan Hidup Kota Pontianak",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "preview": "npx serve .",
+    "deploy": "wrangler pages deploy . --project-name=sobat-hijau"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dens4t/sobathijau.git"
+  },
+  "keywords": [
+    "environment",
+    "pontianak",
+    "dlh",
+    "landing-page",
+    "portal"
+  ],
+  "author": "DLH Kota Pontianak",
+  "license": "MIT"
+}
