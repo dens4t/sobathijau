@@ -2,8 +2,3 @@ name = "sobat-hijau"
 compatibility_date = "2024-12-02"
 
 pages_build_output_dir = "."
-
-[env.production]
-routes = [
-  { pattern = "sobathijau.pontianak.go.id/*", custom_domain = true }
-]

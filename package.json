@@ -20,5 +20,8 @@
     "portal"
   ],
   "author": "DLH Kota Pontianak",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@cloudflare/wrangler": "^1.21.0"
+  }
 }
