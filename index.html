@@ -62,9 +62,8 @@
             </div>
           </div>
           <div class="hidden items-center gap-8 text-sm text-white/70 md:flex">
-            <a href="#statistik" class="hover:text-white">Statistik</a>
-            <a href="#services" class="hover:text-white">Layanan</a>
             <a href="#tracking" class="hover:text-white">Pelacakan</a>
+            <a href="#statistik" class="hover:text-white">Statistik</a>
             <button
               type="button"
               data-open-modal
@@ -84,11 +83,11 @@
               <h1 class="font-display text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
                 <span class="bg-gradient-to-r from-emerald-300 to-green-100 bg-clip-text text-transparent">SOBAT HIJAU</span>
                 <br />
-                Solusi Layanan Lingkungan dalam Genggaman
+                Lacak Permohonan Anda Secara Real-time
               </h1>
               <p class="text-lg text-white/70">
-                Bangun lingkungan kota yang sehat dengan layanan digital terpadu untuk permohonan izin, pengaduan,
-                permintaan data, hingga konsultasi langsung dengan Dinas Lingkungan Hidup Kota Pontianak.
+                Pantau status permohonan lingkungan dengan transparansi penuh. Sistem pelacakan real-time 
+                memungkinkan Anda melihat progres permohonan kapan saja, di mana saja.
               </p>
               <div class="grid gap-4 text-sm text-white/80 sm:grid-cols-2">
                 <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -101,21 +100,21 @@
                 </div>
               </div>
               <div class="flex flex-col gap-4 sm:flex-row">
+                <a
+                  href="#tracking"
+                  class="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-emerald-400 to-green-300 px-7 py-3 text-base font-semibold text-slate-950 shadow-glow transition hover:scale-105"
+                >
+                  Lacak Permohonan
+                  <i class="fa-solid fa-magnifying-glass transition group-hover:scale-110"></i>
+                </a>
                 <button
                   type="button"
                   data-open-modal
-                  class="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-emerald-400 to-green-300 px-7 py-3 text-base font-semibold text-slate-950 shadow-glow transition hover:scale-105"
-                >
-                  Ajukan Permohonan
-                  <i class="fa-solid fa-arrow-right-long transition group-hover:translate-x-1"></i>
-                </button>
-                <a
-                  href="#services"
                   class="inline-flex items-center justify-center gap-3 rounded-full border border-white/20 px-7 py-3 text-base font-semibold text-white/80 transition hover:border-emerald-300 hover:text-white"
                 >
-                  Lihat Layanan
-                  <i class="fa-solid fa-layer-group"></i>
-                </a>
+                  Ajukan Permohonan Baru
+                  <i class="fa-solid fa-plus"></i>
+                </button>
               </div>
             </div>
 
@@ -183,7 +182,7 @@
                     <div>
                       <p class="text-sm uppercase tracking-widest text-white/60">Total Permohonan</p>
                       <p class="mt-3 text-5xl font-display">
-                        <span class="counter" data-target="1845">0</span>
+                        <span data-stat="totalRequests">0</span>
                       </p>
                       <p class="mt-3 text-sm text-white/60">Periode Januari - Oktober 2024</p>
                     </div>
@@ -198,9 +197,9 @@
                     <div>
                       <p class="text-sm uppercase tracking-widest text-white/60">Total Penyelesaian</p>
                       <p class="mt-3 text-5xl font-display">
-                        <span class="counter" data-target="1722">0</span>
+                        <span data-stat="totalCompleted">0</span>
                       </p>
-                      <p class="mt-3 text-sm text-white/60">96,7% penyelesaian tepat waktu</p>
+                      <p class="mt-3 text-sm text-white/60" data-stat="completionRate">96,7% penyelesaian tepat waktu</p>
                     </div>
                     <div class="rounded-2xl bg-emerald-500/10 p-4 text-4xl text-emerald-300">
                       <i class="fa-solid fa-circle-check"></i>
@@ -213,110 +212,7 @@
           </div>
         </section>
 
-        <section id="services" class="px-6 py-16">
-          <div class="mx-auto max-w-6xl">
-            <div class="text-center">
-              <p class="text-sm uppercase tracking-[0.4em] text-emerald-200">Layanan Utama</p>
-              <h2 class="mt-3 font-display text-3xl sm:text-4xl">Kemudahan Layanan dalam 4 Pilar</h2>
-              <p class="mx-auto mt-4 max-w-3xl text-base text-white/70">
-                Setiap layanan dirancang dengan panduan yang jelas, formulir digital, serta notifikasi otomatis agar
-                masyarakat dapat memonitor status permohonan dari mana saja.
-              </p>
-            </div>
-            <div class="mt-12 grid gap-6 md:grid-cols-2">
-              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
-                <div class="flex items-center justify-between">
-                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
-                    <i class="fa-solid fa-file-signature"></i>
-                  </div>
-                  <span class="text-sm text-white/60">#01</span>
-                </div>
-                <h3 class="mt-6 font-display text-2xl">Permohonan Izin Lingkungan</h3>
-                <p class="mt-4 text-base text-white/70">
-                  Ajukan izin lingkungan untuk usaha atau kegiatan baru dengan format digital yang mengikuti regulasi
-                  terbaru.
-                </p>
-                <button
-                  type="button"
-                  data-open-modal
-                  data-service="Permohonan Izin Lingkungan"
-                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
-                >
-                  Ajukan Permohonan
-                  <i class="fa-solid fa-arrow-right-long"></i>
-                </button>
-              </article>
-
-              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
-                <div class="flex items-center justify-between">
-                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                  </div>
-                  <span class="text-sm text-white/60">#02</span>
-                </div>
-                <h3 class="mt-6 font-display text-2xl">Pengaduan Lingkungan</h3>
-                <p class="mt-4 text-base text-white/70">
-                  Laporkan gangguan lingkungan secara daring dengan bukti foto/video dan pantau proses tindak lanjutnya.
-                </p>
-                <button
-                  type="button"
-                  data-open-modal
-                  data-service="Pengaduan Lingkungan"
-                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
-                >
-                  Ajukan Permohonan
-                  <i class="fa-solid fa-arrow-right-long"></i>
-                </button>
-              </article>
-
-              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
-                <div class="flex items-center justify-between">
-                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
-                    <i class="fa-solid fa-database"></i>
-                  </div>
-                  <span class="text-sm text-white/60">#03</span>
-                </div>
-                <h3 class="mt-6 font-display text-2xl">Permohonan Data Lingkungan</h3>
-                <p class="mt-4 text-base text-white/70">
-                  Dapatkan data kualitas udara, air, hingga dokumen AMDAL melalui kanal permintaan resmi yang terintegrasi.
-                </p>
-                <button
-                  type="button"
-                  data-open-modal
-                  data-service="Permohonan Data Lingkungan"
-                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
-                >
-                  Ajukan Permohonan
-                  <i class="fa-solid fa-arrow-right-long"></i>
-                </button>
-              </article>
-
-              <article class="group rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/60">
-                <div class="flex items-center justify-between">
-                  <div class="rounded-2xl bg-emerald-500/10 p-4 text-3xl text-emerald-300">
-                    <i class="fa-solid fa-comments"></i>
-                  </div>
-                  <span class="text-sm text-white/60">#04</span>
-                </div>
-                <h3 class="mt-6 font-display text-2xl">Konsultasi Lingkungan</h3>
-                <p class="mt-4 text-base text-white/70">
-                  Jadwalkan konsultasi daring dengan tim ahli untuk memastikan kepatuhan lingkungan proyek Anda.
-                </p>
-                <button
-                  type="button"
-                  data-open-modal
-                  data-service="Konsultasi Lingkungan"
-                  class="mt-6 inline-flex items-center gap-3 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold transition hover:border-emerald-400 hover:text-emerald-200"
-                >
-                  Ajukan Permohonan
-                  <i class="fa-solid fa-arrow-right-long"></i>
-                </button>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section id="tracking" class="px-6 pb-20">
+        <section id="tracking" class="px-6 py-16">
           <div class="mx-auto max-w-6xl rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-950 to-emerald-950/60 p-10 shadow-2xl">
             <div class="grid gap-12 md:grid-cols-2">
               <div class="space-y-6">
@@ -447,11 +343,7 @@
               class="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-white focus:border-emerald-300 focus:outline-none"
               required
             >
-              <option value="" disabled selected>Pilih layanan</option>
-              <option value="Permohonan Izin Lingkungan">Permohonan Izin Lingkungan</option>
-              <option value="Pengaduan Lingkungan">Pengaduan Lingkungan</option>
-              <option value="Permohonan Data Lingkungan">Permohonan Data Lingkungan</option>
-              <option value="Konsultasi Lingkungan">Konsultasi Lingkungan</option>
+              <option value="" disabled selected>Memuat layanan...</option>
             </select>
           </div>
           <div class="space-y-2">
@@ -475,6 +367,15 @@
         </form>
       </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {

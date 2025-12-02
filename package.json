@@ -1,12 +1,13 @@
 {
   "name": "sobat-hijau",
-  "version": "1.0.0",
-  "description": "Portal Digital Dinas Lingkungan Hidup Kota Pontianak",
+  "version": "2.0.0",
+  "description": "Portal Digital DLH Kota Pontianak dengan Firebase Backend",
   "main": "index.html",
   "scripts": {
     "dev": "python -m http.server 8000",
-    "preview": "npx serve .",
-    "deploy": "wrangler pages deploy . --project-name=sobat-hijau"
+    "serve": "npx serve .",
+    "deploy": "wrangler pages deploy . --project-name=sobat-hijau",
+    "deploy:firebase": "firebase deploy --only hosting"
   },
   "repository": {
     "type": "git",
@@ -16,8 +17,10 @@
     "environment",
     "pontianak",
     "dlh",
-    "landing-page",
-    "portal"
+    "firebase",
+    "firestore",
+    "portal",
+    "real-time"
   ],
   "author": "DLH Kota Pontianak",
   "license": "MIT",

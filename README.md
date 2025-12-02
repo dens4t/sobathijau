@@ -1,21 +1,175 @@
 # SOBAT HIJAU
 
-Portal Digital Dinas Lingkungan Hidup Kota Pontianak untuk permohonan izin, pengaduan, permintaan data, dan konsultasi lingkungan.
+Portal Digital Dinas Lingkungan Hidup Kota Pontianak untuk permohonan dan pelacakan layanan lingkungan secara real-time.
 
 ## Fitur Utama
 
-- **Permohonan Izin Lingkungan** - Ajukan izin untuk usaha atau kegiatan baru
-- **Pengaduan Lingkungan** - Laporkan gangguan lingkungan dengan bukti foto/video
-- **Permohonan Data Lingkungan** - Akses data kualitas udara, air, dan dokumen AMDAL
-- **Konsultasi Lingkungan** - Jadwalkan konsultasi dengan tim ahli DLH
-- **Pelacakan Real-time** - Monitor status permohonan secara transparan
+- **Pelacakan Real-time** - Monitor status permohonan secara transparan dengan sistem real-time
+- **Permohonan Online** - Ajukan permohonan layanan lingkungan secara digital
+- **Dashboard Admin** - Panel admin untuk mengelola permohonan dan layanan
+- **Konfigurasi Layanan** - Admin dapat mengaktifkan/menonaktifkan jenis layanan
+- **Statistik Live** - Dashboard statistik yang diperbarui secara real-time
 
 ## Teknologi
 
-- HTML5, CSS3, JavaScript (Vanilla)
-- Tailwind CSS (via CDN)
-- Font Awesome Icons
-- Google Fonts (Poppins, Inter)
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Backend**: Firebase Firestore + Authentication
+- **Hosting**: Cloudflare Pages (atau Firebase Hosting)
+- **Styling**: Tailwind CSS (via CDN)
+- **Icons**: Font Awesome
+- **Fonts**: Google Fonts (Poppins, Inter)
+
+## Firebase Setup (Backend)
+
+### 1. Create Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Click "Add project" and name it "sobat-hijau"
+3. Disable Google Analytics (optional)
+4. Click "Create project"
+
+### 2. Enable Firestore Database
+
+1. In Firebase Console, go to **Firestore Database**
+2. Click "Create database"
+3. Choose "Start in **production mode**"
+4. Select location (asia-southeast1 - Singapore recommended)
+5. Click "Enable"
+
+### 3. Setup Security Rules
+
+1. Go to **Firestore Database** → **Rules** tab
+2. Copy content from `firestore.rules` file
+3. Paste and click "Publish"
+
+### 4. Enable Authentication
+
+1. Go to **Authentication** → **Sign-in method**
+2. Enable "Email/Password"
+3. Click "Save"
+
+### 5. Create Admin User
+
+1. Go to **Authentication** → **Users** tab
+2. Click "Add user"
+3. Enter email: `admin@dlh.pontianak.go.id` (atau email admin Anda)
+4. Enter password (min 6 characters)
+5. Click "Add user"
+6. **Copy the User UID** (you'll need this)
+
+### 6. Add Admin Document
+
+1. Go to **Firestore Database** → **Data** tab
+2. Click "+ Start collection"
+3. Collection ID: `admins`
+4. Document ID: **paste the User UID you copied**
+5. Add fields:
+   - `email` (string): `admin@dlh.pontianak.go.id`
+   - `role` (string): `admin`
+   - `name` (string): `Admin DLH Pontianak`
+   - `createdAt` (string): `2024-12-02`
+6. Click "Save"
+
+### 7. Seed Initial Data
+
+#### Create Services Collection:
+
+1. Click "+ Start collection"
+2. Collection ID: `services`
+3. Add these documents:
+
+**Document ID:** `izin-lingkungan`
+```
+{
+  id: "izin-lingkungan",
+  name: "Permohonan Izin Lingkungan",
+  icon: "fa-file-signature",
+  enabled: true,
+  description: "Ajukan izin lingkungan untuk usaha atau kegiatan baru",
+  requiredFields: ["nama", "email", "phone", "nik", "alamat", "catatan"],
+  order: 1
+}
+```
+
+**Document ID:** `pengaduan`
+```
+{
+  id: "pengaduan",
+  name: "Pengaduan Lingkungan",
+  icon: "fa-triangle-exclamation",
+  enabled: true,
+  description: "Laporkan gangguan lingkungan dengan bukti",
+  requiredFields: ["nama", "email", "phone", "lokasi", "catatan"],
+  order: 2
+}
+```
+
+#### Create Statistics Collection:
+
+**Document ID:** `current`
+```
+{
+  totalRequests: 0,
+  totalCompleted: 0,
+  activeRequests: 0,
+  avgCompletionDays: 0,
+  completionRate: 0,
+  lastUpdated: "2024-12-02T00:00:00Z"
+}
+```
+
+#### Create Counters Collection:
+
+**Document ID:** `requests`
+```
+{
+  count: 0,
+  year: 2024
+}
+```
+
+### 8. Get Firebase Configuration
+
+1. Go to **Project Settings** (gear icon)
+2. Scroll down to "Your apps"
+3. Click "Web" icon (</>) to add web app
+4. Register app name: "SOBAT HIJAU Web"
+5. **Copy the firebaseConfig object**
+6. Open `js/firebase-config.js`
+7. Replace the placeholder config with your actual config
+
+```javascript
+const firebaseConfig = {
+  apiKey: "YOUR_ACTUAL_API_KEY",
+  authDomain: "sobat-hijau.firebaseapp.com",
+  projectId: "sobat-hijau",
+  storageBucket: "sobat-hijau.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+---
+
+## Local Testing
+
+1. Open terminal in project directory
+2. Run a local server:
+   ```bash
+   # Using Python
+   python -m http.server 8000
+   
+   # Or using Node.js
+   npx serve
+   ```
+3. Open browser: `http://localhost:8000`
+4. Test the application:
+   - Submit a request from main page
+   - Track request using registration number
+   - Login to admin panel: `/admin.html`
+   - Manage requests and services
+
+---
 
 ## Deployment ke Cloudflare Pages
 
