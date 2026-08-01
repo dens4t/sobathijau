@@ -88,7 +88,7 @@ export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({ settin
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans" id="accessibility-widget-container">
+    <div className="fixed bottom-24 md:bottom-6 right-6 z-50 font-sans" id="accessibility-widget-container">
       {/* Tooltip Promo */}
       {showTooltip && !isOpen && (
         <div className="absolute right-16 bottom-2 mr-2 bg-emerald-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl border border-emerald-700 w-48 text-right transition-all duration-300 animate-bounce">
