@@ -72,7 +72,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, changeTab, spea
         {/* Center FAB — Layanan */}
         <button
           onClick={() => open(CENTER.key, CENTER.label)}
-          className="absolute left-1/2 -translate-x-1/2 -top-8 flex flex-col items-center gap-0.5 select-none"
+          className="absolute left-1/2 -translate-x-1/2 -top-6 flex flex-col items-center gap-0.5 select-none"
           aria-current={activeTab === CENTER.key ? 'page' : undefined}
           aria-label="Layanan"
         >
