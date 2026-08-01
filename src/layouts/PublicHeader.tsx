@@ -72,7 +72,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ activeTab, changeTab
         </div>
       </header>
 
-      <nav className="bg-[#FFFFFF]/95 dark:bg-[#1C1917]/95 border-b border-emerald-100/60 dark:border-stone-850 backdrop-blur-md sticky top-0 z-40 shadow-sm transition-colors duration-300">
+      <nav className="hidden md:block bg-[#FFFFFF]/95 dark:bg-[#1C1917]/95 border-b border-emerald-100/60 dark:border-stone-850 backdrop-blur-md sticky top-0 z-40 shadow-sm transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-4" id="main-navigation-menu">
           <div className="grid grid-cols-5 md:flex md:space-x-1 py-1 w-full md:w-auto">
             <button onClick={() => changeTab('beranda')} className={`py-3 md:px-4 text-[10px] sm:text-xs font-bold transition flex flex-col md:flex-row items-center justify-center gap-1 md:gap-1.5 whitespace-nowrap border-b-2 ${activeTab === 'beranda' ? 'border-[#1B4332] text-[#1B4332] dark:border-emerald-400 dark:text-emerald-400 font-extrabold' : 'border-transparent text-gray-500 dark:text-stone-400 hover:text-[#1B4332] dark:hover:text-amber-400'}`}>
