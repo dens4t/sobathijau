@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, FileText, Search, Map, Globe, Bot } from 'lucide-react';
+import { Leaf, FileText, Search, Map, Globe } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: string;
@@ -23,7 +23,6 @@ const CENTER: Item = { key: 'layanan', label: 'Layanan', Icon: FileText };
 const RIGHT: Item[] = [
   { key: 'peta', label: 'Peta', Icon: Map },
   { key: 'jejaring', label: 'Jejaring', Icon: Globe },
-  { key: 'asisten', label: 'Asisten', Icon: Bot },
 ];
 
 const RegularButton: React.FC<{ item: Item; active: boolean; onClick: () => void }> = ({ item, active, onClick }) => {
@@ -58,8 +57,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, changeTab, spea
       aria-label="Navigasi utama"
     >
       <div className="relative">
-        {/* Slot grid: 2 kiri, 1 kosong (di bawah FAB), 3 kanan */}
-        <div className="grid grid-cols-6">
+        {/* Slot grid: 2 kiri, 1 kosong (di bawah FAB), 2 kanan — simetris */}
+        <div className="grid grid-cols-5">
           {LEFT.map(item => (
             <RegularButton key={item.key} item={item} active={activeTab === item.key} onClick={() => open(item.key, item.label)} />
           ))}
@@ -72,7 +71,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, changeTab, spea
         {/* Center FAB — Layanan */}
         <button
           onClick={() => open(CENTER.key, CENTER.label)}
-          className="absolute left-5/12 -translate-x-1/2 -top-6 flex flex-col items-center gap-0.5 select-none"
+          className="absolute left-1/2 -translate-x-1/2 -top-6 flex flex-col items-center gap-0.5 select-none"
           aria-current={activeTab === CENTER.key ? 'page' : undefined}
           aria-label="Layanan"
         >

@@ -8,6 +8,7 @@ import { AccessibilityWidget } from './components/AccessibilityWidget';
 import { LayananKami } from './components/LayananKami';
 import { NewsFeed } from './components/NewsFeed';
 import { BottomNav } from './components/BottomNav';
+import { AsistenFloat } from './components/AsistenFloat';
 import { TrackingSobat } from './components/TrackingSobat';
 import { AsistenHijau } from './components/AsistenHijau';
 import { PublicHeader } from './layouts/PublicHeader';
@@ -333,6 +334,7 @@ export default function App() {
           <PublicFooter changeTab={changeTab} />
 
           <BottomNav activeTab={activeTab} changeTab={changeTab} speakText={speakText} />
+          <AsistenFloat changeTab={changeTab} speakText={speakText} />
           <div className="h-24 md:hidden" />
         </div>
       )}
