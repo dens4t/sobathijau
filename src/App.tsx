@@ -333,7 +333,7 @@ export default function App() {
           <PublicFooter changeTab={changeTab} />
 
           <BottomNav activeTab={activeTab} changeTab={changeTab} speakText={speakText} />
-          <div className="h-16 md:hidden" />
+          <div className="h-24 md:hidden" />
         </div>
       )}
     </div>
