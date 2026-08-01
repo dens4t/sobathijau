@@ -178,4 +178,23 @@ final class SobatHijauApiTest extends TestCase
         $this->postJson('/api/services', ['name' => 'tanpa id'])
             ->assertStatus(422);
     }
+
+    public function test_dlh_feed_parser_extracts_berita(): void
+    {
+        $service = new \App\Services\DlhFeed;
+        $html = '
+            <img src="/assets/upload/posting/post-1.jpeg" alt="">
+            <div class="product-content">
+                <h5><a href="https://dlh.pontianak.go.id/beritadetail/177">Judul Berita DLH</a></h5>
+                <p><i class="far fa-calendar"></i>2026-07-22</p>
+            </div>
+        ';
+
+        $items = $service->parse($html);
+
+        $this->assertCount(1, $items);
+        $this->assertSame('Judul Berita DLH', $items[0]['title']);
+        $this->assertSame('2026-07-22', $items[0]['date']);
+        $this->assertSame('https://dlh.pontianak.go.id/assets/upload/posting/post-1.jpeg', $items[0]['image']);
+    }
 }

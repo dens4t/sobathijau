@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AssistantController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BootstrapController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\NetworkLinkController;
 use App\Http\Controllers\Api\NotificationController;
@@ -18,6 +19,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/submissions', [SubmissionController::class, 'store']);
 Route::get('/assistant/questions', [AssistantController::class, 'questions']);
 Route::post('/assistant', [AssistantController::class, 'answer']);
+Route::get('/feed', [FeedController::class, 'index']);
 
 Route::middleware('auth.token')->group(function (): void {
     Route::get('/services', [ServiceController::class, 'index']);

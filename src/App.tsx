@@ -6,6 +6,7 @@ import type { Submission } from './types';
 import { nowSql, createTimeline } from './lib/timeline';
 import { AccessibilityWidget } from './components/AccessibilityWidget';
 import { LayananKami } from './components/LayananKami';
+import { NewsFeed } from './components/NewsFeed';
 import { TrackingSobat } from './components/TrackingSobat';
 import { AsistenHijau } from './components/AsistenHijau';
 import { PublicHeader } from './layouts/PublicHeader';
@@ -259,6 +260,8 @@ export default function App() {
                     <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse rounded-2xl"></div>}>
                       <MapView locations={locations} categories={categories} />
                     </Suspense>
+
+                    <NewsFeed />
                   </div>
                 )}
 
