@@ -75,3 +75,30 @@ PUT/DEL  /api/{resource}/{id}
 ```bash
 php artisan test
 ```
+
+## Feed Berita & Sosial Media
+
+Beranda menampilkan feed `GET /api/feed` (sumber resmi, cache server-side):
+
+- **Berita DLH** — auto-fetch dari `dlh.pontianak.go.id/berita` (cache 1 jam). Parser di `app/Services/DlhFeed.php`.
+- **Instagram @dinaslingkunganhidup_pontianak** — via Meta Graph API (cache 15 menit). Service: `app/Services/InstagramFeed.php`.
+
+### Aktivasi feed Instagram
+
+Instagram tidak bisa di-scrape server-side (diblokir Meta). Jalur resmi = Meta Graph API:
+
+1. Instagram → Setelan → Akun → **Beralih ke Akun Profesional** (kategori Layanan Publik/Kantor Pemerintah).
+2. Hubungkan ke **Halaman Facebook** yang dikelola.
+3. developers.facebook.com → **Buat Aplikasi** (Business) → tambah produk **Instagram Graph API**.
+4. Generate User Token (permission `instagram_basic`, `pages_show_list`); ambil:
+   - `META_IG_USER_ID` = ID akun IG bisnis (dari `/me/accounts`)
+   - `META_ACCESS_TOKEN` = long-lived token (masa aktif 60 hari)
+5. Isi di `.env`:
+
+```bash
+META_ACCESS_TOKEN=
+META_IG_USER_ID=
+```
+
+lalu `php artisan config:clear && php artisan cache:clear`. Feed IG otomatis muncul di beranda.
+
