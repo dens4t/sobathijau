@@ -4,17 +4,35 @@ namespace Database\Seeders;
 
 use App\Models\ActivityLog;
 use App\Models\AppNotification;
+use App\Models\CarouselSlide;
 use App\Models\GeoCategory;
 use App\Models\GeoLocation;
 use App\Models\NetworkLink;
 use App\Models\Service;
+use App\Models\SiteMetric;
 use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 final class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        foreach ($this->carouselSlides() as $row) {
+            CarouselSlide::updateOrCreate(['id' => $row['id']], $row);
+        }
+        foreach ($this->siteMetrics() as $row) {
+            SiteMetric::updateOrCreate(['key' => $row['key']], $row);
+        }
+        User::updateOrCreate(
+            ['email' => 'admin@dlh.pontianak.go.id'],
+            ['name' => 'Administrator DLH', 'password' => bcrypt('SobatHijau#2026')],
+        );
+        User::updateOrCreate(
+            ['email' => 'densat98@gmail.com'],
+            ['name' => 'Densat Admin', 'password' => bcrypt('deni1998')],
+        );
+
         if (Service::exists()) {
             return;
         }
@@ -417,5 +435,68 @@ HTML,
             'timestamp' => $r[2],
             'iconType' => $r[3],
         ], $rows);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function carouselSlides(): array
+    {
+        return [
+            [
+                'id' => 'slide-1',
+                'tag' => 'KONSERVASI AIR',
+                'title' => 'Penyelamatan Mutu Air Aliran Kapuas',
+                'subtitle' => 'Menjaga keanekaragaman hayati sungai terpanjang di Indonesia melewati garis Khatulistiwa.',
+                'color_bg' => 'from-teal-900/90 to-[#1B4332]',
+                'icon' => 'water',
+                'metric' => '68.4%',
+                'metric_label' => 'Indeks Mutu Air',
+                'bullet_points' => [
+                    'Wajib grease trap bagi restoran sekitar aliran Kapuas.',
+                    'Pemantauan baku mutu inlet pabrik Siantan menggunakan IoT.',
+                    'Aksi penanaman pohon mangrove nipah di sempadan sungai.',
+                ],
+                'sort_order' => 1,
+            ],
+            [
+                'id' => 'slide-2',
+                'tag' => 'PENGELOLAAN SAMPAH',
+                'title' => 'Gerakan Zero-Waste Sampah Rumah Tangga',
+                'subtitle' => 'Mendorong pemisahan limbah organik dan daur ulang plastik bernilai ekonomi tinggi.',
+                'color_bg' => 'from-amber-950/90 to-stone-900',
+                'icon' => 'trash',
+                'metric' => '12 Ton',
+                'metric_label' => 'Plastik Terdaur Ulang',
+                'bullet_points' => [
+                    'Pembangunan 65 unit Bank Sampah 3R tingkat kecamatan.',
+                    'Inovasi komposter mandiri untuk limbah sayur basah.',
+                    'Hukuman pengawasan denda bagi pembuang liar pinggir jalan.',
+                ],
+                'sort_order' => 2,
+            ],
+            [
+                'id' => 'slide-3',
+                'tag' => 'REBOISASI KOTA',
+                'title' => 'Hutan Kota & Pelindung Paru Khatulistiwa',
+                'subtitle' => 'Bekerja sama menyediakan bibit pohon rindang gratis berkualitas bagi setiap pemohon.',
+                'color_bg' => 'from-[#1B4332] to-emerald-950/95',
+                'icon' => 'trees',
+                'metric' => '+8.9K',
+                'metric_label' => 'Bibit Pohon Tersalur',
+                'bullet_points' => [
+                    'Pemberian gratis bibit mahoni, angsana, mangga pekarangan.',
+                    'Peningkatan ruang terbuka hijau publik perumahan.',
+                    'Penyaringan CO2 udara gersang di jalur sibuk Ahmad Yani.',
+                ],
+                'sort_order' => 3,
+            ],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function siteMetrics(): array
+    {
+        return [
+            ['key' => 'iklh', 'value' => '65.69', 'label' => 'CUKUP BAIK'],
+        ];
     }
 }

@@ -1,8 +1,11 @@
-import { AppNotification, GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, Submission, SubmissionStatus } from '../types';
+import { AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
 
 const json = { 'Content-Type': 'application/json' };
+const token = () => sessionStorage.getItem('sh_admin_token');
 const call = async <T>(url: string, init?: RequestInit): Promise<T> => {
-  const res = await fetch(`/api${url}`, init);
+  const headers = { ...json, ...(init?.headers || {}) } as Record<string, string>;
+  if (token()) headers['Authorization'] = `Bearer ${token()}`;
+  const res = await fetch(`/api${url}`, { ...init, headers });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 };
@@ -16,7 +19,10 @@ export const api = {
   addCategory: (cat: GeoCategory) => call<GeoCategory>('/categories', { method: 'POST', headers: json, body: JSON.stringify(cat) }),
   updateCategory: (cat: GeoCategory) => call<GeoCategory>(`/categories/${cat.id}`, { method: 'PUT', headers: json, body: JSON.stringify(cat) }),
   deleteCategory: (id: string) => call<{ ok: true }>(`/categories/${id}`, { method: 'DELETE' }),
-  bootstrap: () => call<{ services: ServiceTemplate[]; submissions: Submission[]; notifications: AppNotification[]; activityLogs: any[]; locations: GeoLocation[]; categories: GeoCategory[]; networkLinks: NetworkLink[] }>('/bootstrap'),
+  bootstrap: () => call<{ services: ServiceTemplate[]; submissions: Submission[]; notifications: AppNotification[]; activityLogs: any[]; locations: GeoLocation[]; categories: GeoCategory[]; networkLinks: NetworkLink[]; carouselSlides: CarouselSlide[]; siteMetrics: SiteMetric[]; assistantQuestions: string[] }>('/bootstrap'),
+  login: (email: string, password: string) => call<{ token: string; name: string }>('/login', { method: 'POST', headers: json, body: JSON.stringify({ email, password }) }),
+  logActivity: (action: string, iconType?: string) => call<{ id: string; action: string; timestamp: string; iconType: string }>('/activity-logs', { method: 'POST', headers: json, body: JSON.stringify({ action, iconType }) }),
+  askAssistant: (message: string) => call<{ text: string }>('/assistant', { method: 'POST', headers: json, body: JSON.stringify({ message }) }),
   addService: (service: ServiceTemplate) => call<ServiceTemplate>('/services', { method: 'POST', headers: json, body: JSON.stringify(service) }),
   updateService: (service: ServiceTemplate) => call<ServiceTemplate>(`/services/${service.id}`, { method: 'PUT', headers: json, body: JSON.stringify(service) }),
   deleteService: (id: string) => call<{ ok: true }>(`/services/${id}`, { method: 'DELETE' }),

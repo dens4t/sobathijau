@@ -5,6 +5,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Volume2, Sparkles, AlertCircle, HelpCircle } from 'lucide-react';
+import { api } from '../lib/api';
+import { useStore } from '../store/useStore';
 
 interface Message {
   id: string;
@@ -30,18 +32,11 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const quickQuestions = useStore(s => s.assistantQuestions);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
-
-  const quickQuestions = [
-    'Bagaimana cara mendaftar SPPL untuk UMKM?',
-    'Apa saja syarat uji sampel air limbah?',
-    'Bagaimana cara melacak berkas permohonan?',
-    'Cara mendapatkan bibit tanaman pelindung gratis?',
-    'Cara melaporkan pembakaran sampah liar?'
-  ];
 
   const handleSend = (textToSend: string) => {
     if (!textToSend.trim()) return;
@@ -57,40 +52,30 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      let responseText = '';
-      const prompt = textToSend.toLowerCase();
-
-      if (prompt.includes('sppl') || prompt.includes('izin') || prompt.includes('rekomendasi')) {
-        responseText = 'Untuk mendaftar rekomendasi SPPL di Sobat Hijau, Anda perlu menyiapkan: 1. NIK/KTP pemohon, 2. Nama & alamat kegiatan usaha, 3. Ukuran luas bangunan usaha. Anda dapat mengisi formulir dinamis langsung pada menu "Layanan Kami > Rekomendasi Dokumen Lingkungan SPPL". Setelah dikirim, Anda akan menerima Kode Pelacakan (misal: SH-2026-XXXXX) untuk melacak kemajuan dokumen secara real-time!';
-      } else if (prompt.includes('uji') || prompt.includes('air') || prompt.includes('lab') || prompt.includes('parameter') || prompt.includes('sampel')) {
-        responseText = 'Sobat Hijau menyediakan layanan laboratorium DLH untuk uji air bersih, air limbah, tanah, maupun tingkat kebisingan. Anda cukup mengisi formulir pada kategori "Laboratorium", memilih parameter uji seperti pH, BOD/COD atau logam berat, lalu mengantarkan sampel fisik Anda ke kantor DLH sesuai tanggal rencana pengantaran yang Anda input.';
-      } else if (prompt.includes('bibit') || prompt.includes('tanaman') || prompt.includes('pohon') || prompt.includes('gratis') || prompt.includes('hutan')) {
-        responseText = 'Dinas Lingkungan Hidup membagikan bibit tanaman GRATIS untuk aksi penghijauan masyarakat, organisasi, atau sekolah. Di portal Sobat Hijau, pilih menu "Permohonan Bibit Tanaman", tentukan jumlah dan jenis bibit (pohon buah, tanaman hias, atau pelindung), serta tanggal aksi penanaman Anda. Tim kami akan memverifikasi dan menyiapkan bibit untuk diambil!';
-      } else if (prompt.includes('lacak') || prompt.includes('pelacakan') || prompt.includes('kode') || prompt.includes('tracking')) {
-        responseText = 'Untuk melacak status permohonan Anda, silakan catat Kode Pelacakan (contoh: SH-2026-04981) yang didapat setelah mengirim formulir. Masukkan kode tersebut di menu "Lacak Permohonan" di navigasi atas. Anda akan dapat melihat timeline proses pengerjaan dari pembukaan berkas, survei lapangan, hingga penerbitan surat selesai.';
-      } else if (prompt.includes('lapork') || prompt.includes('aduan') || prompt.includes('pencemaran') || prompt.includes('bakar') || prompt.includes('limbah')) {
-        responseText = 'Jika Anda menemukan pencemaran lingkungan (misalnya pembuangan limbah sisa pabrik ke sungai atau pembakaran sampah liar secara besar-besaran), silakan buat laporan di menu "Pengaduan Kasus Pencemaran". Anda bisa memilih nama "Anonim" demi privasi, sertakan lokasi detail, kronologi kejadian, dan no WA aktif agar pengawas lingkungan DLH kami dapat berkoordinasi langsung.';
-      } else {
-        responseText = 'Terima kasih atas pertanyaan Anda mengenai Dinas Lingkungan Hidup. Melalui portal Sobat Hijau ini, Anda dapat mengajukan dokumen SPPL, pengujian uji lab sampel udara/air, pengajuan bibit, dan pengaduan pencemaran lingkungan. Semua permohonan ini bersifat dinamis, dapat dilacak secara instan, dan dirancang mudah digunakan oleh seluruh lapisan masyarakat termasuk penyandang disabilitas.';
-      }
-
+    api.askAssistant(textToSend).then(({ text }) => {
       const aiMsg: Message = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
-        text: responseText,
+        text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages(prev => [...prev, aiMsg]);
       setIsTyping(false);
 
-      // Speak if TTS is active
       if (ttsEnabled) {
-        onSpeak(responseText);
+        onSpeak(text);
       }
-    }, 1100);
+    }).catch(() => {
+      const aiMsg: Message = {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        text: 'Maaf, saya tidak dapat menjawab saat ini. Silakan coba lagi sebentar lagi.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, aiMsg]);
+      setIsTyping(false);
+    });
   };
 
   return (

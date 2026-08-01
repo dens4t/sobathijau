@@ -21,7 +21,7 @@ const MapView = React.lazy(() => import('./components/MapView').then(m => ({ def
 export default function App() {
   const { 
     initStore, isInitialized, services, submissions, locations, categories, networkLinks,
-    addSubmission, activityLogs, refreshActivityLogs 
+    addSubmission, activityLogs, refreshActivityLogs, carouselSlides, siteMetrics 
   } = useStore();
 
   const [portal, setPortal] = useState<'guest' | 'admin'>('guest');
@@ -57,6 +57,7 @@ export default function App() {
 
   const handleAdminLogout = () => {
     sessionStorage.removeItem('sh_admin_auth');
+    sessionStorage.removeItem('sh_admin_token');
     setIsAuthenticated(false);
     navigateTo('/admin/login');
     addToast('Anda telah keluar dari panel admin.', 'info');
@@ -244,15 +245,15 @@ export default function App() {
                         <div className="bg-emerald-50 rounded-2xl border p-5 flex flex-col justify-between text-left shadow-sm">
                           <h3 className="text-[10px] font-extrabold text-slate-500 uppercase">INDEKS KUALITAS LINGKUNGAN HIDUP KOTA PONTIANAK</h3>
                           <div className="flex items-baseline gap-2 mt-2">
-                            <span className="text-3xl md:text-4xl font-black text-[#1B4332] font-mono">65.69</span>
-                            <span className="text-[9px] font-bold text-emerald-800 bg-[#E5F5EB] px-2 py-0.5 rounded-full font-mono">CUKUP BAIK</span>
+                            <span className="text-3xl md:text-4xl font-black text-[#1B4332] font-mono">{(siteMetrics.find(m => m.key === 'iklh') || { value: '—' }).value}</span>
+                            <span className="text-[9px] font-bold text-emerald-800 bg-[#E5F5EB] px-2 py-0.5 rounded-full font-mono">{(siteMetrics.find(m => m.key === 'iklh') || { label: '—' }).label}</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse rounded-2xl"></div>}>
-                      <EcoCarousel />
+                      <EcoCarousel slides={carouselSlides} />
                     </Suspense>
 
                     <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse rounded-2xl"></div>}>

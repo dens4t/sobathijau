@@ -13,6 +13,13 @@ final class SobatHijauApiTest extends TestCase
     {
         parent::setUp();
         $this->seed();
+
+        $token = $this->postJson('/api/login', [
+            'email' => 'admin@dlh.pontianak.go.id',
+            'password' => 'SobatHijau#2026',
+        ])->assertOk()->json('token');
+
+        $this->withHeader('Authorization', 'Bearer '.$token);
     }
 
     public function test_bootstrap_returns_all_seeded_collections(): void
@@ -27,9 +34,68 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonCount(12, 'locations')
             ->assertJsonCount(4, 'categories')
             ->assertJsonCount(5, 'networkLinks')
+            ->assertJsonCount(3, 'carouselSlides')
+            ->assertJsonCount(1, 'siteMetrics')
+            ->assertJsonCount(5, 'assistantQuestions')
             ->assertJsonPath('services.0.id', 'sppl')
             ->assertJsonPath('submissions.0.id', 'SH-2026-04981')
-            ->assertJsonPath('services.0.isCustom', false);
+            ->assertJsonPath('services.0.isCustom', false)
+            ->assertJsonPath('carouselSlides.0.icon', 'water')
+            ->assertJsonPath('carouselSlides.0.colorBg', 'from-teal-900/90 to-[#1B4332]')
+            ->assertJsonPath('carouselSlides.0.metricLabel', 'Indeks Mutu Air')
+            ->assertJsonCount(3, 'carouselSlides.0.bulletPoints')
+            ->assertJsonMissingPath('carouselSlides.0.bullet_points')
+            ->assertJsonPath('siteMetrics.0.key', 'iklh')
+            ->assertJsonPath('siteMetrics.0.value', '65.69');
+    }
+
+    public function test_login_rejects_bad_credentials(): void
+    {
+        $this->postJson('/api/login', [
+            'email' => 'admin@dlh.pontianak.go.id',
+            'password' => 'salah',
+        ])->assertStatus(401);
+    }
+
+    public function test_admin_routes_require_token(): void
+    {
+        $this->withHeader('Authorization', 'Bearer invalid')
+            ->postJson('/api/services', ['id' => 'x', 'name' => 'x'])
+            ->assertStatus(401);
+    }
+
+    public function test_public_submission_store_works_without_token(): void
+    {
+        $this->postJson('/api/submissions', [
+            'id' => 'SH-PUBLIC-1',
+            'serviceId' => 'sppl',
+            'serviceName' => 'Rekomendasi Dokumen Lingkungan SPPL',
+            'applicantName' => 'Test Publik',
+            'status' => 'DIAJUKAN',
+            'submittedAt' => '2026-08-01 12:00',
+            'timeline' => [],
+            'formData' => [],
+        ])->assertOk()->assertJsonPath('id', 'SH-PUBLIC-1');
+
+        $this->assertDatabaseHas('submissions', ['id' => 'SH-PUBLIC-1']);
+    }
+
+    public function test_assistant_answers_rule_based(): void
+    {
+        $this->postJson('/api/assistant', ['message' => 'Bagaimana cara mendaftar SPPL?'])
+            ->assertOk()
+            ->assertJsonPath('text', fn (string $text) => str_contains($text, 'NIK/KTP'));
+
+        $this->getJson('/api/assistant/questions')->assertOk()->assertJsonCount(5);
+    }
+
+    public function test_activity_log_store_creates_real_row(): void
+    {
+        $this->postJson('/api/activity-logs', ['action' => 'Admin menguji audit log', 'iconType' => 'info'])
+            ->assertOk()
+            ->assertJsonPath('action', 'Admin menguji audit log');
+
+        $this->assertDatabaseCount('activity_logs', 6);
     }
 
     public function test_service_crud_roundtrip(): void

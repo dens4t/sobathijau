@@ -24,7 +24,7 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
   const [isUploading, setIsUploading] = useState<string | null>(null);
 
-  const categories = ['ALL', 'Izin & Rekomendasi', 'Laboratorium', 'Kemitraan & Edukasi', 'Layanan Umum'];
+  const categories = ['ALL', ...new Set(services.map(s => s.category).filter(Boolean))];
 
   const filteredServices = services.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 

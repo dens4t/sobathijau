@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, Submission, AppNotification, AccessibilitySettings, SubmissionStatus } from '../types';
+import { AccessibilitySettings, AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
 import { api } from '../lib/api';
 import { defaultServices, defaultSubmissions } from '../data/defaultServices';
 import { defaultLocations } from '../data/defaultLocations';
@@ -15,6 +15,9 @@ interface AppState {
   locations: GeoLocation[];
   categories: GeoCategory[];
   networkLinks: NetworkLink[];
+  carouselSlides: CarouselSlide[];
+  siteMetrics: SiteMetric[];
+  assistantQuestions: string[];
   accessibility: AccessibilitySettings;
   isInitialized: boolean;
 
@@ -42,7 +45,7 @@ interface AppState {
   addLocalNotification: (notif: AppNotification) => void;
 
   updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
-  refreshActivityLogs: () => void;
+  refreshActivityLogs: () => Promise<void>;
 
   addNetworkLink: (link: NetworkLink) => Promise<void>;
   updateNetworkLink: (link: NetworkLink) => Promise<void>;
@@ -55,14 +58,11 @@ export const useStore = create<AppState>((set, get) => ({
   locations: defaultLocations,
   categories: defaultCategories,
   notifications: [],
-  activityLogs: [
-    { id: 'log-1', action: 'Login berhasil sebagai Administrator DLH Pontianak', timestamp: '2026-06-03 12:44', iconType: 'success' },
-    { id: 'log-2', action: 'Memverifikasi kelayakan teknis berkas PT. Pontianak Tirta Agung', timestamp: '2026-06-03 11:20', iconType: 'info' },
-    { id: 'log-3', action: 'Menerbitkan rekomendasi kelayakan UKL-UPL Bapak Ahmad Subardjo', timestamp: '2026-06-03 09:12', iconType: 'success' },
-    { id: 'log-4', action: 'Memperbarui koordinat sebaran TPS 3R di peta lingkungan', timestamp: '2026-06-02 16:30', iconType: 'info' },
-    { id: 'log-5', action: 'Menambahkan kuesioner baru untuk layanan Pengujian Kebisingan', timestamp: '2026-06-02 14:15', iconType: 'success' },
-  ],
+  activityLogs: [],
   networkLinks: [] as NetworkLink[],
+  carouselSlides: [] as CarouselSlide[],
+  siteMetrics: [] as SiteMetric[],
+  assistantQuestions: [] as string[],
   accessibility: {
     textSize: 'normal',
     contrast: 'normal',
@@ -83,6 +83,9 @@ export const useStore = create<AppState>((set, get) => ({
         networkLinks: data.networkLinks || [],
         notifications: data.notifications,
         activityLogs: data.activityLogs.length ? data.activityLogs : get().activityLogs,
+        carouselSlides: data.carouselSlides,
+        siteMetrics: data.siteMetrics,
+        assistantQuestions: data.assistantQuestions,
         isInitialized: true
       });
     } catch (err) {
@@ -202,13 +205,13 @@ export const useStore = create<AppState>((set, get) => ({
     });
   },
 
-  refreshActivityLogs: () => {
-    set(s => ({
-      activityLogs: [
-        { id: `log-${Date.now()}`, action: 'Admin menyegarkan catatan audit log lokal (refresh log)', timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16), iconType: 'info' },
-        ...s.activityLogs
-      ]
-    }));
+  refreshActivityLogs: async () => {
+    try {
+      const log = await api.logActivity('Admin menyegarkan catatan audit log', 'info');
+      set(s => ({ activityLogs: [log, ...s.activityLogs] }));
+    } catch {
+      // biarkan state tetap
+    }
   },
 
   addNetworkLink: async (link) => {

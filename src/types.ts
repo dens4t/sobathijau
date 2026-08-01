@@ -101,3 +101,21 @@ export interface NetworkLink {
   isActive: boolean;
 }
 
+export interface CarouselSlide {
+  id: string;
+  tag: string;
+  title: string;
+  subtitle: string;
+  colorBg: string;
+  icon: string;
+  metric: string;
+  metricLabel: string;
+  bulletPoints: string[];
+}
+
+export interface SiteMetric {
+  key: string;
+  value: string;
+  label: string;
+}
+

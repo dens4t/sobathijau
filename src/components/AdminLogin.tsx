@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogIn, Eye, EyeOff, ShieldCheck, AlertCircle } from 'lucide-react';
+import { api } from '../lib/api';
 
 interface AdminLoginProps {
   onLogin: () => void;
@@ -29,17 +30,17 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
     setError('');
 
     if (!username.trim() || !password.trim()) {
-      setError('Username dan password wajib diisi.');
+      setError('Email dan password wajib diisi.');
       return;
     }
 
     setIsLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-
-    if (username === 'admin' && password === 'admin') {
+    try {
+      const { token } = await api.login(username.trim(), password);
+      sessionStorage.setItem('sh_admin_token', token);
       onLogin();
-    } else {
-      setError('Username atau password salah. Silakan coba lagi.');
+    } catch {
+      setError('Email atau password salah. Silakan coba lagi.');
       setIsLoading(false);
     }
   };
@@ -124,13 +125,13 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-bold text-white/50 uppercase tracking-wider">Username</label>
+              <label className="block text-[10px] font-bold text-white/50 uppercase tracking-wider">Email</label>
               <div className="relative">
                 <input
-                  type="text"
+                  type="email"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Masukkan username"
+                  placeholder="admin@dlh.pontianak.go.id"
                   autoComplete="username"
                   autoFocus
                   className="w-full px-3.5 py-2.5 pl-9 text-xs rounded-xl bg-white/5 border border-white/10 text-white/90 placeholder-white/20 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
