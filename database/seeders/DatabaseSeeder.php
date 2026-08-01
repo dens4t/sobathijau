@@ -1,0 +1,421 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\ActivityLog;
+use App\Models\AppNotification;
+use App\Models\GeoCategory;
+use App\Models\GeoLocation;
+use App\Models\NetworkLink;
+use App\Models\Service;
+use App\Models\Submission;
+use Illuminate\Database\Seeder;
+
+final class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        if (Service::exists()) {
+            return;
+        }
+
+        foreach ($this->services() as $row) {
+            Service::create($row);
+        }
+        foreach ($this->submissions() as $row) {
+            Submission::create($row);
+        }
+        foreach ($this->locations() as $row) {
+            GeoLocation::create($row);
+        }
+        foreach ($this->categories() as $row) {
+            GeoCategory::create($row);
+        }
+        foreach ($this->networkLinks() as $row) {
+            NetworkLink::create($row);
+        }
+        foreach ($this->notifications() as $row) {
+            AppNotification::create($row);
+        }
+        foreach ($this->activityLogs() as $row) {
+            ActivityLog::create($row);
+        }
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function services(): array
+    {
+        return [
+            [
+                'id' => 'sppl',
+                'name' => 'Rekomendasi Dokumen Lingkungan SPPL',
+                'category' => 'Izin & Rekomendasi',
+                'icon' => 'FileText',
+                'description' => 'Persetujuan Surat Pernyataan Kesanggupan Pengelolaan dan Pemantauan Lingkungan Hidup untuk usaha mikro dan kecil.',
+                'isCustom' => false,
+                'fields' => [
+                    ['id' => 'nama_pemohon', 'label' => 'Nama Lengkap Pemohon / Penanggung Jawab', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Joko Susilo, S.H.'],
+                    ['id' => 'nik', 'label' => 'Nomor Induk Kependudukan (NIK)', 'type' => 'text', 'required' => true, 'placeholder' => '16 digit nomor NIK sesuai KTP'],
+                    ['id' => 'nama_usaha', 'label' => 'Nama Usaha / Kegiatan', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: CV. Berkah Abadi Sejahtera'],
+                    ['id' => 'jenis_usaha', 'label' => 'Sektor Kegiatan Usaha', 'type' => 'select', 'required' => true, 'options' => ['Perdagangan Ritel', 'Kuliner / Restoran', 'Fasilitas Kesehatan Tingkat Pertama', 'Bengkel Kendaraan', 'Jasa / Kantor', 'Lainnya']],
+                    ['id' => 'alamat_usaha', 'label' => 'Alamat Lokasi Kegiatan Usaha', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Masukkan nama jalan, nomor, RT/RW, dan kelurahan'],
+                    ['id' => 'luas_bangunan', 'label' => 'Luas Lahan / Bangunan Usaha (m²)', 'type' => 'number', 'required' => true, 'placeholder' => 'Contoh: 150'],
+                    ['id' => 'kapasitas_produksi', 'label' => 'Estimasi Volume Sampah/Limbah per Hari (Kg)', 'type' => 'number', 'required' => false, 'placeholder' => 'Contoh: 5'],
+                ],
+            ],
+            [
+                'id' => 'lab-air',
+                'name' => 'Pengujian Sampah / Air / Udara Laboratorium',
+                'category' => 'Laboratorium',
+                'icon' => 'Droplet',
+                'description' => 'Pengujian kualitas lingkungan (air bersih, air limbah, tanah, maupun tingkat kebisingan) di Laboratorium DLH.',
+                'isCustom' => false,
+                'fields' => [
+                    ['id' => 'nama_instansi', 'label' => 'Nama Perusahaan / Instansi Pemohon', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: PT. Pontianak Tirta Agung'],
+                    ['id' => 'no_kontak', 'label' => 'No. Handphone / WhatsApp Aktif', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: 081234567890'],
+                    ['id' => 'jenis_sampel', 'label' => 'Jenis Sampel Lingkungan', 'type' => 'select', 'required' => true, 'options' => ['Air Limbah Industri', 'Air Bersih / Sumur Bor', 'Udara Ambien (Kebisingan)', 'Air Sungai / Danau', 'Limbah Padat / Tanah']],
+                    ['id' => 'parameter_uji', 'label' => 'Parameter Pengujian Utama', 'type' => 'checkbox_group', 'required' => true, 'options' => ['pH & Suhu', 'BOD & COD (Beban Organik)', 'Kadar Logam Berat (Pb, Cd, Hg)', 'Total Suspended Solids (TSS)', 'Kebisingan & Getaran']],
+                    ['id' => 'jumlah_titik', 'label' => 'Jumlah Titik Sampling', 'type' => 'number', 'required' => true, 'placeholder' => 'Contoh: 2'],
+                    ['id' => 'tanggal_antar', 'label' => 'Rencana Tanggal Pengantaran Sampel', 'type' => 'date', 'required' => true],
+                ],
+            ],
+            [
+                'id' => 'bibit-gratis',
+                'name' => 'Permohonan Bibit Tanaman Penghijauan',
+                'category' => 'Kemitraan & Edukasi',
+                'icon' => 'Leaf',
+                'description' => 'Layanan penyediaan bibit tanaman / pohon pelindung gratis untuk menghijaukan pemukiman, sekolah, atau taman publik.',
+                'isCustom' => false,
+                'fields' => [
+                    ['id' => 'nama_organisasi', 'label' => 'Nama Pemohon / Kelompok Masyarakat / Sekolah', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Karang Taruna Kelurahan Banjar Serasan'],
+                    ['id' => 'alamat_tujuan', 'label' => 'Lokasi Rencana Penanaman', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Sebutkan nama jalan, wilayah, atau nama sekolah/tempat'],
+                    ['id' => 'jenis_bibit', 'label' => 'Pilihan Jenis Bibit Tanaman', 'type' => 'select', 'required' => true, 'options' => ['Pohon Pelindung (Mahoni, Angsana)', 'Pohon Buah (Mangga, Rambutan, Jambu)', 'Tanaman Hias / Perimbun (Pucuk Merah, Bougenville)']],
+                    ['id' => 'jumlah_pohon', 'label' => 'Jumlah Bibit yang Diperlukan (Batang)', 'type' => 'number', 'required' => true, 'placeholder' => 'Contoh: 25'],
+                    ['id' => 'rencana_tanam', 'label' => 'Rencana Tanggal Aksi Penanaman', 'type' => 'date', 'required' => true],
+                    ['id' => 'deskripsi_kegiatan', 'label' => 'Deskripsi Singkat Tujuan Kegiatan', 'type' => 'textarea', 'required' => false, 'placeholder' => 'Sebutkan tujuan penanaman, misal: memperingati Hari Bumi'],
+                ],
+            ],
+            [
+                'id' => 'aduan-lingkungan',
+                'name' => 'Pengaduan Kasus Pencemaran Lingkungan',
+                'category' => 'Layanan Umum',
+                'icon' => 'ShieldAlert',
+                'description' => 'Wadah pengaduan resmi atas tindak pencemaran air, udara, pembakaran sampah ilegal, atau pembuangan limbah B3 sembarangan.',
+                'isCustom' => false,
+                'fields' => [
+                    ['id' => 'nama_pelapor', 'label' => 'Nama Pelapor (Gunakan "Anonim" jika ingin dirahasiakan)', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Anonim atau Budi Setiawan'],
+                    ['id' => 'kontak_pelapor', 'label' => 'No. WhatsApp untuk Koordinasi Lapangan', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: 0811XXXXXX. Rahasia dijamin.'],
+                    ['id' => 'jenis_pencemaran', 'label' => 'Kategori Kasus', 'type' => 'select', 'required' => true, 'options' => ['Pembuangan Limbah Cair ke Parit/Sungai', 'Polusi Udara / Asap Cerobong Pabrik', 'Aktivitas Pembakaran Sampah Liar Sekala Besar', 'Pencemaran Suara / Kebisingan Industri', 'Penumpukan Sampah Ilegal di Fasilitas Publik']],
+                    ['id' => 'lokasi_kejadian', 'label' => 'Lokasi Detail Kejadian', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Sebutkan Kelurahan, Kecamatan, dan ciri/patokan lokasi terdekat'],
+                    ['id' => 'deskripsi_kronologi', 'label' => 'Deskripsi Singkat Keadaan / Kronologi', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Tuliskan seberapa sering polusi terjadi, dampaknya pada warga, dll.'],
+                ],
+            ],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function submissions(): array
+    {
+        $step = static fn (string $status, string $title, string $description, string $updatedAt, bool $completed): array => [
+            'status' => $status,
+            'title' => $title,
+            'description' => $description,
+            'updatedAt' => $updatedAt,
+            'isCompleted' => $completed,
+        ];
+        $berkas = 'Berkas Diterima';
+        $deskBerkas = 'Permohonan Anda berhasil masuk ke database Sobat Hijau DLH.';
+        $verif = 'Verifikasi Administrasi';
+        $deskVerif = 'Pemeriksaan kesesuaian berkas dan kelengkapan data oleh petugas.';
+        $survei = 'Pemeriksaan Teknis / Lapangan';
+        $deskSurvei = 'Peninjauan langsung ke lokasi dan identifikasi parameter lapangan.';
+        $rekom = 'Penerbitan Surat Rekomendasi';
+        $deskRekom = 'Format naskah surat dan validasi dari kepala dinas.';
+        $selesai = 'Selesai & Serah Terima';
+        $deskSelesai = 'Dokumen final telah diterbitkan dan siap diunduh atau diambil.';
+
+        return [
+            [
+                'id' => 'SH-2026-04981',
+                'serviceId' => 'sppl',
+                'serviceName' => 'Rekomendasi Dokumen Lingkungan SPPL',
+                'submittedAt' => '2026-05-28 08:30',
+                'status' => 'SELESAI',
+                'applicantName' => 'Joko Susilo, S.H.',
+                'formData' => [
+                    'nama_pemohon' => 'Joko Susilo, S.H.',
+                    'nik' => '6171012809880002',
+                    'nama_usaha' => 'CV. Berkah Abadi Sejahtera',
+                    'jenis_usaha' => 'Kuliner / Restoran',
+                    'alamat_usaha' => 'Jl. Ahmad Yani No. 12, Kel. Akraya, Kec. Pontianak Selatan',
+                    'luas_bangunan' => '150',
+                    'kapasitas_produksi' => '5',
+                ],
+                'timeline' => [
+                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-05-28 08:30', true),
+                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-05-28 15:30', true),
+                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '2026-05-29 11:00', true),
+                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '2026-05-30 09:15', true),
+                    $step('SELESAI', $selesai, $deskSelesai, '2026-06-01 14:00', true),
+                ],
+            ],
+            [
+                'id' => 'SH-2026-08123',
+                'serviceId' => 'lab-air',
+                'serviceName' => 'Pengujian Sampah / Air / Udara Laboratorium',
+                'submittedAt' => '2026-05-26 09:12',
+                'status' => 'SURVEY_TEKNIS',
+                'applicantName' => 'PT. Pontianak Tirta Agung',
+                'formData' => [
+                    'nama_instansi' => 'PT. Pontianak Tirta Agung',
+                    'no_kontak' => '08125439123',
+                    'jenis_sampel' => 'Air Sungai / Danau',
+                    'parameter_uji' => ['pH & Suhu', 'BOD & COD (Beban Organik)', 'Total Suspended Solids (TSS)'],
+                    'jumlah_titik' => '2',
+                    'tanggal_antar' => '2026-06-05',
+                ],
+                'timeline' => [
+                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-01 08:30', true),
+                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-01 14:15', true),
+                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '2026-06-02 09:00', true),
+                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
+                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
+                ],
+            ],
+            [
+                'id' => 'SH-2026-09255',
+                'serviceId' => 'bibit-gratis',
+                'serviceName' => 'Permohonan Bibit Tanaman Penghijauan',
+                'submittedAt' => '2026-06-02 07:45',
+                'status' => 'DIAJUKAN',
+                'applicantName' => 'Karang Taruna Banjar Serasan',
+                'formData' => [
+                    'nama_organisasi' => 'Karang Taruna Banjar Serasan',
+                    'alamat_tujuan' => 'Jl. Tritura Gg. Lingkungan Sehat No. 4, Pontianak Timur',
+                    'jenis_bibit' => 'Pohon Buah (Mangga, Rambutan, Jambu)',
+                    'jumlah_pohon' => '30',
+                    'rencana_tanam' => '2026-06-14',
+                    'deskripsi_kegiatan' => 'Gerakan Penghijauan Lingkungan RW 05 Pontianak Timur dalam rangka menyambut Hari Lingkungan Hidup.',
+                ],
+                'timeline' => [
+                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-02 08:30', true),
+                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-02 14:15', false),
+                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '-', false),
+                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
+                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
+                ],
+            ],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function locations(): array
+    {
+        $rows = [
+            ['loc-tps-01', 'TPS 3R Siantan Hilir', 'TPS & TPA', 0.0351, 109.3395, 'Jl. Siantan Hilir, Pontianak Utara', 'Tempat Pembuangan Sementara 3R dengan kapasitas 12 ton/hari. Melayani 3 kelurahan sekitar.', 'Trash2', '#DC2626'],
+            ['loc-tps-02', 'TPS Pasar Dahlia', 'TPS & TPA', -0.0198, 109.3402, 'Komplek Pasar Dahlia, Pontianak Kota', 'TPS pusat kota dengan ritase 2x sehari. Melayani area pasar dan permukiman sekitar.', 'Trash2', '#DC2626'],
+            ['loc-tps-03', 'TPS Pal Lima', 'TPS & TPA', -0.0215, 109.3358, 'Jl. Pal Lima, Pontianak Kota', 'TPS dengan konsep penampungan terpilah untuk sampah organik dan anorganik.', 'Trash2', '#DC2626'],
+            ['loc-tps-04', 'TPS Akcaya', 'TPS & TPA', -0.0192, 109.3518, 'Jl. Akcaya, Pontianak Selatan', 'TPS permukiman padat penduduk dengan kontainer 8m³.', 'Trash2', '#DC2626'],
+            ['loc-tps-05', 'TPS Sungaijawi Dalam', 'TPS & TPA', -0.0087, 109.3572, 'Jl. Sungaijawi Dalam, Pontianak Timur', 'TPS tepi sungai dengan sistem pengangkutan menggunakan armada sungai.', 'Trash2', '#DC2626'],
+            ['loc-tps-06', 'TPA Batu Layang', 'TPS & TPA', 0.0439, 109.3689, 'Jl. Batu Layang, Pontianak Utara', 'Tempat Pemrosesan Akhir dengan sistem controlled landfill. Kapasitas 50 ton/hari.', 'Landfill', '#B91C1C'],
+            ['loc-bs-01', 'Bank Sampah Melati Bersih', 'Bank Sampah', -0.0256, 109.3421, 'Jl. Gusti Hamzah, Pontianak Kota', 'Bank sampah binaan DLH dengan sistem tabungan sampah. Menerima plastik, kertas, logam.', 'Recycle', '#16A34A'],
+            ['loc-bs-02', 'Bank Sampah Kenanga', 'Bank Sampah', 0.0312, 109.3285, 'Jl. Kenanga Dalam, Pontianak Barat', 'Bank sampah berbasis komunitas RW. Melayani 400 KK dengan setoran rutin mingguan.', 'Recycle', '#16A34A'],
+            ['loc-bs-03', 'Bank Sampah Harapan Baru', 'Bank Sampah', -0.0138, 109.3309, 'Jl. Harapan Baru, Pontianak Tenggara', 'Bank sampah dengan unit pengomposan dan daur ulang plastik skala kecil.', 'Recycle', '#16A34A'],
+            ['loc-bs-04', 'Bank Sampah Sungaibangkong', 'Bank Sampah', -0.0181, 109.3195, 'Jl. Sungaibangkong, Pontianak Tenggara', 'Bank sampah dengan edukasi pemilahan sampah untuk pelajar dan masyarakat.', 'Recycle', '#16A34A'],
+            ['loc-bs-05', 'Bank Sampah Flamboyan', 'Bank Sampah', -0.0115, 109.3418, 'Jl. Flamboyan, Pontianak Timur', 'Bank sampah dengan layanan jemput bola keliling permukiman setiap hari Sabtu.', 'Recycle', '#16A34A'],
+            ['loc-bs-06', 'Bank Sampah Tanjungpura', 'Bank Sampah', -0.0072, 109.3521, 'Kampus Untan, Pontianak Tenggara', 'Bank sampah mahasiswa dengan program Kampung Iklim dan zero waste kampus.', 'Recycle', '#16A34A'],
+        ];
+
+        return array_map(static fn (array $r): array => [
+            'id' => $r[0],
+            'name' => $r[1],
+            'category' => $r[2],
+            'lat' => $r[3],
+            'lng' => $r[4],
+            'address' => $r[5],
+            'description' => $r[6],
+            'iconName' => $r[7],
+            'color' => $r[8],
+            'createdAt' => '2026-01-01 08:00',
+            'updatedAt' => '2026-06-01 08:00',
+        ], $rows);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function categories(): array
+    {
+        return [
+            [
+                'id' => 'cat-tps',
+                'name' => 'TPS & TPA',
+                'shortDesc' => 'Tempat Pembuangan Sementara dan Akhir',
+                'description' => <<<'HTML'
+<div class="space-y-3">
+  <p class="text-sm">Kota Pontianak memiliki <strong class="text-emerald-700">6 TPS (Tempat Pembuangan Sementara)</strong> dan <strong class="text-red-700">1 TPA (Tempat Pemrosesan Akhir)</strong> yang dikelola oleh Dinas Lingkungan Hidup. Sistem pengelolaan sampah di Pontianak menerapkan konsep <em>reduce-reuse-recycle</em> (3R) yang melibatkan partisipasi aktif masyarakat.</p>
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
+    <h4 class="font-bold text-xs uppercase tracking-wider text-amber-800">🕐 Jam Operasional</h4>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="bg-white rounded-lg p-2"><span class="font-bold text-slate-700">TPS Reguler</span><p class="text-slate-500">06.00 - 18.00 WIB</p></div>
+      <div class="bg-white rounded-lg p-2"><span class="font-bold text-slate-700">TPA Batu Layang</span><p class="text-slate-500">06.00 - 16.00 WIB</p></div>
+      <div class="bg-white rounded-lg p-2"><span class="font-bold text-slate-700">Pengangkutan</span><p class="text-slate-500">2 ritase/hari</p></div>
+      <div class="bg-white rounded-lg p-2"><span class="font-bold text-slate-700">Hari Libur</span><p class="text-slate-500">Tetap beroperasi</p></div>
+    </div>
+  </div>
+  <p class="text-xs text-slate-500 mt-2">Kapasitas total TPA Batu Layang mencapai 50 ton/hari dengan sistem controlled landfill yang ramah lingkungan.</p>
+</div>
+HTML,
+                'iconName' => 'Trash2',
+                'color' => '#DC2626',
+                'markerColor' => '#DC2626',
+                'order' => 1,
+                'createdAt' => '2026-01-01 08:00',
+                'updatedAt' => '2026-06-01 08:00',
+            ],
+            [
+                'id' => 'cat-bank-sampah',
+                'name' => 'Bank Sampah',
+                'shortDesc' => 'Pusat daur ulang dan tabungan sampah berbasis komunitas',
+                'description' => <<<'HTML'
+<div class="space-y-3">
+  <p class="text-sm">Gerakan Bank Sampah di Kota Pontianak dimulai sejak <strong class="text-emerald-700">tahun 2017</strong> sebagai inisiatif DLH bersama komunitas peduli lingkungan. Konsepnya sederhana: <em>masyarakat menabung sampah — mendapatkan manfaat ekonomi.</em></p>
+  <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+    <h4 class="font-bold text-xs uppercase tracking-wider text-emerald-800">📋 Cara Menabung</h4>
+    <ol class="list-decimal list-inside text-xs space-y-1 text-slate-700">
+      <li>Pilah sampah anorganik di rumah (plastik, kertas, logam)</li>
+      <li>Setorkan ke Bank Sampah terdekat setiap hari Sabtu</li>
+      <li>Petugas akan menimbang dan mencatat di buku tabungan</li>
+      <li>Saldo dapat dicairkan atau ditukar sembako</li>
+    </ol>
+  </div>
+  <div class="bg-white border rounded-xl p-3 text-xs space-y-1">
+    <p><span class="font-bold text-emerald-700">💡 Fakta:</span> Hingga 2026, Bank Sampah di Pontianak telah berhasil mengurangi <strong class="font-bold">~12 ton sampah</strong> per bulan dan melibatkan lebih dari <strong class="font-bold">2.000 nasabah aktif</strong>.</p>
+  </div>
+  <p class="text-xs text-slate-500">Setiap Bank Sampah memiliki jadwal operasional masing-masing. Hubungi pengelola terdekat untuk informasi lebih lanjut.</p>
+</div>
+HTML,
+                'iconName' => 'Recycle',
+                'color' => '#16A34A',
+                'markerColor' => '#16A34A',
+                'order' => 2,
+                'createdAt' => '2026-01-01 08:00',
+                'updatedAt' => '2026-06-01 08:00',
+            ],
+            [
+                'id' => 'cat-taman',
+                'name' => 'Taman & Ruang Hijau',
+                'shortDesc' => 'Paru-paru kota dan ruang terbuka hijau publik',
+                'description' => <<<'HTML'
+<div class="space-y-3">
+  <p class="text-sm">Pontianak memiliki <strong class="text-emerald-700">30+ taman kota dan Ruang Terbuka Hijau (RTH)</strong> yang tersebar di 6 kecamatan. Taman-taman ini berfungsi sebagai paru-paru kota, area resapan air, dan ruang rekreasi publik.</p>
+  <div class="grid grid-cols-2 gap-2 text-xs">
+    <div class="bg-green-50 rounded-xl p-3 border border-green-200"><span class="font-bold text-green-800">🕐 Jam Buka</span><p class="text-slate-600 mt-1">06.00 - 21.00 WIB</p></div>
+    <div class="bg-green-50 rounded-xl p-3 border border-green-200"><span class="font-bold text-green-800">🎯 Target RTH</span><p class="text-slate-600 mt-1">30% luas kota</p></div>
+  </div>
+  <div class="bg-white border rounded-xl p-3 text-xs">
+    <p><span class="font-bold text-green-700">🌿 Program:</span> DLH secara rutin melakukan penghijauan dengan bibit tanaman gratis untuk warga dan penanaman pohon di area publik.</p>
+  </div>
+</div>
+HTML,
+                'iconName' => 'TreePine',
+                'color' => '#15803D',
+                'markerColor' => '#15803D',
+                'order' => 3,
+                'createdAt' => '2026-06-15 08:00',
+                'updatedAt' => '2026-06-15 08:00',
+            ],
+            [
+                'id' => 'cat-ipal',
+                'name' => 'IPAL & Instalasi Pengolahan',
+                'shortDesc' => 'Instalasi Pengelolaan Air Limbah komunal dan industri',
+                'description' => <<<'HTML'
+<div class="space-y-3">
+  <p class="text-sm">DLH Pontianak mengelola <strong class="text-emerald-700">12 IPAL komunal</strong> yang tersebar di permukiman padat penduduk dan kawasan industri kecil. IPAL ini memastikan air limbah domestik dan industri kecil memenuhi baku mutu lingkungan sebelum dibuang ke badan air.</p>
+  <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-2">
+    <h4 class="font-bold text-xs uppercase tracking-wider text-blue-800">🔬 Sistem Pengolahan</h4>
+    <div class="text-xs space-y-1 text-slate-700">
+      <p>• <strong>Pretreatment:</strong> Penyaringan sampah padat</p>
+      <p>• <strong>Primary:</strong> Bak pengendap awal</p>
+      <p>• <strong>Secondary:</strong> Biofilter anaerob-aerob</p>
+      <p>• <strong>Tertiary:</strong> Disinfeksi UV</p>
+    </div>
+  </div>
+  <p class="text-xs text-slate-500">Pemantauan kualitas air limbah dilakukan setiap bulan oleh Laboratorium Lingkungan DLH.</p>
+</div>
+HTML,
+                'iconName' => 'Droplets',
+                'color' => '#2563EB',
+                'markerColor' => '#2563EB',
+                'order' => 4,
+                'createdAt' => '2026-06-15 08:00',
+                'updatedAt' => '2026-06-15 08:00',
+            ],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function networkLinks(): array
+    {
+        $rows = [
+            ['link-1', 'Portal Resmi DLH Kota Pontianak', 'https://dlh.pontianakkota.go.id', 'Website resmi Dinas Lingkungan Hidup Kota Pontianak', 1],
+            ['link-2', 'Sistem Informasi Pengelolaan Sampah', 'https://sips.dlh.pontianakkota.go.id', 'Portal data dan monitoring pengelolaan sampah Kota Pontianak', 2],
+            ['link-3', 'Informasi Indeks Kualitas Lingkungan Hidup', 'https://iklh.menlhk.go.id', 'Data IKLH nasional dari Kementerian Lingkungan Hidup', 3],
+            ['link-4', 'Lapor Pengaduan Lingkungan Hidup', 'https://pengaduan.dlh.pontianakkota.go.id', 'Saluran aduan masyarakat seputar lingkungan hidup', 4],
+            ['link-5', 'Sobat Hijau - Portal Pelayanan', 'https://sobat.dst.my.id', 'Portal pelayanan online terpadu DLH Kota Pontianak', 5],
+        ];
+
+        return array_map(static fn (array $r): array => [
+            'id' => $r[0],
+            'title' => $r[1],
+            'url' => $r[2],
+            'description' => $r[3],
+            'sortOrder' => $r[4],
+            'isActive' => true,
+        ], $rows);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function notifications(): array
+    {
+        return [
+            [
+                'id' => 'notif-1',
+                'submissionId' => 'SH-2026-08123',
+                'applicantName' => 'PT. Pontianak Tirta Agung',
+                'serviceName' => 'Pengujian Sampah / Air / Udara Laboratorium',
+                'newStatus' => 'SURVEY_TEKNIS',
+                'message' => 'Status permohonan Laboratorium (SH-2026-08123) milik PT. Pontianak Tirta Agung diperbarui oleh Admin menjadi SURVEY TEKNIS.',
+                'timestamp' => '2026-06-01 09:12',
+                'isRead' => false,
+            ],
+            [
+                'id' => 'notif-2',
+                'submissionId' => 'SH-2026-04981',
+                'applicantName' => 'Bapak Ahmad Subardjo',
+                'serviceName' => 'Izin Rekomendasi Upaya Pemantauan Lingkungan Hidup (UKL-UPL)',
+                'newStatus' => 'SELESAI',
+                'message' => 'Selamat! Dokumen Kelayakan UKL-UPL (SH-2026-04981) atas nama Bapak Ahmad Subardjo telah SELESAI diterbitkan dan siap diunduh.',
+                'timestamp' => '2026-06-02 07:45',
+                'isRead' => false,
+            ],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function activityLogs(): array
+    {
+        $rows = [
+            ['log-1', 'Login berhasil sebagai Administrator DLH Pontianak', '2026-06-03 12:44', 'success'],
+            ['log-2', 'Memverifikasi kelayakan teknis berkas PT. Pontianak Tirta Agung', '2026-06-03 11:20', 'info'],
+            ['log-3', 'Menerbitkan rekomendasi kelayakan UKL-UPL Bapak Ahmad Subardjo', '2026-06-03 09:12', 'success'],
+            ['log-4', 'Memperbarui koordinat sebaran TPS 3R di peta lingkungan', '2026-06-02 16:30', 'info'],
+            ['log-5', 'Menambahkan kuesioner baru untuk layanan Pengujian Kebisingan', '2026-06-02 14:15', 'success'],
+        ];
+
+        return array_map(static fn (array $r): array => [
+            'id' => $r[0],
+            'action' => $r[1],
+            'timestamp' => $r[2],
+            'iconType' => $r[3],
+        ], $rows);
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Sobat Hijau",
+  "description": "Sistem Pelayanan Online Terpadu Dinas Lingkungan Hidup Kota Pontianak",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
