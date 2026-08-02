@@ -15,8 +15,8 @@ final class SobatHijauApiTest extends TestCase
         $this->seed();
 
         $token = $this->postJson('/api/login', [
-            'email' => 'admin@dlh.pontianak.go.id',
-            'password' => 'SobatHijau#2026',
+            'email' => 'densat98@gmail.com',
+            'password' => 'deni1998',
         ])->assertOk()->json('token');
 
         $this->withHeader('Authorization', 'Bearer '.$token);
@@ -52,7 +52,7 @@ final class SobatHijauApiTest extends TestCase
     public function test_login_rejects_bad_credentials(): void
     {
         $this->postJson('/api/login', [
-            'email' => 'admin@dlh.pontianak.go.id',
+            'email' => 'densat98@gmail.com',
             'password' => 'salah',
         ])->assertStatus(401);
     }

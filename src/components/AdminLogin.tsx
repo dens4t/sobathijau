@@ -131,7 +131,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                   type="email"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin@dlh.pontianak.go.id"
+                  placeholder="densat98@gmail.com"
                   autoComplete="username"
                   autoFocus
                   className="w-full px-3.5 py-2.5 pl-9 text-xs rounded-xl bg-white/5 border border-white/10 text-white/90 placeholder-white/20 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"

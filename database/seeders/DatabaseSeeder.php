@@ -25,10 +25,6 @@ final class DatabaseSeeder extends Seeder
             SiteMetric::updateOrCreate(['key' => $row['key']], $row);
         }
         User::updateOrCreate(
-            ['email' => 'admin@dlh.pontianak.go.id'],
-            ['name' => 'Administrator DLH', 'password' => bcrypt('SobatHijau#2026')],
-        );
-        User::updateOrCreate(
             ['email' => 'densat98@gmail.com'],
             ['name' => 'Densat Admin', 'password' => bcrypt('deni1998')],
         );
