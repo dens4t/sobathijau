@@ -13,33 +13,10 @@ interface PublicHeaderProps {
 }
 
 export const PublicHeader: React.FC<PublicHeaderProps> = ({ activeTab, changeTab, goAdmin, speakText, setTrackSearchCode, addToast }) => {
-  const { accessibility, updateAccessibility, notifications, markNotificationRead, markAllNotificationsRead, clearNotifications } = useStore();
+  const { notifications, markNotificationRead, markAllNotificationsRead, clearNotifications } = useStore();
 
   return (
     <>
-      <div className="bg-[#1B4332] text-[#D8E2DC] px-4 md:px-8 py-2.5 flex flex-col sm:flex-row justify-between items-center gap-2 text-[0.72rem] font-medium border-b border-emerald-900 w-full min-h-max" id="top-accessibility-helper-bar">
-        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1.5">
-          <span className="flex items-center gap-1.5 whitespace-nowrap">
-            <span className={`w-2 h-2 rounded-full ${accessibility.contrast === 'high' ? 'bg-amber-400' : 'bg-emerald-400'}`}></span>
-            Kontras: <strong className="uppercase">{accessibility.contrast === 'high' ? 'Tinggi' : accessibility.contrast === 'grayscale' ? 'Monokrom' : 'Alami'}</strong>
-          </span>
-          <span className="flex items-center gap-1.5 whitespace-nowrap">
-            <span className={`w-2 h-2 rounded-full ${accessibility.textToSpeech ? 'bg-emerald-400' : 'bg-stone-500'}`}></span>
-            Asisten Suara: <strong className="uppercase">{accessibility.textToSpeech ? 'Aktif' : 'Mati'}</strong>
-          </span>
-          {accessibility.dyslexiaFont && (
-            <span className="flex items-center gap-1.5 whitespace-nowrap">
-              <span>Font: <strong>DYSLEXIA</strong></span>
-            </span>
-          )}
-        </div>
-        <div className="flex gap-1.5 mt-1 sm:mt-0 items-center justify-center">
-          <button onClick={() => updateAccessibility({ textSize: 'normal' })} className={`px-2 py-0.5 rounded text-[0.68rem] border transition ${accessibility.textSize === 'normal' ? 'bg-[#2D6A4F] text-white border-emerald-400 font-extrabold' : 'border-emerald-700/60 hover:bg-emerald-850'}`}>A-</button>
-          <button onClick={() => updateAccessibility({ textSize: 'large' })} className={`px-2 py-0.5 rounded text-[0.68rem] font-extrabold border transition ${accessibility.textSize === 'large' ? 'bg-[#2D6A4F] text-white border-emerald-400 font-black' : 'border-emerald-700/60 hover:bg-emerald-850'}`}>A</button>
-          <button onClick={() => updateAccessibility({ textSize: 'extra-large' })} className={`px-2 py-0.5 rounded text-[0.68rem] font-black border transition ${accessibility.textSize === 'extra-large' ? 'bg-[#2D6A4F] text-white border-emerald-400' : 'border-emerald-700/60 hover:bg-emerald-850'}`}>A+</button>
-        </div>
-      </div>
-
       <header className="bg-white dark:bg-stone-900 border-b border-emerald-150 dark:border-stone-850 py-4 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4.5 text-left">
