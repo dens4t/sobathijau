@@ -24,10 +24,20 @@ final class AuthController extends Controller
             return response()->json(['message' => 'Email atau password salah.'], 401);
         }
 
-        $user->forceFill(['api_token' => Str::random(60)])->save();
+        $token = Str::random(60);
+        \Illuminate\Support\Facades\DB::table('api_tokens')->insert([
+            'user_id' => $user->id,
+            'token' => $token,
+            'created_at' => now(),
+        ]);
+
+        // Prune token tua (> 30 hari) agar tabel tidak membengkak
+        \Illuminate\Support\Facades\DB::table('api_tokens')
+            ->where('created_at', '<', now()->subDays(30))
+            ->delete();
 
         return response()->json([
-            'token' => $user->api_token,
+            'token' => $token,
             'name' => $user->name,
         ]);
     }
