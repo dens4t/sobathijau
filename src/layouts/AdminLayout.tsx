@@ -132,13 +132,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                     try {
                       await updateSubmissionStatus(id, status, note);
                     } catch (e) {
-                      addToast('Status tersimpan lokal; server SQLite belum aktif.', 'info');
+                      addToast('Gagal memperbarui status. Cek koneksi dan coba lagi.', 'error');
                     }
                   }}
                   onDeleteSubmission={async (id) => {
                     const confirmDel = window.confirm(`Apakah Anda yakin ingin menghapus permohonan dengan kode ${id}?`);
                     if (!confirmDel) return;
-                    try { await deleteSubmission(id); } catch (e) { addToast('Data terhapus lokal; server SQLite belum aktif.', 'info'); }
+                    try { await deleteSubmission(id); } catch (e) { addToast('Gagal menghapus berkas. Cek koneksi dan coba lagi.', 'error'); }
                   }}
                   onSpeak={speakText}
                 />
@@ -147,11 +147,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                   services={services}
                   onUpdate={async (updated) => {
                     try { await updateService(updated); addToast(`Layanan "${updated.name}" berhasil diperbarui.`, 'success'); }
-                    catch (e) { addToast('Perubahan layanan tersimpan lokal.', 'info'); }
+                    catch (e) { addToast('Gagal memperbarui layanan. Cek koneksi dan coba lagi.', 'error'); }
                   }}
                   onDelete={async (id) => {
                     try { await deleteService(id); addToast('Layanan berhasil dihapus.', 'info'); }
-                    catch (e) { addToast('Layanan terhapus lokal.', 'info'); }
+                    catch (e) { addToast('Gagal menghapus layanan. Cek koneksi dan coba lagi.', 'error'); }
                   }}
                   onSpeak={speakText}
                 />
@@ -178,7 +178,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
               ) : (
                 <FormCreator 
                   onSave={async (newService) => {
-                    try { await addService(newService); } catch (e) { addToast('Layanan tersimpan lokal; server SQLite belum aktif.', 'info'); }
+                    try { await addService(newService); } catch (e) { addToast('Gagal menerbitkan layanan. Cek koneksi dan coba lagi.', 'error'); }
                     goAdmin('layanan');
                     speakText("Formulir sukses terdaftar di portal pelayanan!");
                   }} 

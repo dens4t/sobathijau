@@ -78,27 +78,31 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
 
     const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
 
-    if (editingId) {
-      const updated: GeoLocation = {
-        id: editingId, name: name!, category: category as any,
-        lat: lat!, lng: lng!, address: address!, description: description || '',
-        iconName: iconName || 'MapPin', color: color || '#DC2626',
-        createdAt: locations.find(l => l.id === editingId)?.createdAt || now,
-        updatedAt: now,
-      };
-      await onUpdate(updated);
-      addToast(`"${name}" berhasil diperbarui.`, 'success');
-    } else {
-      const newLoc: GeoLocation = {
-        id: `loc-${Date.now().toString(36)}`, name: name!, category: category as any,
-        lat: lat!, lng: lng!, address: address!, description: description || '',
-        iconName: iconName || 'MapPin', color: color || '#DC2626',
-        createdAt: now, updatedAt: now,
-      };
-      await onAdd(newLoc);
-      addToast(`"${name}" berhasil ditambahkan.`, 'success');
+    try {
+      if (editingId) {
+        const updated: GeoLocation = {
+          id: editingId, name: name!, category: category as any,
+          lat: lat!, lng: lng!, address: address!, description: description || '',
+          iconName: iconName || 'MapPin', color: color || '#DC2626',
+          createdAt: locations.find(l => l.id === editingId)?.createdAt || now,
+          updatedAt: now,
+        };
+        await onUpdate(updated);
+        addToast(`"${name}" berhasil diperbarui.`, 'success');
+      } else {
+        const newLoc: GeoLocation = {
+          id: `loc-${Date.now().toString(36)}`, name: name!, category: category as any,
+          lat: lat!, lng: lng!, address: address!, description: description || '',
+          iconName: iconName || 'MapPin', color: color || '#DC2626',
+          createdAt: now, updatedAt: now,
+        };
+        await onAdd(newLoc);
+        addToast(`"${name}" berhasil ditambahkan.`, 'success');
+      }
+      resetForm();
+    } catch {
+      addToast('Gagal menyimpan titik. Cek koneksi dan coba lagi.', 'error');
     }
-    resetForm();
   };
 
   const handleDelete = async (id: string) => {

@@ -52,6 +52,16 @@ interface AppState {
   deleteNetworkLink: (id: string) => Promise<void>;
 }
 
+async function commit(set: (fn: (s: AppState) => Partial<AppState>) => void, apply: (s: AppState) => Partial<AppState>, apiCall: () => Promise<unknown>, rollback: (s: AppState) => Partial<AppState>): Promise<void> {
+  set(apply);
+  try {
+    await apiCall();
+  } catch (e) {
+    set(rollback);
+    throw e;
+  }
+}
+
 export const useStore = create<AppState>((set, get) => ({
   services: defaultServices,
   submissions: defaultSubmissions,
@@ -107,34 +117,46 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   addService: async (service) => {
-    set(s => ({ services: [service, ...s.services] }));
-    try { await api.addService(service); } catch (e) { throw e; }
+    await commit(set,
+      s => ({ services: [service, ...s.services] }),
+      () => api.addService(service),
+      s => ({ services: s.services.filter(x => x.id !== service.id) }),
+    );
   },
 
   updateService: async (service) => {
-    set(s => ({ services: s.services.map(x => x.id === service.id ? service : x) }));
-    try { await api.updateService(service); } catch (e) { throw e; }
+    const prev = get().services;
+    await commit(set,
+      s => ({ services: s.services.map(x => x.id === service.id ? service : x) }),
+      () => api.updateService(service),
+      () => ({ services: prev }),
+    );
   },
 
   deleteService: async (id) => {
-    set(s => ({ services: s.services.filter(x => x.id !== id) }));
-    try { await api.deleteService(id); } catch (e) { throw e; }
+    const prev = get().services;
+    await commit(set,
+      s => ({ services: s.services.filter(x => x.id !== id) }),
+      () => api.deleteService(id),
+      () => ({ services: prev }),
+    );
   },
 
   addSubmission: async (sub) => {
-    set(s => ({ submissions: [sub, ...s.submissions] }));
-    try { await api.addSubmission(sub); } catch (e) { throw e; }
+    await commit(set,
+      s => ({ submissions: [sub, ...s.submissions] }),
+      () => api.addSubmission(sub),
+      s => ({ submissions: s.submissions.filter(x => x.id !== sub.id) }),
+    );
   },
 
   updateSubmissionStatus: async (id, status, note) => {
-    // API will return updated submission and new notification. 
-    // State will be updated by caller for immediate feedback or we can do it after.
     try {
       const { submission, notification } = await api.updateStatus(id, status, note);
       set(s => ({
         submissions: s.submissions.map(x => x.id === id ? submission : x),
-        notifications: s.notifications.some(n => n.id === notification.id) 
-          ? s.notifications 
+        notifications: s.notifications.some(n => n.id === notification.id)
+          ? s.notifications
           : [notification, ...s.notifications]
       }));
       return { submission, notification };
@@ -144,38 +166,64 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   deleteSubmission: async (id) => {
-    set(s => ({ submissions: s.submissions.filter(x => x.id !== id) }));
-    try { await api.deleteSubmission(id); } catch (e) { throw e; }
+    const prev = get().submissions;
+    await commit(set,
+      s => ({ submissions: s.submissions.filter(x => x.id !== id) }),
+      () => api.deleteSubmission(id),
+      () => ({ submissions: prev }),
+    );
   },
 
   addLocation: async (loc) => {
-    set(s => ({ locations: [loc, ...s.locations] }));
-    try { await api.addLocation(loc); } catch (e) { throw e; }
+    await commit(set,
+      s => ({ locations: [loc, ...s.locations] }),
+      () => api.addLocation(loc),
+      s => ({ locations: s.locations.filter(x => x.id !== loc.id) }),
+    );
   },
 
   updateLocation: async (loc) => {
-    set(s => ({ locations: s.locations.map(x => x.id === loc.id ? loc : x) }));
-    try { await api.updateLocation(loc); } catch (e) { throw e; }
+    const prev = get().locations;
+    await commit(set,
+      s => ({ locations: s.locations.map(x => x.id === loc.id ? loc : x) }),
+      () => api.updateLocation(loc),
+      () => ({ locations: prev }),
+    );
   },
 
   deleteLocation: async (id) => {
-    set(s => ({ locations: s.locations.filter(x => x.id !== id) }));
-    try { await api.deleteLocation(id); } catch (e) { throw e; }
+    const prev = get().locations;
+    await commit(set,
+      s => ({ locations: s.locations.filter(x => x.id !== id) }),
+      () => api.deleteLocation(id),
+      () => ({ locations: prev }),
+    );
   },
 
   addCategory: async (cat) => {
-    set(s => ({ categories: [...s.categories, cat] }));
-    try { await api.addCategory(cat); } catch (e) { throw e; }
+    await commit(set,
+      s => ({ categories: [...s.categories, cat] }),
+      () => api.addCategory(cat),
+      s => ({ categories: s.categories.filter(x => x.id !== cat.id) }),
+    );
   },
 
   updateCategory: async (cat) => {
-    set(s => ({ categories: s.categories.map(x => x.id === cat.id ? cat : x) }));
-    try { await api.updateCategory(cat); } catch (e) { throw e; }
+    const prev = get().categories;
+    await commit(set,
+      s => ({ categories: s.categories.map(x => x.id === cat.id ? cat : x) }),
+      () => api.updateCategory(cat),
+      () => ({ categories: prev }),
+    );
   },
 
   deleteCategory: async (id) => {
-    set(s => ({ categories: s.categories.filter(x => x.id !== id) }));
-    try { await api.deleteCategory(id); } catch (e) { throw e; }
+    const prev = get().categories;
+    await commit(set,
+      s => ({ categories: s.categories.filter(x => x.id !== id) }),
+      () => api.deleteCategory(id),
+      () => ({ categories: prev }),
+    );
   },
 
   markNotificationRead: async (id) => {
@@ -215,17 +263,28 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   addNetworkLink: async (link) => {
-    set(s => ({ networkLinks: [link, ...s.networkLinks] }));
-    try { await api.addNetworkLink(link); } catch (e) { throw e; }
+    await commit(set,
+      s => ({ networkLinks: [link, ...s.networkLinks] }),
+      () => api.addNetworkLink(link),
+      s => ({ networkLinks: s.networkLinks.filter(x => x.id !== link.id) }),
+    );
   },
 
   updateNetworkLink: async (link) => {
-    set(s => ({ networkLinks: s.networkLinks.map(x => x.id === link.id ? link : x) }));
-    try { await api.updateNetworkLink(link); } catch (e) { throw e; }
+    const prev = get().networkLinks;
+    await commit(set,
+      s => ({ networkLinks: s.networkLinks.map(x => x.id === link.id ? link : x) }),
+      () => api.updateNetworkLink(link),
+      () => ({ networkLinks: prev }),
+    );
   },
 
   deleteNetworkLink: async (id) => {
-    set(s => ({ networkLinks: s.networkLinks.filter(x => x.id !== id) }));
-    try { await api.deleteNetworkLink(id); } catch (e) { throw e; }
+    const prev = get().networkLinks;
+    await commit(set,
+      s => ({ networkLinks: s.networkLinks.filter(x => x.id !== id) }),
+      () => api.deleteNetworkLink(id),
+      () => ({ networkLinks: prev }),
+    );
   },
 }));

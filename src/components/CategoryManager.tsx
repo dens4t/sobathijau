@@ -60,27 +60,31 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
       return;
     }
     const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
-    if (editingId) {
-      const updated: GeoCategory = {
-        id: editingId, name: formData.name!, description: formData.description || '', shortDesc: formData.shortDesc || '',
-        iconName: formData.iconName || 'MapPin', color: formData.color || '#16A34A', markerColor: formData.markerColor || formData.color || '#16A34A',
-        order: formData.order ?? categories.length,
-        createdAt: categories.find(c => c.id === editingId)?.createdAt || now,
-        updatedAt: now,
-      };
-      await onUpdate(updated);
-      addToast(`Kategori "${updated.name}" diperbarui.`, 'success');
-    } else {
-      const newCat: GeoCategory = {
-        id: `cat-${Date.now().toString(36)}`, name: formData.name!, description: formData.description || '', shortDesc: formData.shortDesc || '',
-        iconName: formData.iconName || 'MapPin', color: formData.color || '#16A34A', markerColor: formData.markerColor || formData.color || '#16A34A',
-        order: categories.length,
-        createdAt: now, updatedAt: now,
-      };
-      await onAdd(newCat);
-      addToast(`Kategori "${newCat.name}" ditambahkan.`, 'success');
+    try {
+      if (editingId) {
+        const updated: GeoCategory = {
+          id: editingId, name: formData.name!, description: formData.description || '', shortDesc: formData.shortDesc || '',
+          iconName: formData.iconName || 'MapPin', color: formData.color || '#16A34A', markerColor: formData.markerColor || formData.color || '#16A34A',
+          order: formData.order ?? categories.length,
+          createdAt: categories.find(c => c.id === editingId)?.createdAt || now,
+          updatedAt: now,
+        };
+        await onUpdate(updated);
+        addToast(`Kategori "${updated.name}" diperbarui.`, 'success');
+      } else {
+        const newCat: GeoCategory = {
+          id: `cat-${Date.now().toString(36)}`, name: formData.name!, description: formData.description || '', shortDesc: formData.shortDesc || '',
+          iconName: formData.iconName || 'MapPin', color: formData.color || '#16A34A', markerColor: formData.markerColor || formData.color || '#16A34A',
+          order: categories.length,
+          createdAt: now, updatedAt: now,
+        };
+        await onAdd(newCat);
+        addToast(`Kategori "${newCat.name}" ditambahkan.`, 'success');
+      }
+      resetForm();
+    } catch {
+      addToast('Gagal menyimpan kategori. Cek koneksi dan coba lagi.', 'error');
     }
-    resetForm();
   };
 
   const handleDelete = async (cat: GeoCategory) => {
