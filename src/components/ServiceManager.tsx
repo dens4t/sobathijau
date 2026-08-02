@@ -10,10 +10,10 @@ import { ServiceTemplate, FieldDefinition, FieldType } from '../types';
 
 interface ServiceManagerProps {
   services: ServiceTemplate[];
-  onAdd: (service: ServiceTemplate) => void;
   onUpdate: (updated: ServiceTemplate) => void;
   onDelete: (id: string) => void;
   onSpeak: (text: string) => void;
+  onGoRancang: () => void;
 }
 
 const FIELD_TYPES: { value: FieldType; label: string }[] = [
@@ -45,42 +45,13 @@ const emptyField = (): Omit<FieldDefinition,'id'> & { _label: string; _options: 
   _label: '', label: '', type: 'text', required: true, placeholder: '', _options: ''
 });
 
-export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onAdd, onUpdate, onDelete, onSpeak }) => {
+export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpdate, onDelete, onSpeak, onGoRancang }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState<EditMode>(null);
   const [edit, setEdit] = useState<EditState | null>(null);
   const [newField, setNewField] = useState(emptyField());
   const [fieldErr, setFieldErr] = useState('');
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-  const [addForm, setAddForm] = useState({ name: '', description: '', category: 'Izin & Rekomendasi' as ServiceTemplate['category'], icon: 'FileText' });
-
-  const openAdd = () => {
-    setAddForm({ name: '', description: '', category: 'Izin & Rekomendasi', icon: 'FileText' });
-    setMsg(null);
-    setIsAdding(true);
-    onSpeak('Membuka form tambah layanan baru');
-  };
-
-  const saveAdd = () => {
-    if (!addForm.name.trim() || !addForm.description.trim()) {
-      setMsg({ type: 'error', text: 'Nama dan deskripsi wajib diisi.' });
-      return;
-    }
-    const newSvc: ServiceTemplate = {
-      id: `svc-${Date.now().toString(36)}`,
-      name: addForm.name.trim(),
-      description: addForm.description.trim(),
-      category: addForm.category,
-      icon: addForm.icon,
-      fields: [],
-      isCustom: true,
-    };
-    onAdd(newSvc);
-    setMsg({ type: 'success', text: `Layanan "${newSvc.name}" berhasil ditambahkan.` });
-    setIsAdding(false);
-    onSpeak(`Layanan ${newSvc.name} ditambahkan`);
-  };
 
   const openModal = (s: ServiceTemplate, mode: EditMode) => {
     setEditingId(s.id);
@@ -157,82 +128,6 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onAdd,
 
   return (
     <>
-      {/* ── Modal Tambah Layanan ── */}
-      {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl w-full max-w-lg flex flex-col border border-slate-200 dark:border-stone-700">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-200 dark:border-stone-800 shrink-0">
-              <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30">
-                <Plus className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Tambah Layanan Baru</h4>
-                <p className="text-[11px] text-slate-500 dark:text-stone-400">Buat layanan baru, field form bisa ditambah lewat "Edit Form Dinamis".</p>
-              </div>
-              <button onClick={() => setIsAdding(false)} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-stone-800 transition">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              {msg && msg.type === 'error' && (
-                <div className={`p-3 rounded-lg flex items-center gap-2 text-xs ${msg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
-                  <AlertCircle className="w-4 h-4 shrink-0" />{msg.text}
-                </div>
-              )}
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Nama Layanan *</label>
-                <input
-                  value={addForm.name}
-                  onChange={e => setAddForm({ ...addForm, name: e.target.value })}
-                  placeholder="Contoh: Perizinan Reklame Ramah Lingkungan"
-                  className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Kategori</label>
-                  <select
-                    value={addForm.category}
-                    onChange={e => setAddForm({ ...addForm, category: e.target.value as ServiceTemplate['category'] })}
-                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-                  >
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Ikon</label>
-                  <select
-                    value={addForm.icon}
-                    onChange={e => setAddForm({ ...addForm, icon: e.target.value })}
-                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-                  >
-                    {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Deskripsi *</label>
-                <textarea
-                  value={addForm.description}
-                  onChange={e => setAddForm({ ...addForm, description: e.target.value })}
-                  rows={3}
-                  placeholder="Jelaskan singkat layanan ini..."
-                  className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition resize-none"
-                />
-              </div>
-            </div>
-            <div className="px-6 py-4 border-t border-slate-200 dark:border-stone-800 flex items-center gap-3 shrink-0 bg-slate-50 dark:bg-stone-900 rounded-b-2xl">
-              <button onClick={saveAdd} className="flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl transition shadow-sm">
-                <Plus className="w-4 h-4" /> Tambah Layanan
-              </button>
-              <button onClick={() => setIsAdding(false)} className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-stone-800 hover:bg-slate-100 dark:hover:bg-stone-700 border border-slate-200 dark:border-stone-700 text-slate-700 dark:text-stone-300 text-sm font-semibold rounded-xl transition">
-                <X className="w-4 h-4" /> Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Modal Edit Info ── */}
       {isOpen && editMode === 'info' && (
         <div
@@ -512,7 +407,7 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onAdd,
           <h4 className="text-sm font-bold text-slate-900 dark:text-white">Kelola Layanan</h4>
           <span className="ml-auto text-[10px] font-mono text-slate-400">{services.length} layanan</span>
           <button
-            onClick={openAdd}
+            onClick={onGoRancang}
             className="flex items-center gap-1.5 px-3 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" /> Tambah Layanan
