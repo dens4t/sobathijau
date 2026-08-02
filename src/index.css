@@ -150,6 +150,15 @@ html.grayscale {
   animation: fade-in 0.3s ease-out;
 }
 
+/* Toast slide from top */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-toast-in {
+  animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Custom ring for keyboard accessibility focus-visible */
 *:focus-visible {
   outline: 3px solid #f59e0b !important;

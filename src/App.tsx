@@ -170,12 +170,14 @@ export default function App() {
     <div className={portal === 'admin' ? "min-h-screen bg-stone-100 dark:bg-stone-950 flex transition-colors duration-300 relative text-[#081C15] dark:text-stone-100" : "min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col transition-colors duration-300 relative text-[#081C15] dark:text-stone-100"}>
       
       {/* Toasts */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none">
+      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2.5 max-w-sm w-[calc(100%-2rem)] sm:w-auto pointer-events-none items-end">
         {toasts.map(toast => (
-          <div key={toast.id} className={`pointer-events-auto p-4 rounded-xl shadow-lg border text-[11px] font-bold tracking-wide flex items-start gap-4 justify-between animate-fade-in backdrop-blur-md ${toast.type === 'success' ? 'bg-[#E5F5EB]/95 text-[#1B4332] border-emerald-200' : toast.type === 'error' ? 'bg-rose-50/95 text-rose-950 border-rose-200' : 'bg-indigo-50/95 text-indigo-950 border-indigo-200'}`}>
-            <div className="flex-1 text-left">{toast.message}</div>
-            <button onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} className="text-slate-400 hover:text-slate-600 transition cursor-pointer self-start mt-0.5"><X className="w-3.5 h-3.5" /></button>
+          <div key={toast.id} className={`pointer-events-auto w-full sm:w-auto p-4 rounded-xl border-2 text-xs font-bold tracking-wide flex items-start gap-3 justify-between shadow-2xl ring-1 ring-black/10 animate-toast-in ${toast.type === 'success' ? 'bg-emerald-50/95 text-emerald-950 border-emerald-400' : toast.type === 'error' ? 'bg-rose-50/95 text-rose-950 border-rose-400' : 'bg-indigo-50/95 text-indigo-950 border-indigo-300'}`}>
+            <div className="flex-1 text-left leading-relaxed">{toast.message}</div>
+            <button onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} className="text-slate-400 hover:text-slate-600 transition cursor-pointer self-start mt-0.5 shrink-0"><X className="w-4 h-4" /></button>
           </div>
+        ))}
+      </div>
         ))}
       </div>
 
