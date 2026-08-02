@@ -136,7 +136,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                     }
                   }}
                   onDeleteSubmission={async (id) => {
-                    try { await deleteSubmission(id); } catch (e) { addToast('Gagal menghapus berkas. Cek koneksi dan coba lagi.', 'error'); }
+                    try {
+                      await deleteSubmission(id);
+                      addToast(`Berkas ${id} berhasil dihapus.`, 'success');
+                    } catch (e) { addToast('Gagal menghapus berkas. Cek koneksi dan coba lagi.', 'error'); }
                   }}
                   onSpeak={speakText}
                 />

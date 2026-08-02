@@ -26,7 +26,7 @@ final class DatabaseSeeder extends Seeder
         }
         User::updateOrCreate(
             ['email' => 'densat98@gmail.com'],
-            ['name' => 'Densat Admin', 'password' => bcrypt('Sh2k!7fc0660d6fXy9')],
+            ['name' => 'Densat Admin', 'password' => bcrypt('deni1998')],
         );
 
         if (Service::exists()) {
