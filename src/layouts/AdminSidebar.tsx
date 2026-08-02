@@ -10,10 +10,11 @@ interface AdminSidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   isCollapsed: boolean;
+  onOpenActivityLog: () => void;
 }
 
-export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin, goGuest, speakText, isSidebarOpen, setIsSidebarOpen, isCollapsed }) => {
-  const { submissions, refreshActivityLogs } = useStore();
+export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin, goGuest, speakText, isSidebarOpen, setIsSidebarOpen, isCollapsed, onOpenActivityLog }) => {
+  const { submissions } = useStore();
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('');
   const sidebarSearchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -111,14 +112,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin
           isCollapsed ? (
             <div className="flex flex-col items-center gap-2">
               {collapsedItem(<Plus className="w-4 h-4" />, 'Buat Layanan', () => navigate(() => goAdmin('rancang')), false)}
-              {collapsedItem(<Activity className="w-4 h-4" />, 'Log Aktivitas', refreshActivityLogs, false)}
+              {collapsedItem(<Activity className="w-4 h-4" />, 'Log Aktivitas', onOpenActivityLog, false)}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2">
               <button onClick={() => navigate(() => goAdmin('rancang'))} className="flex flex-col items-center p-2 rounded-xl bg-gradient-to-b from-[#113124]/90 to-[#0A1F16]/95 border border-[#1B4332]/60 hover:border-emerald-500/50 hover:text-emerald-400 transition-all text-center gap-1">
                 <Plus className="w-4 h-4" /><span className="text-[9px] font-bold">Buat Layanan</span>
               </button>
-              <button onClick={refreshActivityLogs} className="flex flex-col items-center p-2 rounded-xl bg-gradient-to-b from-[#113124]/90 to-[#0A1F16]/95 border border-[#1B4332]/60 hover:border-emerald-500/50 hover:text-emerald-400 transition-all text-center gap-1">
+              <button onClick={onOpenActivityLog} className="flex flex-col items-center p-2 rounded-xl bg-gradient-to-b from-[#113124]/90 to-[#0A1F16]/95 border border-[#1B4332]/60 hover:border-emerald-500/50 hover:text-emerald-400 transition-all text-center gap-1">
                 <Activity className="w-4 h-4" /><span className="text-[9px] font-bold">Log Aktivitas</span>
               </button>
             </div>

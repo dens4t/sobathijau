@@ -18,9 +18,10 @@ interface AdminLayoutProps {
   routeToTracking: (code: string) => void;
   addToast: (msg: string, type: 'success' | 'info' | 'error') => void;
   onLogout: () => void;
+  onOpenActivityLog: () => void;
 }
 
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, goGuest, speakText, routeToTracking, addToast, onLogout }) => {
+export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, goGuest, speakText, routeToTracking, addToast, onLogout, onOpenActivityLog }) => {
   const { 
     services, submissions, locations, categories,
     updateSubmissionStatus, deleteSubmission,
@@ -48,6 +49,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         isCollapsed={isSidebarCollapsed}
+        onOpenActivityLog={onOpenActivityLog}
       />
 
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">

@@ -223,7 +223,7 @@ export default function App() {
       {currentPath.startsWith('/admin/login') && sessionStorage.getItem('sh_admin_auth') !== 'authenticated' ? (
         <AdminLogin onLogin={handleAdminLogin} />
       ) : portal === 'admin' ? (
-        <AdminLayout adminSubTab={adminSubTab} goAdmin={goAdmin} goGuest={goGuest} speakText={speakText} routeToTracking={routeToTracking} addToast={addToast} onLogout={handleAdminLogout} />
+        <AdminLayout adminSubTab={adminSubTab} goAdmin={goAdmin} goGuest={goGuest} speakText={speakText} routeToTracking={routeToTracking} addToast={addToast} onLogout={handleAdminLogout} onOpenActivityLog={() => setIsActivityLogModalOpen(true)} />
       ) : (
         <div className="flex flex-col flex-1 w-full">
           <PublicHeader activeTab={activeTab} changeTab={changeTab} goAdmin={goAdmin} speakText={speakText} setTrackSearchCode={setTrackSearchCode} addToast={addToast} />
