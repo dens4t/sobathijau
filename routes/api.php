@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/bootstrap', [BootstrapController::class, 'index']);
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('/submissions', [SubmissionController::class, 'store']);
 Route::get('/assistant/questions', [AssistantController::class, 'questions']);
 Route::post('/assistant', [AssistantController::class, 'answer']);

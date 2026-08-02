@@ -16,7 +16,7 @@ final class SobatHijauApiTest extends TestCase
 
         $token = $this->postJson('/api/login', [
             'email' => 'densat98@gmail.com',
-            'password' => 'deni1998',
+            'password' => 'Sh2k!7fc0660d6fXy9',
         ])->assertOk()->json('token');
 
         $this->withHeader('Authorization', 'Bearer '.$token);
