@@ -136,8 +136,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                     }
                   }}
                   onDeleteSubmission={async (id) => {
-                    const confirmDel = window.confirm(`Apakah Anda yakin ingin menghapus permohonan dengan kode ${id}?`);
-                    if (!confirmDel) return;
                     try { await deleteSubmission(id); } catch (e) { addToast('Gagal menghapus berkas. Cek koneksi dan coba lagi.', 'error'); }
                   }}
                   onSpeak={speakText}

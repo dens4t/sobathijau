@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 import { AccessibilitySettings, AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
 import { api } from '../lib/api';
-import { defaultServices, defaultSubmissions } from '../data/defaultServices';
-import { defaultLocations } from '../data/defaultLocations';
-import { defaultCategories } from '../data/defaultCategories';
 
 export type ActivityLog = { id: string; action: string; timestamp: string; iconType: string };
 
@@ -63,10 +60,10 @@ async function commit(set: (fn: (s: AppState) => Partial<AppState>) => void, app
 }
 
 export const useStore = create<AppState>((set, get) => ({
-  services: defaultServices,
-  submissions: defaultSubmissions,
-  locations: defaultLocations,
-  categories: defaultCategories,
+  services: [],
+  submissions: [],
+  locations: [],
+  categories: [],
   notifications: [],
   activityLogs: [],
   networkLinks: [] as NetworkLink[],
@@ -86,30 +83,32 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       const data = await api.bootstrap();
       set({
-        services: data.services.length ? data.services : defaultServices,
-        submissions: data.submissions.length ? data.submissions : defaultSubmissions,
-        locations: data.locations.length ? data.locations : defaultLocations,
-        categories: data.categories.length ? data.categories : defaultCategories,
+        services: data.services,
+        submissions: data.submissions,
+        locations: data.locations,
+        categories: data.categories,
         networkLinks: data.networkLinks || [],
         notifications: data.notifications,
-        activityLogs: data.activityLogs.length ? data.activityLogs : get().activityLogs,
+        activityLogs: data.activityLogs || [],
         carouselSlides: data.carouselSlides,
         siteMetrics: data.siteMetrics,
         assistantQuestions: data.assistantQuestions,
         isInitialized: true
       });
     } catch (err) {
-      console.warn('API Bootstrap failed, using local/default data');
-      
-      // Fallback to localStorage if API fails
-      const lServices = localStorage.getItem('sh_services_v1');
-      const lSubs = localStorage.getItem('sh_submissions_v1');
-      const lNotifs = localStorage.getItem('sh_notifications_v1');
-      
+      console.warn('API Bootstrap gagal:', err);
+
       set({
-        services: lServices ? JSON.parse(lServices) : defaultServices,
-        submissions: lSubs ? JSON.parse(lSubs) : defaultSubmissions,
-        notifications: lNotifs ? JSON.parse(lNotifs) : [],
+        services: [],
+        submissions: [],
+        locations: [],
+        categories: [],
+        notifications: [],
+        activityLogs: [],
+        networkLinks: [],
+        carouselSlides: [],
+        siteMetrics: [],
+        assistantQuestions: [],
         isInitialized: true
       });
       throw err; // So UI can toast
