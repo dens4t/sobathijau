@@ -19,7 +19,7 @@ final class BootstrapController extends Controller
     public function index(): JsonResponse
     {
         return response()->json([
-            'services' => Service::all(),
+            'services' => Service::orderByDesc('createdAt')->get(),
             'submissions' => Submission::all(),
             'notifications' => AppNotification::all(),
             'activityLogs' => ActivityLog::orderBy('timestamp', 'desc')->get(),

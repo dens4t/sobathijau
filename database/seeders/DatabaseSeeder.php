@@ -67,6 +67,8 @@ final class DatabaseSeeder extends Seeder
                 'icon' => 'FileText',
                 'description' => 'Persetujuan Surat Pernyataan Kesanggupan Pengelolaan dan Pemantauan Lingkungan Hidup untuk usaha mikro dan kecil.',
                 'isCustom' => false,
+                'createdAt' => '2026-01-15 08:00',
+
                 'fields' => [
                     ['id' => 'nama_pemohon', 'label' => 'Nama Lengkap Pemohon / Penanggung Jawab', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Joko Susilo, S.H.'],
                     ['id' => 'nik', 'label' => 'Nomor Induk Kependudukan (NIK)', 'type' => 'text', 'required' => true, 'placeholder' => '16 digit nomor NIK sesuai KTP'],
@@ -84,6 +86,8 @@ final class DatabaseSeeder extends Seeder
                 'icon' => 'Droplet',
                 'description' => 'Pengujian kualitas lingkungan (air bersih, air limbah, tanah, maupun tingkat kebisingan) di Laboratorium DLH.',
                 'isCustom' => false,
+                'createdAt' => '2026-02-10 09:30',
+
                 'fields' => [
                     ['id' => 'nama_instansi', 'label' => 'Nama Perusahaan / Instansi Pemohon', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: PT. Pontianak Tirta Agung'],
                     ['id' => 'no_kontak', 'label' => 'No. Handphone / WhatsApp Aktif', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: 081234567890'],
@@ -100,6 +104,8 @@ final class DatabaseSeeder extends Seeder
                 'icon' => 'Leaf',
                 'description' => 'Layanan penyediaan bibit tanaman / pohon pelindung gratis untuk menghijaukan pemukiman, sekolah, atau taman publik.',
                 'isCustom' => false,
+                'createdAt' => '2026-03-05 10:15',
+
                 'fields' => [
                     ['id' => 'nama_organisasi', 'label' => 'Nama Pemohon / Kelompok Masyarakat / Sekolah', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Karang Taruna Kelurahan Banjar Serasan'],
                     ['id' => 'alamat_tujuan', 'label' => 'Lokasi Rencana Penanaman', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Sebutkan nama jalan, wilayah, atau nama sekolah/tempat'],
@@ -116,6 +122,8 @@ final class DatabaseSeeder extends Seeder
                 'icon' => 'ShieldAlert',
                 'description' => 'Wadah pengaduan resmi atas tindak pencemaran air, udara, pembakaran sampah ilegal, atau pembuangan limbah B3 sembarangan.',
                 'isCustom' => false,
+                'createdAt' => '2026-03-20 13:45',
+
                 'fields' => [
                     ['id' => 'nama_pelapor', 'label' => 'Nama Pelapor (Gunakan "Anonim" jika ingin dirahasiakan)', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Anonim atau Budi Setiawan'],
                     ['id' => 'kontak_pelapor', 'label' => 'No. WhatsApp untuk Koordinasi Lapangan', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: 0811XXXXXX. Rahasia dijamin.'],

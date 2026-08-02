@@ -37,7 +37,7 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonCount(3, 'carouselSlides')
             ->assertJsonCount(1, 'siteMetrics')
             ->assertJsonCount(5, 'assistantQuestions')
-            ->assertJsonPath('services.0.id', 'sppl')
+            ->assertJsonPath('services.0.id', 'aduan-lingkungan')
             ->assertJsonPath('submissions.0.id', 'SH-2026-04981')
             ->assertJsonPath('services.0.isCustom', false)
             ->assertJsonPath('carouselSlides.0.icon', 'water')

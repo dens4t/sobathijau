@@ -116,7 +116,7 @@ export const FormCreator: React.FC<FormCreatorProps> = ({ onSave, onSpeak }) => 
     if (fields.length === 0) { setMessage({ type: 'error', text: 'Minimal satu field.' }); return; }
 
     const id = 'custom-' + name.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, '-');
-    onSave({ id, name, description, category, icon, fields, isCustom: true });
+    onSave({ id, name, description, category, icon, fields, isCustom: true, createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16) });
     setMessage({ type: 'success', text: `"${name}" berhasil diterbitkan!` });
     setName(''); setDescription(''); setCategory('Izin & Rekomendasi'); setIcon('FileText');
     setFields([
