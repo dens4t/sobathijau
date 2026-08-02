@@ -197,4 +197,23 @@ final class SobatHijauApiTest extends TestCase
         $this->assertSame('2026-07-22', $items[0]['date']);
         $this->assertSame('https://dlh.pontianak.go.id/assets/upload/posting/post-1.jpeg', $items[0]['image']);
     }
+
+    public function test_empty_string_fields_are_accepted(): void
+    {
+        $this->postJson('/api/locations', [
+            'id' => 'loc-empty-1',
+            'name' => 'Lokasi Tanpa Deskripsi',
+            'category' => 'TPS & TPA',
+            'lat' => 0.01,
+            'lng' => 109.34,
+            'address' => 'Alamat',
+            'description' => '',
+            'iconName' => 'MapPin',
+            'color' => '#000',
+            'createdAt' => '2026-08-02 10:00',
+            'updatedAt' => '2026-08-02 10:00',
+        ])->assertOk()->assertJsonPath('description', '');
+
+        $this->assertDatabaseHas('locations', ['id' => 'loc-empty-1']);
+    }
 }

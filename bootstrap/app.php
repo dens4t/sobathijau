@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.token' => EnsureAdminToken::class,
         ]);
+
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::skipWhen(
+            fn (Request $request) => $request->is('api/*'),
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
