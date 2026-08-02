@@ -28,7 +28,7 @@ final class SobatHijauApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonCount(4, 'services')
-            ->assertJsonCount(3, 'submissions')
+            ->assertJsonCount(8, 'submissions')
             ->assertJsonCount(2, 'notifications')
             ->assertJsonCount(5, 'activityLogs')
             ->assertJsonCount(12, 'locations')

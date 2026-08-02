@@ -146,6 +146,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
               ) : adminSubTab === 'layanan' ? (
                 <ServiceManager
                   services={services}
+                  onAdd={addService}
                   onUpdate={async (updated) => {
                     try { await updateService(updated); addToast(`Layanan "${updated.name}" berhasil diperbarui.`, 'success'); }
                     catch (e) { addToast('Gagal memperbarui layanan. Cek koneksi dan coba lagi.', 'error'); }
