@@ -178,8 +178,6 @@ export default function App() {
           </div>
         ))}
       </div>
-        ))}
-      </div>
 
       <AccessibilityWidget settings={useStore.getState().accessibility} onChange={useStore.getState().updateAccessibility} />
 
