@@ -199,7 +199,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
           }}
           onMapClick={pickMode ? handleMapClick : undefined}
           pickedPosition={isFormOpen ? pickedPosition : undefined}
-          height="300px"
+          height="400px"
         />
         {isFormOpen && (
           <div className="absolute top-3 left-3 z-[1000] flex gap-2">
@@ -387,13 +387,13 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
                   </div>
 
                   {/* Mini picker map inside form */}
-                  <div className="rounded-xl overflow-hidden border border-slate-200 h-[200px] relative">
+                  <div className="rounded-xl overflow-hidden border border-slate-200 h-[360px] relative">
                     <EnvironmentalMap
                       locations={locations}
                       categories={catList}
                       onMapClick={handleMapClick}
                       pickedPosition={pickedPosition}
-                      height="200px"
+                      height="360px"
                     />
                     <div className="absolute bottom-2 left-2 z-[1000]">
                       <button
