@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import * as Icons from 'lucide-react';
-import { MapPin, Plus, Pencil, Trash2, X, Check, Search, Crosshair, MousePointerClick, Download, FileText, Map as MapIcon, FileSpreadsheet, FileType2, Printer } from 'lucide-react';
+import { MapPin, Plus, Pencil, Trash2, X, Check, Search, Crosshair, MousePointerClick, Download, FileText, Map as MapIcon, FileSpreadsheet, FileType2, Printer, Loader2 } from 'lucide-react';
 import type { GeoCategory, GeoLocation } from '../types';
 import { EnvironmentalMap } from './EnvironmentalMap';
 import { IconPicker } from './IconPicker';
 import { motion, AnimatePresence } from 'motion/react';
 import { downloadExport } from '../lib/api';
+import L from 'leaflet';
 
 interface LocationManagerProps {
   locations: GeoLocation[];
@@ -28,6 +29,13 @@ const emptyLocation = (categories: GeoCategory[]): Partial<GeoLocation> => ({
   color: categories[0]?.markerColor || '#DC2626',
 });
 
+interface GeoResult {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
 export const LocationManager: React.FC<LocationManagerProps> = ({
   locations, onAdd, onUpdate, onDelete, addToast, speakText, categories: locCategories,
 }) => {
@@ -44,6 +52,12 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
   const [exportOpen, setExportOpen] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const [geoQuery, setGeoQuery] = useState('');
+  const [geoResults, setGeoResults] = useState<GeoResult[]>([]);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoMsg, setGeoMsg] = useState('');
+  const geoMapRef = useRef<L.Map | null>(null);
+  const geoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMapClick = (lat: number, lng: number) => {
     setFormData(f => ({ ...f, lat, lng }));
@@ -64,6 +78,10 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
     setIsFormOpen(false);
     setPickMode(false);
     setPickedPosition(null);
+    setGeoQuery('');
+    setGeoResults([]);
+    setGeoMsg('');
+    geoMapRef.current = null;
   };
 
   const openEdit = (loc: GeoLocation) => {
@@ -174,6 +192,49 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
     w.document.close();
     w.focus();
     w.print();
+  };
+
+  // Geocoding: cari alamat/gedung via Nominatim (OpenStreetMap) untuk menentukan koordinat.
+  const searchGeo = (raw: string) => {
+    if (geoDebounceRef.current) clearTimeout(geoDebounceRef.current);
+    const q = raw.trim();
+    if (q.length < 4) {
+      setGeoResults([]);
+      setGeoMsg('');
+      setGeoLoading(false);
+      return;
+    }
+    setGeoLoading(true);
+    setGeoMsg('');
+    geoDebounceRef.current = setTimeout(async () => {
+      try {
+        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=id&accept-language=id'
+          + '&viewbox=109.10,0.10,109.60,-0.15&bounded=1' // fokus area Pontianak
+          + '&q=' + encodeURIComponent(q);
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error('geocode http '.concat(String(res.status)));
+        const data = await res.json();
+        setGeoResults(Array.isArray(data) ? data as GeoResult[] : []);
+        setGeoMsg(Array.isArray(data) && data.length === 0 ? 'Tidak ditemukan. Coba kata kunci lain atau nama jalan + kota.' : '');
+      } catch {
+        setGeoResults([]);
+        setGeoMsg('Gagal mencari. Periksa koneksi internet.');
+      } finally {
+        setGeoLoading(false);
+      }
+    }, 500);
+  };
+
+  const selectGeo = (r: GeoResult) => {
+    const lat = parseFloat(r.lat);
+    const lng = parseFloat(r.lon);
+    setFormData(f => ({ ...f, lat, lng }));
+    setPickedPosition({ lat, lng });
+    setGeoQuery(r.display_name);
+    setGeoResults([]);
+    setGeoMsg('');
+    geoMapRef.current?.flyTo([lat, lng], 16);
+    speakText('Koordinat diatur dari hasil pencarian alamat.');
   };
 
   const exportItems: { format: string; label: string; icon: React.ReactNode }[] = [
@@ -387,6 +448,38 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
                     </div>
                   </div>
 
+                  {/* Cari alamat / gedung → isi koordinat */}
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-600 block mb-1">Cari Alamat / Gedung (geocoding)</label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={geoQuery}
+                        onChange={e => { setGeoQuery(e.target.value); searchGeo(e.target.value); }}
+                        placeholder="Contoh: Jl. Gajah Mada Pontianak, Kantor Walikota, Taman Alun Kapuas..."
+                        className="w-full pl-9 pr-8 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 bg-white"
+                      />
+                      {geoLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-500 animate-spin" />}
+                    </div>
+                    {geoResults.length > 0 && (
+                      <div className="mt-1.5 border border-slate-200 rounded-xl overflow-hidden bg-white shadow-lg max-h-44 overflow-y-auto">
+                        {geoResults.map(r => (
+                          <button
+                            key={r.place_id}
+                            type="button"
+                            onClick={() => selectGeo(r)}
+                            className="w-full text-left px-3 py-2.5 hover:bg-emerald-50 transition border-b border-slate-100 last:border-0"
+                          >
+                            <p className="text-[11px] font-semibold text-slate-700 leading-snug">{r.display_name}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {geoMsg && <p className="text-[10px] text-rose-500 mt-1.5">{geoMsg}</p>}
+                    <p className="text-[9px] text-slate-400 mt-1">Sumber: OpenStreetMap Nominatim · klik hasil untuk mengisi koordinat & memindahkan peta</p>
+                  </div>
+
                   {/* Mini picker map inside form */}
                   <div className="rounded-xl overflow-hidden border border-slate-200 h-[360px] relative">
                     <EnvironmentalMap
@@ -396,6 +489,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
                       pickedPosition={pickedPosition}
                       height="360px"
                       searchable={false}
+                      onMapReady={(m) => { geoMapRef.current = m; }}
                     />
                     <div className="absolute bottom-2 left-2 z-[1000]">
                       <button

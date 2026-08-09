@@ -23,6 +23,7 @@ interface EnvironmentalMapProps {
   height?: string;
   interactive?: boolean;
   searchable?: boolean;
+  onMapReady?: (map: L.Map) => void;
 }
 
 const ICON_SVG_PATHS: Record<string, string> = {
@@ -61,12 +62,14 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
   height = '420px',
   interactive = true,
   searchable = true,
+  onMapReady,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const pickedMarkerRef = useRef<L.Marker | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
+  const fittedIdsRef = useRef<string>('');
   const [activeFilter, setActiveFilter] = useState<string>('SEMUA');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -120,6 +123,7 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
     }
 
     mapInstanceRef.current = map;
+    onMapReady?.(map);
 
     return () => {
       map.remove();
@@ -171,8 +175,12 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
       bounds.extend([loc.lat, loc.lng]);
     });
 
-    if (filteredLocations.length > 0) {
+    // Hanya fit ulang saat SET lokasi berubah (pencarian/filter), bukan saat
+    // titik sementara/pilihan berubah — mencegah zoom keluar saat klik map.
+    const ids = filteredLocations.map(l => l.id).sort().join(',');
+    if (filteredLocations.length > 0 && ids !== fittedIdsRef.current) {
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      fittedIdsRef.current = ids;
     }
 
     if (selectedLocationId) {
