@@ -220,6 +220,75 @@ final class SobatHijauApiTest extends TestCase
             ->assertStatus(422);
     }
 
+    public function test_export_locations_requires_token(): void
+    {
+        $this->withHeader('Authorization', 'Bearer invalid')
+            ->getJson('/api/export/locations/kml')
+            ->assertStatus(401);
+    }
+
+    public function test_export_locations_csv_and_kml(): void
+    {
+        $csv = $this->get('/api/export/locations/csv')->getContent();
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        $this->assertStringContainsString('ID,Nama,Kategori,Latitude,Longitude,Alamat,Deskripsi', $csv);
+        $this->assertStringContainsString('TPS 3R Siantan Hilir', $csv);
+
+        $kml = $this->get('/api/export/locations/kml')->getContent();
+        $this->assertStringContainsString('<kml xmlns="http://www.opengis.net/kml/2.2">', $kml);
+        $this->assertSame(12, substr_count($kml, '<Placemark>'));
+        $this->assertStringContainsString('<coordinates>109.339500,0.035100,0</coordinates>', $kml);
+    }
+
+    public function test_export_locations_kmz_xlsx_shp_are_valid_zips(): void
+    {
+        foreach ([['kmz', '.kml'], ['xlsx', 'xl/worksheets/sheet1.xml'], ['shp', '.shp']] as [$format, $entry]) {
+            $bytes = $this->get('/api/export/locations/'.$format)->getContent();
+            $tmp = tempnam(sys_get_temp_dir(), 'exp');
+            file_put_contents($tmp, $bytes);
+            $zip = new \ZipArchive;
+            $this->assertTrue($zip->open($tmp) === true, "$format harus berupa zip yang valid");
+            $names = [];
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $names[] = $zip->getNameIndex($i);
+            }
+            $zip->close();
+            unlink($tmp);
+
+            $this->assertNotEmpty(array_filter($names, static fn (string $n): bool => str_contains($n, $entry)), "$format harus berisi $entry");
+        }
+
+        // Validasi struktur biner SHP: header ajaib 9994, jumlah record di DBF, PRJ WGS84.
+        $bytes = $this->get('/api/export/locations/shp')->getContent();
+        $tmp = tempnam(sys_get_temp_dir(), 'shpx');
+        file_put_contents($tmp, $bytes);
+        $zip = new \ZipArchive;
+        $zip->open($tmp);
+        $shp = $zip->getFromName('lokasi-dlh-pontianak-'.date('Y-m-d').'.shp');
+        $dbf = $zip->getFromName('lokasi-dlh-pontianak-'.date('Y-m-d').'.dbf');
+        $prj = $zip->getFromName('lokasi-dlh-pontianak-'.date('Y-m-d').'.prj');
+        $zip->close();
+        unlink($tmp);
+
+        $this->assertSame(9994, unpack('N', substr($shp, 0, 4))[1], 'magic SHP');
+        $this->assertSame(1, unpack('V', substr($shp, 32, 4))[1], 'shape type point');
+        $this->assertSame(12, unpack('V', substr($dbf, 4, 4))[1], 'jumlah record DBF');
+        $this->assertStringContainsString('GCS_WGS_1984', $prj);
+    }
+
+    public function test_export_locations_respects_ids_filter(): void
+    {
+        $kml = $this->get('/api/export/locations/kml?ids=loc-tps-01,loc-bs-01')->getContent();
+        $this->assertSame(2, substr_count($kml, '<Placemark>'));
+        $this->assertStringContainsString('TPS 3R Siantan Hilir', $kml);
+        $this->assertStringNotContainsString('TPS Pasar Dahlia', $kml);
+    }
+
+    public function test_export_locations_invalid_format_404(): void
+    {
+        $this->getJson('/api/export/locations/evil')->assertStatus(404);
+    }
+
     public function test_dlh_feed_parser_extracts_berita(): void
     {
         $service = new \App\Services\DlhFeed;

@@ -39,3 +39,22 @@ export const api = {
   updateNetworkLink: (link: NetworkLink) => call<NetworkLink>(`/network-links/${link.id}`, { method: 'PUT', headers: json, body: JSON.stringify(link) }),
   deleteNetworkLink: (id: string) => call<{ ok: true }>(`/network-links/${id}`, { method: 'DELETE' }),
 };
+
+// Unduh ekspor lokasi (admin) — fetch blob + trigger download browser.
+export const downloadExport = async (format: string, ids?: string[]): Promise<void> => {
+  const params = ids && ids.length ? `?ids=${ids.join(',')}` : '';
+  const res = await fetch(`/api/export/locations/${format}${params}`, {
+    headers: token() ? { Authorization: `Bearer ${token()}` } : {},
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const blob = await res.blob();
+  const cd = res.headers.get('Content-Disposition') || '';
+  const m = cd.match(/filename="([^"]+)"/);
+  const filename = m ? m[1] : `lokasi.${format === 'shp' ? 'zip' : format}`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};

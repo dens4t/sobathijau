@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AssistantController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BootstrapController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\NetworkLinkController;
@@ -50,6 +51,9 @@ Route::middleware('auth.token')->group(function (): void {
     Route::post('/network-links', [NetworkLinkController::class, 'store']);
     Route::put('/network-links/{id}', [NetworkLinkController::class, 'update']);
     Route::delete('/network-links/{id}', [NetworkLinkController::class, 'destroy']);
+
+    Route::get('/export/locations/{format}', [ExportController::class, 'locations'])
+        ->where('format', 'csv|kml|kmz|xlsx|shp');
 
     Route::post('/activity-logs', [ActivityLogController::class, 'store']);
 });

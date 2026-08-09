@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import * as Icons from 'lucide-react';
-import { MapPin, Plus, Pencil, Trash2, X, Check, Search, Crosshair, MousePointerClick } from 'lucide-react';
+import { MapPin, Plus, Pencil, Trash2, X, Check, Search, Crosshair, MousePointerClick, Download, FileText, Map as MapIcon, FileSpreadsheet, FileType2, Printer } from 'lucide-react';
 import type { GeoCategory, GeoLocation } from '../types';
 import { EnvironmentalMap } from './EnvironmentalMap';
 import { IconPicker } from './IconPicker';
 import { motion, AnimatePresence } from 'motion/react';
+import { downloadExport } from '../lib/api';
 
 interface LocationManagerProps {
   locations: GeoLocation[];
@@ -40,6 +41,9 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pickMode, setPickMode] = useState(false);
   const [pickedPosition, setPickedPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exporting, setExporting] = useState<string | null>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
 
   const handleMapClick = (lat: number, lng: number) => {
     setFormData(f => ({ ...f, lat, lng }));
@@ -117,6 +121,68 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
     setDeletingId(null);
   };
 
+  // Tutup dropdown ekspor saat klik di luar.
+  React.useEffect(() => {
+    const handler = (ev: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(ev.target as Node)) setExportOpen(false);
+    };
+    if (exportOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [exportOpen]);
+
+  const handleExport = async (format: string) => {
+    setExportOpen(false);
+    setExporting(format);
+    try {
+      // Ekspor data yang sedang difilter/dicari; tanpa filter = semua titik.
+      const ids = filtered.length < locations.length ? filtered.map(l => l.id) : undefined;
+      await downloadExport(format, ids);
+      addToast(`Ekspor ${format.toUpperCase()} berhasil diunduh.`, 'success');
+    } catch {
+      addToast('Gagal mengekspor. Cek koneksi dan coba lagi.', 'error');
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handlePrintPdf = () => {
+    setExportOpen(false);
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const rowsHtml = filtered.map(l =>
+      `<tr><td>${esc(l.id)}</td><td>${esc(l.name)}</td><td>${esc(l.category)}</td>` +
+      `<td class="num">${l.lat.toFixed(6)}</td><td class="num">${l.lng.toFixed(6)}</td><td>${esc(l.address)}</td></tr>`
+    ).join('');
+    const w = window.open('', '_blank');
+    if (!w) { addToast('Blokir popup menghalangi cetak. Izinkan popup lalu coba lagi.', 'error'); return; }
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cetak Lokasi DLH Pontianak</title><style>
+      body{font-family:Arial,sans-serif;color:#111;margin:24px;}
+      h1{font-size:18px;margin:0 0 4px;} .meta{font-size:11px;color:#555;margin-bottom:16px;}
+      table{width:100%;border-collapse:collapse;font-size:10px;}
+      th,td{border:1px solid #999;padding:4px 6px;text-align:left;}
+      th{background:#1B4332;color:#fff;}
+      td.num{text-align:right;font-family:monospace;}
+      .footer{font-size:9px;color:#888;margin-top:16px;text-align:center;}
+      @media print { body{margin:8mm;} }
+    </style></head><body>
+      <h1>Daftar Lokasi Lingkungan — DLH Kota Pontianak</h1>
+      <div class="meta">Dicetak: ${new Date().toLocaleString('id-ID')} · Jumlah titik: ${filtered.length}</div>
+      <table><thead><tr><th>ID</th><th>Nama</th><th>Kategori</th><th>Latitude</th><th>Longitude</th><th>Alamat</th></tr></thead>
+      <tbody>${rowsHtml}</tbody></table>
+      <div class="footer">Sobat Hijau — Dinas Lingkungan Hidup Kota Pontianak · dlh.pontianak.go.id</div>
+    </body></html>`);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
+  const exportItems: { format: string; label: string; icon: React.ReactNode }[] = [
+    { format: 'kml', label: 'KML (Google Earth)', icon: <MapIcon className="w-3.5 h-3.5" /> },
+    { format: 'kmz', label: 'KMZ (Google Earth terkompresi)', icon: <MapIcon className="w-3.5 h-3.5" /> },
+    { format: 'shp', label: 'SHP (GIS — zip .shp/.dbf/.prj)', icon: <FileType2 className="w-3.5 h-3.5" /> },
+    { format: 'xlsx', label: 'Excel (.xlsx)', icon: <FileSpreadsheet className="w-3.5 h-3.5" /> },
+    { format: 'csv', label: 'CSV', icon: <FileText className="w-3.5 h-3.5" /> },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Map Preview — click-to-pick when pickMode is on */}
@@ -167,12 +233,59 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
             Kelola Titik Peta ({locations.length})
           </h3>
         </div>
-        <button
-          onClick={() => { resetForm(); setIsFormOpen(true); speakText('Membuka form tambah titik baru'); }}
-          className="px-4 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
-        >
-          <Plus className="w-3.5 h-3.5" /> Tambah Titik
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Ekspor / Cetak */}
+          <div className="relative" ref={exportRef}>
+            <button
+              onClick={() => setExportOpen(o => !o)}
+              disabled={!!exporting}
+              className="px-4 py-2 bg-white hover:bg-emerald-50 text-[#1B4332] border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm disabled:opacity-60"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {exporting ? `Mengunduh ${exporting.toUpperCase()}...` : 'Ekspor / Cetak'}
+            </button>
+            <AnimatePresence>
+              {exportOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 mt-2 z-30 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden w-64"
+                >
+                  <p className="px-4 py-2 text-[9px] font-mono text-slate-400 border-b border-slate-100">
+                    {filtered.length} titik {filtered.length < locations.length ? `(difilter dari ${locations.length})` : '(semua)'} · memerlukan login admin
+                  </p>
+                  <div className="py-1">
+                    {exportItems.map(item => (
+                      <button
+                        key={item.format}
+                        onClick={() => handleExport(item.format)}
+                        className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-[#1B4332] transition flex items-center gap-2.5"
+                      >
+                        {item.icon}
+                        {item.label}
+                      </button>
+                    ))}
+                    <button
+                      onClick={handlePrintPdf}
+                      className="w-full px-4 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-[#1B4332] transition flex items-center gap-2.5 border-t border-slate-100"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      PDF (cetak → Simpan sebagai PDF)
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <button
+            onClick={() => { resetForm(); setIsFormOpen(true); speakText('Membuka form tambah titik baru'); }}
+            className="px-4 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" /> Tambah Titik
+          </button>
+        </div>
       </div>
 
       {/* Search & Filter */}
