@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Settings, Eye, Edit3, Trash2, Check, AlertTriangle, RefreshCcw, BarChart3, Database, Sparkles, Search, Clock, X, ShieldAlert } from 'lucide-react';
 import { Submission, SubmissionStatus } from '../types';
+import { replyTemplates } from '../data/replyTemplates';
 import { TrackingSobat } from './TrackingSobat';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -27,6 +28,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<SubmissionStatus>('DIAJUKAN');
   const [adminNotes, setAdminNotes] = useState('');
+  const [quickReply, setQuickReply] = useState('');
   
   // Delete confirmation state
   const [deleteSubId, setDeleteSubId] = useState<string | null>(null);
@@ -99,9 +101,25 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const startChangingStatus = (sub: Submission) => {
     setSelectedSubId(sub.id);
     setNewStatus(sub.status);
+    setQuickReply('');
     setAdminNotes(sub.timeline.find(t => t.status === sub.status)?.notes || '');
     onSpeak(`Mengedit status berkas ${sub.id}`);
   };
+
+  const changeStatus = (status: SubmissionStatus) => {
+    setNewStatus(status);
+    setQuickReply(''); // template balasan mengikuti status terpilih
+  };
+
+  const pickQuickReply = (text: string) => {
+    if (!text) return;
+    setQuickReply(text);
+    setAdminNotes(text);
+  };
+
+  const defaultReply = newStatus === 'DITOLAK'
+    ? 'Permohonan ditolak: syarat berkas tidak terpenuhi.'
+    : 'Status berkas diperbarui menjadi '.concat(newStatus.replace('_', ' ')).concat('.');
 
   const saveStatusChange = () => {
     if (!selectedSubId) return;
@@ -231,7 +249,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <h5 className="font-bold text-sm text-slate-800 dark:text-stone-200">Ubah Status: {selectedSubId}</h5>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Baru</label>
-                  <select value={newStatus} onChange={(e) => setNewStatus(e.target.value as SubmissionStatus)} className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none">
+                  <select value={newStatus} onChange={(e) => changeStatus(e.target.value as SubmissionStatus)} className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none">
                     <option value="DIAJUKAN">DIAJUKAN</option>
                     <option value="VERIFIKASI_ADMIN">VERIFIKASI ADMINISTRASI</option>
                     <option value="SURVEY_TEKNIS">SURVEY TEKNIS / LAPANGAN</option>
@@ -241,8 +259,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Catatan Tambahan (Opsional)</label>
-                  <textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} rows={3} className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none resize-none" placeholder="Tambahkan catatan untuk pemohon..." />
+                  <label className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase mb-1">⚡ Balasan Cepat</label>
+                  <select value={quickReply} onChange={(e) => pickQuickReply(e.target.value)} className="w-full px-3 py-2 text-xs rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-stone-850 focus:outline-none text-slate-700 dark:text-stone-200">
+                    <option value="">— Pilih balasan siap pakai (opsional) —</option>
+                    {(replyTemplates[newStatus] || []).map(t => (
+                      <option key={t.label} value={t.text}>{t.label}: {t.text.slice(0, 70)}…</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Balasan / Catatan ke Pemohon (bisa diedit)</label>
+                  <textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} rows={3} className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none resize-none" placeholder="Tulis balasan bebas, atau biarkan kosong untuk pesan status otomatis..." />
+                  <p className="text-[10px] text-slate-400 mt-1.5 flex items-start gap-1">
+                    <span>💬 Pemohon akan melihat:</span>
+                    <span className="font-semibold text-slate-500 dark:text-stone-300">{adminNotes.trim() ? adminNotes : defaultReply}</span>
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={saveStatusChange} className="flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg text-xs transition">Simpan</button>

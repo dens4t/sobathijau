@@ -171,6 +171,14 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
                         {step.description}
                       </p>
 
+                      {/* Balasan admin untuk pemohon */}
+                      {step.notes?.trim() && (
+                        <div className="mt-2 p-2.5 rounded-lg bg-emerald-50/80 border border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 text-[10.5px] text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                          <span className="font-bold uppercase tracking-wide text-[9px] text-emerald-700 dark:text-emerald-400">💬 Balasan DLH: </span>
+                          {step.notes}
+                        </div>
+                      )}
+
                       {/* Display custom official comments/notes */}
                       {idx === 4 && foundSubmission.status === 'SELESAI' && (
                         <div className="mt-3 p-3 rounded-lg bg-green-50 border border-green-200 text-[11px] text-green-900 dark:bg-green-950/20 dark:border-green-800 dark:text-green-300">

@@ -167,7 +167,7 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonPath('submission.timeline.3.isCompleted', true)
             ->assertJsonPath('notification.submissionId', 'SH-2026-08123')
             ->assertJsonPath('notification.isRead', false)
-            ->assertJsonPath('notification.message', 'Status berkas Pengujian Sampah / Air / Udara Laboratorium (SH-2026-08123) diperbarui menjadi [PROSES PENYUSUNAN REKOMENDASI].');
+            ->assertJsonPath('notification.message', 'Berkas lengkap');
 
         $this->assertDatabaseCount('notifications', 3);
     }

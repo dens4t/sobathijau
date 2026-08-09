@@ -73,9 +73,12 @@ final class SubmissionController extends ResourceController
         $timeline = Timeline::update((array) $sub->timeline, $status, $adminNote, $date);
         $sub->fill(['status' => $status, 'timeline' => $timeline])->save();
 
-        $message = $status === 'DITOLAK'
-            ? "Permohonan {$sub->serviceName} ({$sub->id}) ditolak: \"".($adminNote ?: 'Syarat berkas tidak terpenuhi').'"'
-            : 'Status berkas '.$sub->serviceName.' ('.$sub->id.') diperbarui menjadi ['.Timeline::STATUS_LABELS[$status].'].';
+        // Balasan admin (dari template cepat / teks kustom) menjadi isi notifikasi pemohon.
+        $message = is_string($adminNote) && trim($adminNote) !== ''
+            ? trim($adminNote)
+            : ($status === 'DITOLAK'
+                ? 'Permohonan '.$sub->serviceName.' ('.$sub->id.') ditolak: syarat berkas tidak terpenuhi.'
+                : 'Status berkas '.$sub->serviceName.' ('.$sub->id.') diperbarui menjadi ['.Timeline::STATUS_LABELS[$status].'].');
 
         $notification = AppNotification::create([
             'id' => 'notif-'.self::randomId(),
