@@ -182,7 +182,28 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
                           <button
                             onClick={() => {
                               onSpeak("Mengunduh salinan berkas rekomendasi DLH");
-                              alert(`Mengunduh Berkas SPPL/Rekomendasi Digital: \nNomor: SH/DLH-${foundSubmission.id}\nLayanan: ${foundSubmission.serviceName}\nPemohon: ${foundSubmission.applicantName}`);
+                              const lines = [
+                                'SOBAT HIJAU — DLH KOTA PONTIANAK',
+                                'SURAT KEPUTUSAN / REKOMENDASI DIGITAL',
+                                '='.repeat(52),
+                                `Nomor: SH/DLH-${foundSubmission.id}`,
+                                `Layanan: ${foundSubmission.serviceName}`,
+                                `Pemohon: ${foundSubmission.applicantName}`,
+                                `Status: ${foundSubmission.status.replace('_', ' ')}`,
+                                `Diajukan: ${foundSubmission.submittedAt}`,
+                                '',
+                                'Tahapan:',
+                                ...foundSubmission.timeline.map(s => `- [${s.isCompleted ? 'X' : ' '}] ${s.title} (${s.updatedAt})`),
+                                '',
+                                'Dokumen ini adalah salinan digital. Hubungi DLH untuk dokumen resmi.',
+                              ].join('\n');
+                              const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `SH-DLH-${foundSubmission.id}.txt`;
+                              a.click();
+                              URL.revokeObjectURL(url);
                             }}
                             className="mt-2 text-xs flex items-center gap-1 text-emerald-800 hover:text-emerald-950 dark:text-amber-400 font-bold underline"
                           >

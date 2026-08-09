@@ -22,9 +22,9 @@ const EcoCarousel = React.lazy(() => import('./components/EcoCarousel').then(m =
 const MapView = React.lazy(() => import('./components/MapView').then(m => ({ default: m.MapView })));
 
 export default function App() {
-  const { 
+  const {
     initStore, isInitialized, services, submissions, locations, categories, networkLinks,
-    addSubmission, activityLogs, refreshActivityLogs, carouselSlides, siteMetrics 
+    addSubmission, activityLogs, refreshActivityLogs, carouselSlides, siteMetrics, accessibility
   } = useStore();
 
   const [portal, setPortal] = useState<'guest' | 'admin'>('guest');
@@ -70,6 +70,28 @@ export default function App() {
     window.history.pushState(null, '', path);
     dispatchEvent(new PopStateEvent('popstate'));
   };
+
+  useEffect(() => {
+    // Terapkan pengaturan aksesibilitas ke DOM (kelas CSS di index.css).
+    const el = document.documentElement;
+    el.classList.toggle('size-large', accessibility.textSize === 'large');
+    el.classList.toggle('size-extra-large', accessibility.textSize === 'extra-large');
+    el.classList.toggle('dyslexic-font', accessibility.dyslexiaFont);
+    el.classList.toggle('contrast-high-mode', accessibility.contrast === 'high');
+    el.classList.toggle('grayscale', accessibility.contrast === 'grayscale');
+  }, [accessibility]);
+
+  useEffect(() => {
+    // Muat pengaturan aksesibilitas tersimpan (localStorage hanya di-write di store).
+    const saved = localStorage.getItem('sh_accessibility_v1');
+    if (saved) {
+      try {
+        useStore.getState().updateAccessibility(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem('sh_accessibility_v1');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // Saat masuk portal admin: muat data berkas penuh (NIK/kontak) via endpoint ber-token.
@@ -277,6 +299,7 @@ export default function App() {
                 {activeTab === 'layanan' && (
                   <LayananKami services={services} onSubmitForm={(service, data) => {
                     const { __code, __applicantName, ...formOnly } = data as Record<string, unknown>;
+                    const now = nowSql();
                     const newSub: Submission = {
                       id: String(__code),
                       serviceId: service.id,
@@ -284,8 +307,8 @@ export default function App() {
                       applicantName: String(__applicantName),
                       status: 'DIAJUKAN',
                       formData: formOnly,
-                      submittedAt: nowSql(),
-                      timeline: createTimeline('DIAJUKAN')
+                      submittedAt: now,
+                      timeline: createTimeline(now)
                     };
                     addSubmission(newSub);
                     addToast(`Permohonan ${service.name} berhasil dikirim! Kode: ${__code}`, 'success');
