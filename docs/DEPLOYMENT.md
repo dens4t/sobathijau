@@ -50,3 +50,7 @@ frontend sudah di-build ke `public/assets` dan di-commit).
   `php artisan migrate --force` (perubahan skema) + `php artisan config:clear`.
 - Feed berita/Instagram butuh akses internet keluar dari server (biasanya OK
   di cPanel; jika diblokir, feed otomatis menampilkan pesan "tidak dapat dimuat").
+# Deployment & pemeliharaan
+
+- Live deploy: git push ke main memicu deploy otomatis (termasuk migrate:fresh + seed — data live di-reset ke baseline seeder tiap deploy).
+- Untuk data persisten, perlukan konfigurasi deploy tanpa migrate:fresh.
