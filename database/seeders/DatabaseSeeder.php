@@ -39,13 +39,16 @@ final class DatabaseSeeder extends Seeder
             ['name' => 'Densat Admin', 'password' => bcrypt('deni1998')],
         );
 
+        // Layanan: selalu di-seed idempoten (updateOrCreate) agar perubahan nama/
+        // tautan redirect ikut ter-update di DB lama.
+        foreach ($this->services() as $row) {
+            Service::updateOrCreate(['id' => $row['id']], $row);
+        }
+
         if (Service::exists()) {
             return;
         }
 
-        foreach ($this->services() as $row) {
-            Service::create($row);
-        }
         foreach ($this->submissions() as $row) {
             Submission::create($row);
         }
@@ -91,21 +94,16 @@ final class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'lab-air',
-                'name' => 'Pengujian Sampah / Air / Udara Laboratorium',
+                'name' => 'Pengujian Sampel',
                 'category' => 'Laboratorium',
                 'icon' => 'Droplet',
-                'description' => 'Pengujian kualitas lingkungan (air bersih, air limbah, tanah, maupun tingkat kebisingan) di Laboratorium DLH.',
+                'description' => 'Pengujian kualitas sampel lingkungan (air bersih, air limbah, tanah, maupun tingkat kebisingan) di Laboratorium DLH.',
+                'externalUrl' => 'https://polis.pontianak.go.id/',
+                'externalNote' => 'Permohonan pengujian sampel dilayani melalui portal Pengelolaan Limbah dan ... — POLIS (Peta Online Limbah dan Sampah) Kota Pontianak. Anda akan diarahkan ke polis.pontianak.go.id untuk mengisi formulir permohonan pengujian secara resmi.',
                 'isCustom' => false,
                 'createdAt' => '2026-02-10 09:30',
 
-                'fields' => [
-                    ['id' => 'nama_instansi', 'label' => 'Nama Perusahaan / Instansi Pemohon', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: PT. Pontianak Tirta Agung'],
-                    ['id' => 'no_kontak', 'label' => 'No. Handphone / WhatsApp Aktif', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: 081234567890'],
-                    ['id' => 'jenis_sampel', 'label' => 'Jenis Sampel Lingkungan', 'type' => 'select', 'required' => true, 'options' => ['Air Limbah Industri', 'Air Bersih / Sumur Bor', 'Udara Ambien (Kebisingan)', 'Air Sungai / Danau', 'Limbah Padat / Tanah']],
-                    ['id' => 'parameter_uji', 'label' => 'Parameter Pengujian Utama', 'type' => 'checkbox_group', 'required' => true, 'options' => ['pH & Suhu', 'BOD & COD (Beban Organik)', 'Kadar Logam Berat (Pb, Cd, Hg)', 'Total Suspended Solids (TSS)', 'Kebisingan & Getaran']],
-                    ['id' => 'jumlah_titik', 'label' => 'Jumlah Titik Sampling', 'type' => 'number', 'required' => true, 'placeholder' => 'Contoh: 2'],
-                    ['id' => 'tanggal_antar', 'label' => 'Rencana Tanggal Pengantaran Sampel', 'type' => 'date', 'required' => true],
-                ],
+                'fields' => [],
             ],
             [
                 'id' => 'bibit-gratis',
@@ -131,6 +129,8 @@ final class DatabaseSeeder extends Seeder
                 'category' => 'Layanan Umum',
                 'icon' => 'ShieldAlert',
                 'description' => 'Wadah pengaduan resmi atas tindak pencemaran air, udara, pembakaran sampah ilegal, atau pembuangan limbah B3 sembarangan.',
+                'externalUrl' => 'https://lapor.go.id',
+                'externalNote' => 'Pengaduan pencemaran lingkungan kini dilayani melalui LAPOR! (Layanan Aspirasi dan Pengaduan Online Rakyat) — kanal resmi pemerintah. Anda akan diarahkan ke lapor.go.id untuk membuat aduan secara resmi dan terlacak.',
                 'isCustom' => false,
                 'createdAt' => '2026-03-20 13:45',
 

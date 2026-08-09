@@ -23,6 +23,9 @@ export interface ServiceTemplate {
   fields: FieldDefinition[];
   isCustom?: boolean;
   createdAt?: string;
+  /** Layanan redirect: klik → penjelasan → pindah ke halaman eksternal (lapor.go.id, polis, dll). */
+  externalUrl?: string;
+  externalNote?: string;
 }
 
 export type SubmissionStatus = 'DIAJUKAN' | 'VERIFIKASI_ADMIN' | 'SURVEY_TEKNIS' | 'PROSES_REKOMENDASI' | 'SELESAI' | 'DITOLAK' | 'DIKEMBALIKAN';

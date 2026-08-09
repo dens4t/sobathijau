@@ -54,6 +54,8 @@ export const FormCreator: React.FC<FormCreatorProps> = ({ onSave, onSpeak }) => 
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<ServiceTemplate['category']>('Izin & Rekomendasi');
   const [icon, setIcon] = useState('FileText');
+  const [externalUrl, setExternalUrl] = useState('');
+  const [externalNote, setExternalNote] = useState('');
 
   // Fields
   const [fields, setFields] = useState<FieldDefinition[]>([
@@ -113,12 +115,12 @@ export const FormCreator: React.FC<FormCreatorProps> = ({ onSave, onSpeak }) => 
   const handleSave = () => {
     if (!name.trim()) { setMessage({ type: 'error', text: 'Nama layanan wajib diisi.' }); return; }
     if (!description.trim()) { setMessage({ type: 'error', text: 'Deskripsi wajib diisi.' }); return; }
-    if (fields.length === 0) { setMessage({ type: 'error', text: 'Minimal satu field.' }); return; }
+    if (!externalUrl.trim() && fields.length === 0) { setMessage({ type: 'error', text: 'Minimal satu field — atau isi URL Eksternal untuk layanan redirect.' }); return; }
 
     const id = 'custom-' + name.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, '-');
-    onSave({ id, name, description, category, icon, fields, isCustom: true, createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16) });
+    onSave({ id, name, description, category, icon, fields, isCustom: true, createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16), externalUrl: externalUrl.trim() || undefined, externalNote: externalNote.trim() || undefined });
     setMessage({ type: 'success', text: `"${name}" berhasil diterbitkan!` });
-    setName(''); setDescription(''); setCategory('Izin & Rekomendasi'); setIcon('FileText');
+    setName(''); setDescription(''); setCategory('Izin & Rekomendasi'); setIcon('FileText'); setExternalUrl(''); setExternalNote('');
     setFields([
       { id: 'nama_pemohon', label: 'Nama Lengkap Pemohon', type: 'text', required: true, placeholder: 'Masukkan nama lengkap' },
       { id: 'kontak_pemohon', label: 'Nomor WhatsApp', type: 'text', required: true, placeholder: 'Contoh: 0812XXXXXXXX' },
@@ -259,6 +261,31 @@ export const FormCreator: React.FC<FormCreatorProps> = ({ onSave, onSpeak }) => 
                     placeholder="Jelaskan secara singkat tujuan dan cakupan layanan ini..."
                     className="w-full px-4 py-3 text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition placeholder:text-stone-300 resize-none"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1.5">
+                      URL Eksternal <span className="text-stone-400 font-normal">(opsional — layanan redirect)</span>
+                    </label>
+                    <input
+                      value={externalUrl}
+                      onChange={e => setExternalUrl(e.target.value)}
+                      placeholder="https://lapor.go.id"
+                      className="w-full px-4 py-3 text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition font-mono placeholder:text-stone-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1.5">
+                      Catatan Redirect <span className="text-stone-400 font-normal">(penjelasan sebelum pindah)</span>
+                    </label>
+                    <input
+                      value={externalNote}
+                      onChange={e => setExternalNote(e.target.value)}
+                      placeholder="Permohonan dilayani melalui situs resmi..."
+                      className="w-full px-4 py-3 text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition placeholder:text-stone-300"
+                    />
+                  </div>
                 </div>
 
                 <button

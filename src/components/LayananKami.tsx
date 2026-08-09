@@ -15,6 +15,7 @@ interface LayananKamiProps {
 
 export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm, onSpeak }) => {
   const [selectedService, setSelectedService] = useState<ServiceTemplate | null>(null);
+  const [externalService, setExternalService] = useState<ServiceTemplate | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
@@ -34,6 +35,16 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
   });
 
   const selectService = (service: ServiceTemplate) => {
+    if (service.externalUrl) {
+      // Layanan redirect: tampilkan penjelasan dulu sebelum pindah ke situs eksternal.
+      setExternalService(service);
+      setSelectedService(null);
+      setFormData({});
+      setUploadedFiles({});
+      setSubmittedCode(null);
+      onSpeak(`Membuka informasi layanan ${service.name}. Anda akan diarahkan ke situs eksternal.`);
+      return;
+    }
     setSelectedService(service);
     setFormData({});
     setUploadedFiles({});
@@ -120,7 +131,69 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
 
   return (
     <div className="space-y-6" id="layanan-kami-container">
-      {!selectedService ? (
+      {externalService ? (
+        // Layanan redirect: penjelasan dulu, lalu pindah ke situs eksternal.
+        <div className="bg-white dark:bg-stone-900 p-6 md:p-8 rounded-2xl border border-slate-100 dark:border-stone-800 shadow-md w-full max-w-3xl mx-auto text-left" id="external-service-panel">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-stone-800 pb-4 mb-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => { setExternalService(null); onSpeak('Kembali ke daftar layanan'); }}
+                className="p-1 px-2.5 rounded-lg border border-slate-200 text-slate-600 dark:border-stone-700 dark:text-stone-400 text-xs hover:bg-slate-50 font-bold"
+              >
+                ← Kembali
+              </button>
+              <div className="text-left">
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{externalService.name}</h4>
+                <p className="text-[10px] text-slate-400 mt-0.5">{externalService.category}</p>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-stone-800 flex items-center justify-center border border-emerald-100 dark:border-stone-700">
+              {renderIcon(externalService.icon)}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-xs text-slate-600 dark:text-stone-300 leading-relaxed">{externalService.description}</p>
+
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4 flex items-start gap-3">
+              <LucideIcons.Info className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
+                <p className="font-bold mb-1">Informasi sebelum lanjut</p>
+                <p>{externalService.externalNote || 'Layanan ini dilayani melalui situs eksternal mitra. Anda akan diarahkan ke halaman resmi untuk membuat permohonan.'}</p>
+              </div>
+            </div>
+
+            <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-xl p-4 text-[11px] text-indigo-900 dark:text-indigo-200 flex items-start gap-2.5">
+              <LucideIcons.ExternalLink className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+              <span>
+                Anda akan meninggalkan Sobat Hijau menuju{' '}
+                <span className="font-mono font-bold">
+                  {(() => { try { return new URL(externalService.externalUrl!).hostname; } catch { return externalService.externalUrl; } })()}
+                </span>
+                . Pastikan Anda berada di situs resmi sebelum mengisi data.
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <a
+                href={externalService.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 py-3 bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2"
+              >
+                <LucideIcons.ExternalLink className="w-4 h-4" />
+                Lanjut ke situs resmi
+              </a>
+              <button
+                onClick={() => { setExternalService(null); onSpeak('Kembali ke daftar layanan'); }}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-stone-800 text-slate-700 dark:text-stone-300 font-bold rounded-xl text-xs transition"
+              >
+                Kembali ke daftar layanan
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : !selectedService ? (
         // Grid View of All Services with Category and Search Filter
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between" id="filter-panel">
@@ -179,6 +252,12 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 dark:bg-stone-850 dark:text-amber-400 uppercase tracking-wider font-mono flex items-center gap-0.5">
                         <LucideIcons.Sparkles className="w-2.5 h-2.5 text-amber-600" />
                         Custom
+                      </span>
+                    )}
+                    {service.externalUrl && (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-stone-850 dark:text-indigo-400 uppercase tracking-wider font-mono flex items-center gap-0.5">
+                        <LucideIcons.ExternalLink className="w-2.5 h-2.5" />
+                        Situs Eksternal
                       </span>
                     )}
                   </div>

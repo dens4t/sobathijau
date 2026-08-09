@@ -37,6 +37,8 @@ interface EditState {
   description: string;
   category: ServiceTemplate['category'];
   icon: string;
+  externalUrl: string;
+  externalNote: string;
   fields: FieldDefinition[];
 }
 
@@ -58,7 +60,7 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpda
   const openModal = (s: ServiceTemplate, mode: EditMode) => {
     setEditingId(s.id);
     setEditMode(mode);
-    setEdit({ name: s.name, description: s.description, category: s.category, icon: s.icon, fields: s.fields.map(f => ({ ...f })) });
+    setEdit({ name: s.name, description: s.description, category: s.category, icon: s.icon, externalUrl: s.externalUrl || '', externalNote: s.externalNote || '', fields: s.fields.map(f => ({ ...f })) });
     setNewField(emptyField());
     setFieldErr('');
     setMsg(null);
@@ -74,7 +76,7 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpda
     }
     const svc = services.find(s => s.id === editingId);
     if (!svc) return;
-    onUpdate({ ...svc, name: edit.name.trim(), description: edit.description.trim(), category: edit.category, icon: edit.icon, fields: edit.fields });
+    onUpdate({ ...svc, name: edit.name.trim(), description: edit.description.trim(), category: edit.category, icon: edit.icon, externalUrl: edit.externalUrl.trim() || undefined, externalNote: edit.externalNote.trim() || undefined, fields: edit.fields });
     setMsg({ type: 'success', text: `Layanan "${edit.name}" berhasil diperbarui.` });
     closeModal();
     onSpeak(`Layanan ${edit.name} diperbarui`);
@@ -194,6 +196,27 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpda
                   >
                     {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
                   </select>
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                    URL Eksternal (opsional — layanan redirect ke situs lain, mis. lapor.go.id / polis.pontianak.go.id)
+                  </label>
+                  <input
+                    value={edit.externalUrl}
+                    onChange={e => setEdit({ ...edit, externalUrl: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition font-mono"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Catatan Redirect (penjelasan yang dilihat pemohon sebelum pindah halaman)</label>
+                  <textarea
+                    value={edit.externalNote}
+                    onChange={e => setEdit({ ...edit, externalNote: e.target.value })}
+                    rows={2}
+                    placeholder="Contoh: Permohonan dilayani melalui situs resmi... Anda akan diarahkan ke halaman tersebut."
+                    className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-stone-700 bg-slate-50 dark:bg-stone-850 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition resize-none"
+                  />
                 </div>
               </div>
             </div>
