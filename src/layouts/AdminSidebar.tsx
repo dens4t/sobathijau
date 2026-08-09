@@ -75,12 +75,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin
         <button onClick={() => setIsSidebarOpen(false)} className="absolute top-4 right-4 p-1.5 rounded-lg text-stone-400 hover:text-white bg-white/10 md:hidden">
           <X className="w-4 h-4" />
         </button>
-        <div className={`rounded-full bg-emerald-900/50 flex items-center justify-center ${isCollapsed ? 'md:w-8 md:h-8' : 'w-12 h-12'}`}>
+        <div className={`rounded-xl bg-emerald-900/50 flex items-center justify-center overflow-hidden ${isCollapsed ? 'md:w-6 md:h-9' : 'w-10 h-[60px]'}`}>
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/0/02/Seal_of_Pontianak.svg"
-            alt="Logo"
-            className={`object-contain ${isCollapsed ? 'md:w-5 md:h-5' : 'w-8 h-8'}`}
-            referrerPolicy="no-referrer"
+            src="/logo.png"
+            alt="Logo Sobat Hijau DLH"
+            className="w-full h-full object-contain"
           />
         </div>
         {!isCollapsed && (

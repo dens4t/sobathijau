@@ -20,7 +20,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ activeTab, changeTab
       <header className="bg-white dark:bg-stone-900 border-b border-emerald-150 dark:border-stone-850 py-4 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4.5 text-left">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/02/Seal_of_Pontianak.svg" alt="Logo Pemkot Pontianak" className="w-14 h-14 md:w-16 md:h-16 object-contain shrink-0" referrerPolicy="no-referrer" />
+            <img src="/logo.png" alt="Logo Sobat Hijau DLH Pontianak" className="h-14 md:h-16 w-auto object-contain shrink-0" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="bg-[#1B4332] text-[#D8E2DC] font-black text-[9px] px-2 py-0.5 rounded-full font-mono uppercase tracking-widest">DLH PORTAL</span>

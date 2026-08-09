@@ -144,8 +144,10 @@ export default function App() {
         setActiveTab(valid.includes(page) ? page || 'beranda' : 'beranda');
       }
     };
-    readPath();
+    // Daftarkan listener DULU agar navigateTo() dari dalam readPath() mount
+    // (mis. /admin/login saat sudah login) tetap tertangkap popstate-nya.
     window.addEventListener('popstate', readPath);
+    readPath();
     return () => window.removeEventListener('popstate', readPath);
   }, []);
 
