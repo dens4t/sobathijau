@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Search, X } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { GeoCategory, GeoLocation } from '../types';
@@ -21,6 +22,7 @@ interface EnvironmentalMapProps {
   pickedPosition?: { lat: number; lng: number } | null;
   height?: string;
   interactive?: boolean;
+  searchable?: boolean;
 }
 
 const ICON_SVG_PATHS: Record<string, string> = {
@@ -58,6 +60,7 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
   pickedPosition,
   height = '420px',
   interactive = true,
+  searchable = true,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -65,6 +68,15 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
   const pickedMarkerRef = useRef<L.Marker | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState<string>('SEMUA');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const q = searchQuery.trim().toLowerCase();
+  const catFiltered = activeFilter === 'SEMUA'
+    ? locations
+    : locations.filter(l => l.category === activeFilter);
+  const filteredLocations = catFiltered.filter(l =>
+    !q || l.name.toLowerCase().includes(q) || l.address.toLowerCase().includes(q)
+  );
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
@@ -76,10 +88,6 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
   };
 
   const sortedCats = [...categories].sort((a, b) => a.order - b.order);
-
-  const filteredLocations = activeFilter === 'SEMUA'
-    ? locations
-    : locations.filter(l => l.category === activeFilter);
 
   const getCatCount = (catName: string) =>
     locations.filter(l => l.category === catName).length;
@@ -209,7 +217,9 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
             Peta Sebaran Lingkungan
           </h3>
           <p className="text-[10.5px] text-slate-500">
-            {locations.length} titik tersebar di {categories.length} kategori
+            {q
+              ? `${filteredLocations.length} dari ${locations.length} titik cocok${activeFilter !== 'SEMUA' ? ' (kategori ' + activeFilter + ')' : ''}`
+              : `${locations.length} titik tersebar di ${categories.length} kategori`}
           </p>
         </div>
         {categories.length > 0 && (
@@ -259,11 +269,40 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
         )}
       </div>
 
-      <div
-        ref={mapRef}
-        className="w-full rounded-xl border border-slate-100 overflow-hidden z-0"
-        style={{ height }}
-      />
+      {/* Pencarian nama / alamat */}
+      {searchable && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari nama titik / alamat... (contoh: bank sampah, jl. ahmad yani)"
+            aria-label="Cari titik lokasi"
+            className="w-full pl-9 pr-9 py-2.5 text-xs border border-slate-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 bg-white dark:bg-stone-900 dark:text-stone-200 placeholder-slate-400 transition"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-stone-800 transition"
+              aria-label="Bersihkan pencarian"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="relative w-full rounded-xl border border-slate-100 overflow-hidden z-0" style={{ height }}>
+        <div ref={mapRef} className="w-full h-full" />
+        {q && filteredLocations.length === 0 && (
+          <div className="absolute inset-0 z-[1000] flex items-center justify-center pointer-events-none bg-white/40 dark:bg-stone-950/40">
+            <p className="bg-white dark:bg-stone-900 px-4 py-2.5 rounded-xl text-xs text-slate-600 dark:text-stone-300 shadow-lg border border-slate-200 dark:border-stone-700 font-medium max-w-[80%] text-center">
+              Tidak ada titik yang cocok dengan pencarian &ldquo;{searchQuery}&rdquo;
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-500 border-t border-slate-50 pt-3">

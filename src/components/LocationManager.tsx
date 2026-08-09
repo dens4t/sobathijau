@@ -111,6 +111,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
 
   const handleDelete = async (id: string) => {
     const loc = locations.find(l => l.id === id);
+    if (!window.confirm(`Hapus titik "${loc?.name || id}"? Tindakan ini tidak dapat dibatalkan.`)) return;
     setDeletingId(id);
     try {
       await onDelete(id);
@@ -394,6 +395,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
                       onMapClick={handleMapClick}
                       pickedPosition={pickedPosition}
                       height="360px"
+                      searchable={false}
                     />
                     <div className="absolute bottom-2 left-2 z-[1000]">
                       <button

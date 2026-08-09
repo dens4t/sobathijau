@@ -43,6 +43,7 @@ export const NetworkLinkManager: React.FC<{ onSpeak: (text: string) => void }> =
   };
 
   const handleDelete = async (id: string, title: string) => {
+    if (!window.confirm(`Hapus jejaring "${title}"? Tindakan ini tidak dapat dibatalkan.`)) return;
     try {
       await deleteNetworkLink(id);
       onSpeak(`Jejaring ${title} dihapus`);
@@ -123,8 +124,8 @@ export const NetworkLinkManager: React.FC<{ onSpeak: (text: string) => void }> =
                   )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <button onClick={() => openEdit(link)} className="p-1.5 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 transition"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleDelete(link.id, link.title)} className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-stone-700 transition"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => openEdit(link)} title="Edit" className="p-1.5 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-700 transition"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleDelete(link.id, link.title)} title="Hapus" className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-stone-700 transition"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </motion.div>
             ))}
