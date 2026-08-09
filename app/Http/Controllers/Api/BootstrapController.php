@@ -20,7 +20,12 @@ final class BootstrapController extends Controller
     {
         return response()->json([
             'services' => Service::orderByDesc('createdAt')->get(),
-            'submissions' => Submission::all(),
+            'submissions' => Submission::all()->map(static function (Submission $sub): Submission {
+                // Publik: sembunyikan NIK/kontak; admin memakai /api/submissions (ber-token) utk data penuh.
+                $sub->formData = $sub->maskedFormData();
+
+                return $sub;
+            })->values(),
             'notifications' => AppNotification::all(),
             'activityLogs' => ActivityLog::orderBy('timestamp', 'desc')->get(),
             'locations' => GeoLocation::all(),

@@ -64,6 +64,28 @@ final class SobatHijauApiTest extends TestCase
             ->assertStatus(401);
     }
 
+    public function test_bootstrap_masks_sensitive_form_data(): void
+    {
+        $resp = $this->getJson('/api/bootstrap');
+        $sppl = collect($resp->json('submissions'))->firstWhere('id', 'SH-2026-04981');
+
+        $this->assertSame('6171**********02', $sppl['formData']['nik']);
+        $this->assertStringNotContainsString('2809880002', $sppl['formData']['nik']);
+
+        // Kontak pada aduan ikut ter-mask.
+        $aduan = collect($resp->json('submissions'))->firstWhere('id', 'SH-2026-11508');
+        $this->assertStringContainsString('*', $aduan['formData']['kontak_pelapor']);
+    }
+
+    public function test_admin_endpoint_returns_full_form_data(): void
+    {
+        $rows = $this->getJson('/api/submissions')->assertOk()->json();
+        $sppl = collect($rows)->firstWhere('id', 'SH-2026-04981');
+
+        $this->assertSame('6171012809880002', $sppl['formData']['nik']);
+        $this->assertStringNotContainsString('*', $sppl['formData']['nik']);
+    }
+
     public function test_public_submission_store_works_without_token(): void
     {
         $this->postJson('/api/submissions', [

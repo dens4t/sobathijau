@@ -40,6 +40,7 @@ interface AppState {
   markAllNotificationsRead: () => Promise<void>;
   clearNotifications: () => Promise<void>;
   addLocalNotification: (notif: AppNotification) => void;
+  loadFullSubmissions: () => Promise<void>;
 
   updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
   refreshActivityLogs: () => Promise<void>;
@@ -242,6 +243,12 @@ export const useStore = create<AppState>((set, get) => ({
   
   addLocalNotification: (notif) => {
     set(s => ({ notifications: [notif, ...s.notifications] }));
+  },
+
+  // Admin: muat data berkas penuh (NIK/kontak tak ter-mask) dari endpoint ber-token.
+  loadFullSubmissions: async () => {
+    const subs = await api.getSubmissions();
+    set({ submissions: subs });
   },
 
   updateAccessibility: (settings) => {

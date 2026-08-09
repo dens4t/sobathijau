@@ -72,6 +72,13 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Saat masuk portal admin: muat data berkas penuh (NIK/kontak) via endpoint ber-token.
+    if (portal === 'admin') {
+      useStore.getState().loadFullSubmissions().catch(() => {});
+    }
+  }, [portal]);
+
+  useEffect(() => {
     initStore().catch(() => addToast('Server tidak aktif. Data tidak dapat dimuat. Muat ulang setelah server menyala.', 'info'));
   }, [initStore]);
 

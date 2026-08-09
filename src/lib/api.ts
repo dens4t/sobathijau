@@ -20,6 +20,7 @@ export const api = {
   updateCategory: (cat: GeoCategory) => call<GeoCategory>(`/categories/${cat.id}`, { method: 'PUT', headers: json, body: JSON.stringify(cat) }),
   deleteCategory: (id: string) => call<{ ok: true }>(`/categories/${id}`, { method: 'DELETE' }),
   bootstrap: () => call<{ services: ServiceTemplate[]; submissions: Submission[]; notifications: AppNotification[]; activityLogs: any[]; locations: GeoLocation[]; categories: GeoCategory[]; networkLinks: NetworkLink[]; carouselSlides: CarouselSlide[]; siteMetrics: SiteMetric[]; assistantQuestions: string[] }>('/bootstrap'),
+  getSubmissions: () => call<Submission[]>('/submissions'),
   login: (email: string, password: string) => call<{ token: string; name: string }>('/login', { method: 'POST', headers: json, body: JSON.stringify({ email, password }) }),
   logActivity: (action: string, iconType?: string) => call<{ id: string; action: string; timestamp: string; iconType: string }>('/activity-logs', { method: 'POST', headers: json, body: JSON.stringify({ action, iconType }) }),
   askAssistant: (message: string) => call<{ text: string }>('/assistant', { method: 'POST', headers: json, body: JSON.stringify({ message }) }),
