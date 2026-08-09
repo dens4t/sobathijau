@@ -45,7 +45,9 @@ final class DatabaseSeeder extends Seeder
             Service::updateOrCreate(['id' => $row['id']], $row);
         }
 
-        if (Service::exists()) {
+        // Guard seeding ulang: layanan sudah idempoten (updateOrCreate) di atas;
+        // tabel lain pakai create() — cukup sekali.
+        if (Submission::exists()) {
             return;
         }
 
