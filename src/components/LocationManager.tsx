@@ -108,8 +108,12 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
   const handleDelete = async (id: string) => {
     const loc = locations.find(l => l.id === id);
     setDeletingId(id);
-    await onDelete(id);
-    addToast(`"${loc?.name}" berhasil dihapus.`, 'info');
+    try {
+      await onDelete(id);
+      addToast(`"${loc?.name}" berhasil dihapus.`, 'info');
+    } catch {
+      addToast('Gagal menghapus titik. Cek koneksi dan coba lagi.', 'error');
+    }
     setDeletingId(null);
   };
 

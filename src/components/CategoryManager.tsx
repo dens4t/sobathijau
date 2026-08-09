@@ -88,9 +88,12 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
   };
 
   const handleDelete = async (cat: GeoCategory) => {
-    if (window.confirm(`Hapus kategori "${cat.name}"? Titik lokasi dengan kategori ini tidak akan terhapus, tapi kategorinya akan hilang.`)) {
+    if (!window.confirm(`Hapus kategori "${cat.name}"? Titik lokasi dengan kategori ini tidak akan terhapus, tapi kategorinya akan hilang.`)) return;
+    try {
       await onDelete(cat.id);
       addToast(`Kategori "${cat.name}" dihapus.`, 'info');
+    } catch {
+      addToast('Gagal menghapus kategori. Cek koneksi dan coba lagi.', 'error');
     }
   };
 

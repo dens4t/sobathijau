@@ -269,19 +269,20 @@ export default function App() {
 
                 {activeTab === 'layanan' && (
                   <LayananKami services={services} onSubmitForm={(service, data) => {
+                    const { __code, __applicantName, ...formOnly } = data as Record<string, unknown>;
                     const newSub: Submission = {
-                      id: data.__code,
+                      id: String(__code),
                       serviceId: service.id,
                       serviceName: service.name,
-                      applicantName: data.__applicantName,
+                      applicantName: String(__applicantName),
                       status: 'DIAJUKAN',
-                      formData: data,
+                      formData: formOnly,
                       submittedAt: nowSql(),
                       timeline: createTimeline('DIAJUKAN')
                     };
                     addSubmission(newSub);
-                    addToast(`Permohonan ${service.name} berhasil dikirim! Kode: ${data.__code}`, 'success');
-                    speakText(`Permohonan ${service.name} berhasil dikirim. Kode pelacakan ${data.__code}`);
+                    addToast(`Permohonan ${service.name} berhasil dikirim! Kode: ${__code}`, 'success');
+                    speakText(`Permohonan ${service.name} berhasil dikirim. Kode pelacakan ${__code}`);
                   }} onSpeak={speakText} />
                 )}
 

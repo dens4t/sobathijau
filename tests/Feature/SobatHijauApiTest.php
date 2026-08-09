@@ -162,6 +162,19 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonPath('submission.timeline.1.description', 'Berkas tidak lengkap');
     }
 
+    public function test_deleting_submission_removes_orphan_notifications(): void
+    {
+        $this->assertDatabaseCount('notifications', 2);
+
+        $this->deleteJson('/api/submissions/SH-2026-08123')
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        $this->assertDatabaseMissing('submissions', ['id' => 'SH-2026-08123']);
+        $this->assertDatabaseMissing('notifications', ['submissionId' => 'SH-2026-08123']);
+        $this->assertDatabaseCount('notifications', 1); // hanya notif-2 (SH-2026-04981) tersisa
+    }
+
     public function test_notification_read_flow(): void
     {
         $this->putJson('/api/notifications/notif-1/read')

@@ -27,7 +27,8 @@ export const NetworkLinkManager: React.FC<{ onSpeak: (text: string) => void }> =
       return;
     }
     const id = editingId || form.id || `link-${Date.now()}`;
-    const link = { id, title: form.title.trim(), url: form.url.trim(), description: form.description.trim(), sortOrder: networkLinks.length + 1, isActive: true };
+    const existing = networkLinks.find(l => l.id === id);
+    const link = { id, title: form.title.trim(), url: form.url.trim(), description: form.description.trim(), sortOrder: existing?.sortOrder ?? networkLinks.length + 1, isActive: existing?.isActive ?? true };
     try {
       if (editingId) {
         await updateNetworkLink(link);

@@ -258,7 +258,7 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
               </h5>
 
               <div className="space-y-3.5">
-                {Object.entries(foundSubmission.formData).map(([key, value]) => {
+                {Object.entries(foundSubmission.formData).filter(([key]) => !key.startsWith('__')).map(([key, value]) => {
                   const labelFormatted = key
                     .replace(/_/g, ' ')
                     .replace(/\b\w/g, c => c.toUpperCase());
