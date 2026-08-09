@@ -289,6 +289,45 @@ final class SobatHijauApiTest extends TestCase
         $this->getJson('/api/export/locations/evil')->assertStatus(404);
     }
 
+    public function test_bootstrap_includes_reply_templates(): void
+    {
+        $resp = $this->getJson('/api/bootstrap');
+
+        $resp->assertOk()->assertJsonCount(12, 'replyTemplates');
+        $this->assertSame('DIAJUKAN', $resp->json('replyTemplates.0.status'));
+        $this->assertStringContainsString('tindaklanjuti', mb_strtolower($resp->json('replyTemplates.0.text')));
+    }
+
+    public function test_reply_template_crud(): void
+    {
+        $this->postJson('/api/reply-templates', [
+            'label' => 'Uji Template',
+            'status' => 'SURVEY_TEKNIS',
+            'text' => 'Jadwal survei akan dihubungi.',
+        ])->assertStatus(201)->assertJsonPath('label', 'Uji Template');
+
+        $this->assertDatabaseHas('reply_templates', ['label' => 'Uji Template']);
+        $tpl = \App\Models\ReplyTemplate::where('label', 'Uji Template')->first();
+
+        $this->putJson('/api/reply-templates/'.$tpl->id, [
+            'label' => 'Uji Template v2',
+            'status' => 'SURVEY_TEKNIS',
+            'text' => 'Jadwal berubah.',
+        ])->assertOk()->assertJsonPath('text', 'Jadwal berubah.');
+
+        $this->deleteJson('/api/reply-templates/'.$tpl->id)->assertOk()->assertJsonPath('ok', true);
+        $this->assertDatabaseMissing('reply_templates', ['id' => $tpl->id]);
+    }
+
+    public function test_reply_template_requires_valid_status(): void
+    {
+        $this->postJson('/api/reply-templates', [
+            'label' => 'X',
+            'status' => 'HACKED',
+            'text' => 'Teks',
+        ])->assertStatus(422);
+    }
+
     public function test_dlh_feed_parser_extracts_berita(): void
     {
         $service = new \App\Services\DlhFeed;

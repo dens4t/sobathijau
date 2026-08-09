@@ -1,4 +1,4 @@
-import { AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
+import { AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ReplyTemplate, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
 
 const json = { 'Content-Type': 'application/json' };
 const token = () => sessionStorage.getItem('sh_admin_token');
@@ -19,7 +19,7 @@ export const api = {
   addCategory: (cat: GeoCategory) => call<GeoCategory>('/categories', { method: 'POST', headers: json, body: JSON.stringify(cat) }),
   updateCategory: (cat: GeoCategory) => call<GeoCategory>(`/categories/${cat.id}`, { method: 'PUT', headers: json, body: JSON.stringify(cat) }),
   deleteCategory: (id: string) => call<{ ok: true }>(`/categories/${id}`, { method: 'DELETE' }),
-  bootstrap: () => call<{ services: ServiceTemplate[]; submissions: Submission[]; notifications: AppNotification[]; activityLogs: any[]; locations: GeoLocation[]; categories: GeoCategory[]; networkLinks: NetworkLink[]; carouselSlides: CarouselSlide[]; siteMetrics: SiteMetric[]; assistantQuestions: string[] }>('/bootstrap'),
+  bootstrap: () => call<{ services: ServiceTemplate[]; submissions: Submission[]; notifications: AppNotification[]; activityLogs: any[]; locations: GeoLocation[]; categories: GeoCategory[]; networkLinks: NetworkLink[]; carouselSlides: CarouselSlide[]; siteMetrics: SiteMetric[]; replyTemplates: ReplyTemplate[]; assistantQuestions: string[] }>('/bootstrap'),
   getSubmissions: () => call<Submission[]>('/submissions'),
   login: (email: string, password: string) => call<{ token: string; name: string }>('/login', { method: 'POST', headers: json, body: JSON.stringify({ email, password }) }),
   logActivity: (action: string, iconType?: string) => call<{ id: string; action: string; timestamp: string; iconType: string }>('/activity-logs', { method: 'POST', headers: json, body: JSON.stringify({ action, iconType }) }),
@@ -38,6 +38,9 @@ export const api = {
   addNetworkLink: (link: NetworkLink) => call<NetworkLink>('/network-links', { method: 'POST', headers: json, body: JSON.stringify(link) }),
   updateNetworkLink: (link: NetworkLink) => call<NetworkLink>(`/network-links/${link.id}`, { method: 'PUT', headers: json, body: JSON.stringify(link) }),
   deleteNetworkLink: (id: string) => call<{ ok: true }>(`/network-links/${id}`, { method: 'DELETE' }),
+  addReplyTemplate: (t: ReplyTemplate) => call<ReplyTemplate>('/reply-templates', { method: 'POST', headers: json, body: JSON.stringify(t) }),
+  updateReplyTemplate: (t: ReplyTemplate) => call<ReplyTemplate>(`/reply-templates/${t.id}`, { method: 'PUT', headers: json, body: JSON.stringify(t) }),
+  deleteReplyTemplate: (id: string) => call<{ ok: true }>(`/reply-templates/${id}`, { method: 'DELETE' }),
 };
 
 // Unduh ekspor lokasi (admin) — fetch blob + trigger download browser.

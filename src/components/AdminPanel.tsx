@@ -5,13 +5,13 @@
 
 import React, { useState } from 'react';
 import { Settings, Eye, Edit3, Trash2, Check, AlertTriangle, RefreshCcw, BarChart3, Database, Sparkles, Search, Clock, X, ShieldAlert } from 'lucide-react';
-import { Submission, SubmissionStatus } from '../types';
-import { replyTemplates } from '../data/replyTemplates';
+import { Submission, SubmissionStatus, ReplyTemplate } from '../types';
 import { TrackingSobat } from './TrackingSobat';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface AdminPanelProps {
   submissions: Submission[];
+  replyTemplates: ReplyTemplate[];
   onUpdateStatus: (id: string, newStatus: SubmissionStatus, adminNote?: string) => void;
   onDeleteSubmission: (id: string) => void;
   onSpeak: (text: string) => void;
@@ -19,6 +19,7 @@ interface AdminPanelProps {
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
   submissions,
+  replyTemplates,
   onUpdateStatus,
   onDeleteSubmission,
   onSpeak
@@ -111,10 +112,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setQuickReply(''); // template balasan mengikuti status terpilih
   };
 
-  const pickQuickReply = (text: string) => {
-    if (!text) return;
-    setQuickReply(text);
-    setAdminNotes(text);
+  const pickQuickReply = (id: string) => {
+    if (!id) return;
+    const t = replyTemplates.find(x => x.id === id);
+    if (!t) return;
+    setQuickReply(id);
+    setNewStatus(t.status); // template juga memilih status
+    setAdminNotes(t.text);
   };
 
   const defaultReply = newStatus === 'DITOLAK'
@@ -261,9 +265,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div>
                   <label className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase mb-1">⚡ Balasan Cepat</label>
                   <select value={quickReply} onChange={(e) => pickQuickReply(e.target.value)} className="w-full px-3 py-2 text-xs rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-stone-850 focus:outline-none text-slate-700 dark:text-stone-200">
-                    <option value="">— Pilih balasan siap pakai (opsional) —</option>
-                    {(replyTemplates[newStatus] || []).map(t => (
-                      <option key={t.label} value={t.text}>{t.label}: {t.text.slice(0, 70)}…</option>
+                    <option value="">— Pilih balasan siap pakai (mengisi status & teks) —</option>
+                    {replyTemplates.map(t => (
+                      <option key={t.id} value={t.id}>{t.status.replace('_', ' ')} — {t.label}: {t.text.slice(0, 60)}…</option>
                     ))}
                   </select>
                 </div>

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Activity, Plus, FolderOpen, FolderSync, Settings, LogOut, HelpCircle, X, Map, Globe, Layers } from 'lucide-react';
+import { Search, Activity, Plus, FolderOpen, FolderSync, Settings, LogOut, HelpCircle, X, Map, Globe, Layers, MessageSquareText } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 interface AdminSidebarProps {
-  adminSubTab: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring';
-  goAdmin: (sub: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring') => void;
+  adminSubTab: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template';
+  goAdmin: (sub: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template') => void;
   goGuest: (tab: string) => void;
   speakText: (text: string) => void;
   isSidebarOpen: boolean;
@@ -154,6 +154,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin
               ? collapsedItem(<Globe className="w-4 h-4" />, 'Kelola Jejaring', () => navigate(() => goAdmin('jejaring')), adminSubTab === 'jejaring')
               : <SidebarItem active={adminSubTab === 'jejaring'} onClick={() => navigate(() => goAdmin('jejaring'))} icon={<Globe className="w-4 h-4" />} label="Kelola Jejaring" />
             )}
+            {isCollapsed
+              ? collapsedItem(<MessageSquareText className="w-4 h-4" />, 'Template Balasan', () => navigate(() => goAdmin('template')), adminSubTab === 'template')
+              : <SidebarItem active={adminSubTab === 'template'} onClick={() => navigate(() => goAdmin('template'))} icon={<MessageSquareText className="w-4 h-4" />} label="Template Balasan" />
+            }
           </div>
         )}
 

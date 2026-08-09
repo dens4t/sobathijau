@@ -120,3 +120,11 @@ export interface SiteMetric {
   label: string;
 }
 
+export interface ReplyTemplate {
+  id: string;
+  label: string;
+  status: SubmissionStatus;
+  text: string;
+  sortOrder?: number;
+}
+

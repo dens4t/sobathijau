@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AccessibilitySettings, AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
+import { AccessibilitySettings, AppNotification, CarouselSlide, GeoCategory, GeoLocation, NetworkLink, ReplyTemplate, ServiceTemplate, SiteMetric, Submission, SubmissionStatus } from '../types';
 import { api } from '../lib/api';
 
 export type ActivityLog = { id: string; action: string; timestamp: string; iconType: string };
@@ -12,6 +12,7 @@ interface AppState {
   locations: GeoLocation[];
   categories: GeoCategory[];
   networkLinks: NetworkLink[];
+  replyTemplates: ReplyTemplate[];
   carouselSlides: CarouselSlide[];
   siteMetrics: SiteMetric[];
   assistantQuestions: string[];
@@ -48,6 +49,10 @@ interface AppState {
   addNetworkLink: (link: NetworkLink) => Promise<void>;
   updateNetworkLink: (link: NetworkLink) => Promise<void>;
   deleteNetworkLink: (id: string) => Promise<void>;
+
+  addReplyTemplate: (t: ReplyTemplate) => Promise<void>;
+  updateReplyTemplate: (t: ReplyTemplate) => Promise<void>;
+  deleteReplyTemplate: (id: string) => Promise<void>;
 }
 
 async function commit(set: (fn: (s: AppState) => Partial<AppState>) => void, apply: (s: AppState) => Partial<AppState>, apiCall: () => Promise<unknown>, rollback: (s: AppState) => Partial<AppState>): Promise<void> {
@@ -68,6 +73,7 @@ export const useStore = create<AppState>((set, get) => ({
   notifications: [],
   activityLogs: [],
   networkLinks: [] as NetworkLink[],
+  replyTemplates: [] as ReplyTemplate[],
   carouselSlides: [] as CarouselSlide[],
   siteMetrics: [] as SiteMetric[],
   assistantQuestions: [] as string[],
@@ -89,6 +95,7 @@ export const useStore = create<AppState>((set, get) => ({
         locations: data.locations,
         categories: data.categories,
         networkLinks: data.networkLinks || [],
+        replyTemplates: data.replyTemplates || [],
         notifications: data.notifications,
         activityLogs: data.activityLogs || [],
         carouselSlides: data.carouselSlides,
@@ -107,6 +114,7 @@ export const useStore = create<AppState>((set, get) => ({
         notifications: [],
         activityLogs: [],
         networkLinks: [],
+        replyTemplates: [],
         carouselSlides: [],
         siteMetrics: [],
         assistantQuestions: [],
@@ -291,6 +299,32 @@ export const useStore = create<AppState>((set, get) => ({
       s => ({ networkLinks: s.networkLinks.filter(x => x.id !== id) }),
       () => api.deleteNetworkLink(id),
       () => ({ networkLinks: prev }),
+    );
+  },
+
+  addReplyTemplate: async (t) => {
+    await commit(set,
+      s => ({ replyTemplates: [...s.replyTemplates, t] }),
+      () => api.addReplyTemplate(t),
+      s => ({ replyTemplates: s.replyTemplates.filter(x => x.id !== t.id) }),
+    );
+  },
+
+  updateReplyTemplate: async (t) => {
+    const prev = get().replyTemplates;
+    await commit(set,
+      s => ({ replyTemplates: s.replyTemplates.map(x => x.id === t.id ? t : x) }),
+      () => api.updateReplyTemplate(t),
+      () => ({ replyTemplates: prev }),
+    );
+  },
+
+  deleteReplyTemplate: async (id) => {
+    const prev = get().replyTemplates;
+    await commit(set,
+      s => ({ replyTemplates: s.replyTemplates.filter(x => x.id !== id) }),
+      () => api.deleteReplyTemplate(id),
+      () => ({ replyTemplates: prev }),
     );
   },
 }));

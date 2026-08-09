@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\NetworkLinkController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ReplyTemplateController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SubmissionController;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,11 @@ Route::middleware('auth.token')->group(function (): void {
 
     Route::get('/export/locations/{format}', [ExportController::class, 'locations'])
         ->where('format', 'csv|kml|kmz|xlsx|shp');
+
+    Route::get('/reply-templates', [ReplyTemplateController::class, 'index']);
+    Route::post('/reply-templates', [ReplyTemplateController::class, 'store']);
+    Route::put('/reply-templates/{id}', [ReplyTemplateController::class, 'update']);
+    Route::delete('/reply-templates/{id}', [ReplyTemplateController::class, 'destroy']);
 
     Route::post('/activity-logs', [ActivityLogController::class, 'store']);
 });

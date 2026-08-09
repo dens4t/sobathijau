@@ -29,7 +29,7 @@ export default function App() {
 
   const [portal, setPortal] = useState<'guest' | 'admin'>('guest');
   const [activeTab, setActiveTab] = useState<string>('beranda');
-  const [adminSubTab, setAdminSubTab] = useState<'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring'>('kelola');
+  const [adminSubTab, setAdminSubTab] = useState<'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template'>('kelola');
   const [trackSearchCode, setTrackSearchCode] = useState<string>('');
   const [isActivityLogModalOpen, setIsActivityLogModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,7 +42,7 @@ export default function App() {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4500);
   };
 
-  const goAdmin = (sub: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring') => {
+  const goAdmin = (sub: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template') => {
     if (sessionStorage.getItem('sh_admin_auth') !== 'authenticated') {
       navigateTo('/admin/login');
       return;
@@ -136,7 +136,7 @@ export default function App() {
         }
         setPortal('admin');
         setIsAuthenticated(true);
-        if (sub === 'rancang' || sub === 'kelola' || sub === 'layanan' || sub === 'peta' || sub === 'kategori' || sub === 'jejaring') setAdminSubTab(sub as any);
+        if (sub === 'rancang' || sub === 'kelola' || sub === 'layanan' || sub === 'peta' || sub === 'kategori' || sub === 'jejaring' || sub === 'template') setAdminSubTab(sub as any);
         else setAdminSubTab('kelola');
       } else {
         const valid = ['beranda', 'layanan', 'lacak', 'asisten', 'peta', 'jejaring', ''];

@@ -45,6 +45,7 @@ final class BootstrapController extends Controller
                 ],
             )->values(),
             'siteMetrics' => SiteMetric::all(),
+            'replyTemplates' => (new ReplyTemplateController)->index()->getData(true),
             'assistantQuestions' => (new AssistantController)->questions(),
         ]);
     }

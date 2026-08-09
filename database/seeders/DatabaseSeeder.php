@@ -8,6 +8,7 @@ use App\Models\CarouselSlide;
 use App\Models\GeoCategory;
 use App\Models\GeoLocation;
 use App\Models\NetworkLink;
+use App\Models\ReplyTemplate;
 use App\Models\Service;
 use App\Models\SiteMetric;
 use App\Models\Submission;
@@ -23,6 +24,10 @@ final class DatabaseSeeder extends Seeder
         }
         foreach ($this->siteMetrics() as $row) {
             SiteMetric::updateOrCreate(['key' => $row['key']], $row);
+        }
+        // Template balasan: selalu di-seed idempoten (updateOrCreate) agar DB lama ikut terisi.
+        foreach (\App\Support\ReplyTemplates::defaults() as $row) {
+            ReplyTemplate::updateOrCreate(['id' => $row['id']], $row);
         }
         User::updateOrCreate(
             ['email' => 'densat98@gmail.com'],

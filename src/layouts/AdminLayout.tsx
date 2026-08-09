@@ -9,10 +9,11 @@ import { NetworkLinkManager } from '../components/NetworkLinkManager';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, PanelLeftClose, PanelLeftOpen, LogOut } from 'lucide-react';
 import { AdminSidebar } from './AdminSidebar';
+import { ReplyTemplateManager } from '../components/ReplyTemplateManager';
 
 interface AdminLayoutProps {
-  adminSubTab: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring';
-  goAdmin: (sub: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring') => void;
+  adminSubTab: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template';
+  goAdmin: (sub: 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template') => void;
   goGuest: (tab: string) => void;
   speakText: (text: string) => void;
   routeToTracking: (code: string) => void;
@@ -23,11 +24,12 @@ interface AdminLayoutProps {
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, goGuest, speakText, routeToTracking, addToast, onLogout, onOpenActivityLog }) => {
   const { 
-    services, submissions, locations, categories,
+    services, submissions, locations, categories, replyTemplates,
     updateSubmissionStatus, deleteSubmission,
     addService, updateService, deleteService,
     addLocation, updateLocation, deleteLocation,
     addCategory, updateCategory, deleteCategory,
+    addReplyTemplate, updateReplyTemplate, deleteReplyTemplate,
   } = useStore();
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -72,7 +74,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
             </button>
             <div className="text-left">
               <h1 className="text-xs sm:text-sm font-bold text-[#1B4332] dark:text-stone-100 flex items-center gap-2 uppercase tracking-wide">
-                {adminSubTab === 'kelola' ? '📋 Manajemen Berkas & Dokumen Publik' : adminSubTab === 'layanan' ? '📦 Kelola Semua Layanan Terdaftar' : adminSubTab === 'peta' ? '🗺️ Kelola Peta Sebaran Titik' : adminSubTab === 'kategori' ? '🏷️ Kelola Kategori Peta' : adminSubTab === 'jejaring' ? '🌐 Kelola Jejaring DLH' : '🛠️ Design Studio & Custom Form Creator'}
+                {adminSubTab === 'kelola' ? '📋 Manajemen Berkas & Dokumen Publik' : adminSubTab === 'layanan' ? '📦 Kelola Semua Layanan Terdaftar' : adminSubTab === 'peta' ? '🗺️ Kelola Peta Sebaran Titik' : adminSubTab === 'kategori' ? '🏷️ Kelola Kategori Peta' : adminSubTab === 'jejaring' ? '🌐 Kelola Jejaring DLH' : adminSubTab === 'template' ? '💬 Template Balasan Pemohon' : '🛠️ Design Studio & Custom Form Creator'}
               </h1>
               <p className="text-[11px] text-slate-400 dark:text-stone-500 mt-1 hidden sm:block">
                 {adminSubTab === 'kelola' 
@@ -85,6 +87,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                   ? 'Buat dan kelola kategori titik peta beserta deskripsi informatifnya.'
                   : adminSubTab === 'jejaring'
                   ? 'Kelola tautan website resmi terintegrasi DLH Kota Pontianak.'
+                  : adminSubTab === 'template'
+                  ? 'Kelola template balasan cepat — status + teks yang dipilih admin saat membalas pemohon.'
                   : 'Design parameter masukan input, syarat administrasi, dan jenis layanan baru.'}
               </p>
             </div>
@@ -115,7 +119,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
             </span>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <span className="text-emerald-650 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900/40">
-              {adminSubTab === 'kelola' ? 'Kelola Berkas Masuk' : adminSubTab === 'layanan' ? 'Kelola Semua Layanan' : adminSubTab === 'peta' ? 'Kelola Peta Sebaran' : adminSubTab === 'kategori' ? 'Kelola Kategori Peta' : adminSubTab === 'jejaring' ? 'Kelola Jejaring DLH' : 'Rancang Layanan Baru'}
+              {adminSubTab === 'kelola' ? 'Kelola Berkas Masuk' : adminSubTab === 'layanan' ? 'Kelola Semua Layanan' : adminSubTab === 'peta' ? 'Kelola Peta Sebaran' : adminSubTab === 'kategori' ? 'Kelola Kategori Peta' : adminSubTab === 'jejaring' ? 'Kelola Jejaring DLH' : adminSubTab === 'template' ? 'Template Balasan' : 'Rancang Layanan Baru'}
             </span>
           </div>
 
@@ -130,6 +134,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
               {adminSubTab === 'kelola' ? (
                 <AdminPanel 
                   submissions={submissions}
+                  replyTemplates={replyTemplates}
                   onUpdateStatus={async (id, status, note) => {
                     try {
                       await updateSubmissionStatus(id, status, note);
@@ -179,6 +184,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                 />
               ) : adminSubTab === 'jejaring' ? (
                 <NetworkLinkManager onSpeak={speakText} />
+              ) : adminSubTab === 'template' ? (
+                <ReplyTemplateManager
+                  templates={replyTemplates}
+                  onAdd={addReplyTemplate}
+                  onUpdate={updateReplyTemplate}
+                  onDelete={deleteReplyTemplate}
+                  addToast={addToast}
+                />
               ) : (
                 <FormCreator 
                   onSave={async (newService) => {
