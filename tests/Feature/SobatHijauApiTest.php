@@ -293,9 +293,23 @@ final class SobatHijauApiTest extends TestCase
     {
         $resp = $this->getJson('/api/bootstrap');
 
-        $resp->assertOk()->assertJsonCount(12, 'replyTemplates');
+        $resp->assertOk()->assertJsonCount(14, 'replyTemplates');
         $this->assertSame('DIAJUKAN', $resp->json('replyTemplates.0.status'));
         $this->assertStringContainsString('tindaklanjuti', mb_strtolower($resp->json('replyTemplates.0.text')));
+    }
+
+    public function test_return_status_marks_verification_step(): void
+    {
+        $this->putJson('/api/submissions/SH-2026-09255/status', [
+            'status' => 'DIKEMBALIKAN',
+            'adminNote' => 'Lampiran KTP kurang jelas, mohon perbaiki',
+        ])->assertOk()
+            ->assertJsonPath('submission.status', 'DIKEMBALIKAN')
+            ->assertJsonPath('submission.timeline.1.title', 'Dikembalikan ke Pemohon')
+            ->assertJsonPath('submission.timeline.1.description', 'Lampiran KTP kurang jelas, mohon perbaiki')
+            ->assertJsonPath('submission.timeline.1.notes', 'Lampiran KTP kurang jelas, mohon perbaiki')
+            ->assertJsonPath('submission.timeline.1.isCompleted', true)
+            ->assertJsonPath('notification.message', 'Lampiran KTP kurang jelas, mohon perbaiki');
     }
 
     public function test_reply_template_crud(): void

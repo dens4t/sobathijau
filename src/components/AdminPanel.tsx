@@ -64,7 +64,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   const isUrgentSubmission = (sub: Submission) => {
-    if (sub.status === 'SELESAI' || sub.status === 'DITOLAK') return false;
+    if (sub.status === 'SELESAI' || sub.status === 'DITOLAK' || sub.status === 'DIKEMBALIKAN') return false;
     return getElapsedBusinessDays(sub.submittedAt) > 5;
   };
 
@@ -72,9 +72,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const stats = {
     total: submissions.length,
     selesai: submissions.filter(s => s.status === 'SELESAI').length,
-    proses: submissions.filter(s => s.status !== 'SELESAI' && s.status !== 'DITOLAK').length,
-    ditolak: submissions.filter(s => s.status === 'DITOLAK').length,
-    urgent: submissions.filter(s => s.status !== 'SELESAI' && s.status !== 'DITOLAK' && getElapsedBusinessDays(s.submittedAt) > 5).length,
+    proses: submissions.filter(s => s.status !== 'SELESAI' && s.status !== 'DITOLAK' && s.status !== 'DIKEMBALIKAN').length,
+    ditolak: submissions.filter(s => s.status === 'DITOLAK' || s.status === 'DIKEMBALIKAN').length,
+    urgent: submissions.filter(s => s.status !== 'SELESAI' && s.status !== 'DITOLAK' && s.status !== 'DIKEMBALIKAN' && getElapsedBusinessDays(s.submittedAt) > 5).length,
   };
 
   const filteredSubmissions = submissions.filter(sub => {
@@ -121,8 +121,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setAdminNotes(t.text);
   };
 
-  const defaultReply = newStatus === 'DITOLAK'
-    ? 'Permohonan ditolak: syarat berkas tidak terpenuhi.'
+  const defaultReply = newStatus === 'DITOLAK' || newStatus === 'DIKEMBALIKAN'
+    ? 'Berkas dikembalikan/ditolak: mohon periksa kembali dan ajukan ulang.'
     : 'Status berkas diperbarui menjadi '.concat(newStatus.replace('_', ' ')).concat('.');
 
   const saveStatusChange = () => {
@@ -181,6 +181,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <option value="SURVEY_TEKNIS">Survei</option>
               <option value="SELESAI">Selesai</option>
               <option value="DITOLAK">Ditolak</option>
+              <option value="DIKEMBALIKAN">Dikembalikan</option>
               <option value="URGENT">⏳ &gt; 5 Hari</option>
             </select>
           </div>
@@ -221,7 +222,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }}
-                        className={`px-2.5 py-1 text-[9px] font-bold rounded-full ${sub.status === 'SELESAI' ? 'bg-emerald-100 text-emerald-800' : sub.status === 'DITOLAK' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'}`}
+                        className={`px-2.5 py-1 text-[9px] font-bold rounded-full ${sub.status === 'SELESAI' ? 'bg-emerald-100 text-emerald-800' : sub.status === 'DITOLAK' ? 'bg-rose-100 text-rose-800' : sub.status === 'DIKEMBALIKAN' ? 'bg-orange-100 text-orange-800' : 'bg-amber-100 text-amber-800'}`}
                       >
                         {sub.status.replace('_', ' ')}
                       </motion.span>
@@ -260,6 +261,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <option value="PROSES_REKOMENDASI">PROSES REKOMENDASI KADIN</option>
                     <option value="SELESAI">SELESAI</option>
                     <option value="DITOLAK">DITOLAK</option>
+                    <option value="DIKEMBALIKAN">DIKEMBALIKAN KE PEMOHON</option>
                   </select>
                 </div>
                 <div>

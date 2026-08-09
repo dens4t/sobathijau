@@ -25,7 +25,7 @@ export interface ServiceTemplate {
   createdAt?: string;
 }
 
-export type SubmissionStatus = 'DIAJUKAN' | 'VERIFIKASI_ADMIN' | 'SURVEY_TEKNIS' | 'PROSES_REKOMENDASI' | 'SELESAI' | 'DITOLAK';
+export type SubmissionStatus = 'DIAJUKAN' | 'VERIFIKASI_ADMIN' | 'SURVEY_TEKNIS' | 'PROSES_REKOMENDASI' | 'SELESAI' | 'DITOLAK' | 'DIKEMBALIKAN';
 
 export interface StatusTimelineStep {
   status: SubmissionStatus;

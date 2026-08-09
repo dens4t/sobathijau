@@ -64,6 +64,8 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
         return <span className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300">DITOLAK</span>;
       case 'DIAJUKAN':
         return <span className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300">DIAJUKAN</span>;
+      case 'DIKEMBALIKAN':
+        return <span className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300">DIKEMBALIKAN</span>;
       default:
         return <span className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">DALAM PROSES</span>;
     }

@@ -4,7 +4,7 @@ import { Plus, Pencil, Trash2, Save, X, MessageSquareText, AlertCircle } from 'l
 import { ReplyTemplate, SubmissionStatus } from '../types';
 import { ConfirmDialog } from './ConfirmDialog';
 
-const STATUS_OPTIONS: SubmissionStatus[] = ['DIAJUKAN', 'VERIFIKASI_ADMIN', 'SURVEY_TEKNIS', 'PROSES_REKOMENDASI', 'SELESAI', 'DITOLAK'];
+const STATUS_OPTIONS: SubmissionStatus[] = ['DIAJUKAN', 'VERIFIKASI_ADMIN', 'SURVEY_TEKNIS', 'PROSES_REKOMENDASI', 'SELESAI', 'DITOLAK', 'DIKEMBALIKAN'];
 
 interface ReplyTemplateManagerProps {
   templates: ReplyTemplate[];

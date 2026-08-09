@@ -24,6 +24,8 @@ final class ReplyTemplates
             ['id' => 'tpl-selesai-2', 'label' => 'Dokumen final', 'status' => 'SELESAI', 'text' => 'Dokumen final telah diterbitkan. Anda dapat mengunduh salinan digital atau mengambilnya di kantor DLH.', 'sort_order' => 10],
             ['id' => 'tpl-ditolak-1', 'label' => 'Syarat tidak lengkap', 'status' => 'DITOLAK', 'text' => 'Mohon maaf, berkas Anda belum dapat diproses karena syarat administrasi tidak terpenuhi. Silakan periksa kembali dan ajukan ulang.', 'sort_order' => 11],
             ['id' => 'tpl-ditolak-2', 'label' => 'Konsultasi perbaikan', 'status' => 'DITOLAK', 'text' => 'Permohonan ditolak karena kelengkapan data tidak sesuai ketentuan. Hubungi kami untuk konsultasi perbaikan berkas.', 'sort_order' => 12],
+            ['id' => 'tpl-dikembalikan-1', 'label' => 'Perbaikan data/lampiran', 'status' => 'DIKEMBALIKAN', 'text' => 'Mohon maaf, berkas Anda kami kembalikan karena ada data atau lampiran yang perlu disesuaikan. Silakan perbaiki sesuai catatan lalu ajukan ulang.', 'sort_order' => 13],
+            ['id' => 'tpl-dikembalikan-2', 'label' => 'Lampiran tidak lengkap', 'status' => 'DIKEMBALIKAN', 'text' => 'Berkas dikembalikan: lampiran tidak lengkap atau tidak sesuai ketentuan. Mohon lengkapi lalu kirim ulang melalui Sobat Hijau.', 'sort_order' => 14],
         ];
     }
 }
