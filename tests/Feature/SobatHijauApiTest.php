@@ -73,9 +73,15 @@ final class SobatHijauApiTest extends TestCase
             'applicantName' => 'Test Publik',
             'status' => 'DIAJUKAN',
             'submittedAt' => '2026-08-01 12:00',
-            'timeline' => [],
-            'formData' => [],
-        ])->assertOk()->assertJsonPath('id', 'SH-PUBLIC-1');
+            'timeline' => [
+                ['status' => 'DIAJUKAN', 'title' => 'Berkas Diterima', 'description' => 'Permohonan masuk database', 'updatedAt' => '2026-08-01 12:00', 'isCompleted' => true],
+                ['status' => 'VERIFIKASI_ADMIN', 'title' => 'Verifikasi Administrasi', 'description' => 'Pemeriksaan berkas', 'updatedAt' => '-', 'isCompleted' => false],
+                ['status' => 'SURVEY_TEKNIS', 'title' => 'Pemeriksaan Teknis / Lapangan', 'description' => 'Peninjauan lokasi', 'updatedAt' => '-', 'isCompleted' => false],
+                ['status' => 'PROSES_REKOMENDASI', 'title' => 'Penerbitan Surat Rekomendasi', 'description' => 'Validasi kepala dinas', 'updatedAt' => '-', 'isCompleted' => false],
+                ['status' => 'SELESAI', 'title' => 'Selesai & Serah Terima', 'description' => 'Dokumen final', 'updatedAt' => '-', 'isCompleted' => false],
+            ],
+            'formData' => ['nama_pemohon' => 'Test Publik', 'nik' => '6171010101900001'],
+        ])->assertStatus(201)->assertJsonPath('id', 'SH-PUBLIC-1');
 
         $this->assertDatabaseHas('submissions', ['id' => 'SH-PUBLIC-1']);
     }

@@ -5,17 +5,17 @@ interface State {
 }
 
 export class AppErrorBoundary extends Component<{ children: ReactNode }, State> {
-  state: State = { error: null };
+  override state: State = { error: null };
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
   }
 
-  componentDidCatch(error: Error): void {
+  override componentDidCatch(error: Error): void {
     console.error('App crash:', error);
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (this.state.error) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950 p-6">

@@ -72,7 +72,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    initStore().catch(() => addToast('Server SQLite tidak aktif. Mode data contoh lokal dipakai.', 'info'));
+    initStore().catch(() => addToast('Server tidak aktif. Data tidak dapat dimuat. Muat ulang setelah server menyala.', 'info'));
   }, [initStore]);
 
   useEffect(() => {

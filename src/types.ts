@@ -22,6 +22,7 @@ export interface ServiceTemplate {
   category: 'Izin & Rekomendasi' | 'Laboratorium' | 'Kemitraan & Edukasi' | 'Layanan Umum';
   fields: FieldDefinition[];
   isCustom?: boolean;
+  createdAt?: string;
 }
 
 export type SubmissionStatus = 'DIAJUKAN' | 'VERIFIKASI_ADMIN' | 'SURVEY_TEKNIS' | 'PROSES_REKOMENDASI' | 'SELESAI' | 'DITOLAK';
