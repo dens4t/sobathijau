@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Activity, ExternalLink } from 'lucide-react';
+import { X, Activity, ExternalLink, CheckCircle2, XCircle, Info } from 'lucide-react';
 import { useStore } from './store/useStore';
 import type { Submission } from './types';
 import { nowSql, createTimeline } from './lib/timeline';
@@ -199,13 +199,46 @@ export default function App() {
     <div className={portal === 'admin' ? "min-h-screen bg-stone-100 dark:bg-stone-950 flex transition-colors duration-300 relative text-[#081C15] dark:text-stone-100" : "min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col transition-colors duration-300 relative text-[#081C15] dark:text-stone-100"}>
       
       {/* Toasts */}
-      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2.5 max-w-sm w-[calc(100%-2rem)] sm:w-auto pointer-events-none items-end">
-        {toasts.map(toast => (
-          <div key={toast.id} className={`pointer-events-auto w-full sm:w-auto p-4 rounded-xl border-2 text-xs font-bold tracking-wide flex items-start gap-3 justify-between shadow-2xl ring-1 ring-black/10 animate-toast-in ${toast.type === 'success' ? 'bg-emerald-50/95 text-emerald-950 border-emerald-400' : toast.type === 'error' ? 'bg-rose-50/95 text-rose-950 border-rose-400' : 'bg-indigo-50/95 text-indigo-950 border-indigo-300'}`}>
-            <div className="flex-1 text-left leading-relaxed">{toast.message}</div>
-            <button onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} className="text-slate-400 hover:text-slate-600 transition cursor-pointer self-start mt-0.5 shrink-0"><X className="w-4 h-4" /></button>
-          </div>
-        ))}
+      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2.5 max-w-sm w-[calc(100%-2rem)] sm:w-96 pointer-events-none items-end">
+        <AnimatePresence>
+          {toasts.map(toast => {
+            const cfg = toast.type === 'success'
+              ? { icon: CheckCircle2, ring: 'bg-emerald-50 text-emerald-700', bar: 'bg-emerald-500' }
+              : toast.type === 'error'
+                ? { icon: XCircle, ring: 'bg-rose-50 text-rose-600', bar: 'bg-rose-500' }
+                : { icon: Info, ring: 'bg-indigo-50 text-indigo-600', bar: 'bg-indigo-500' };
+            const Icon = cfg.icon;
+            return (
+              <motion.div
+                key={toast.id}
+                layout
+                initial={{ opacity: 0, x: 48, scale: 0.96 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 48, scale: 0.96 }}
+                transition={{ type: 'spring', duration: 0.35, bounce: 0.2 }}
+                className="pointer-events-auto relative w-full overflow-hidden rounded-2xl border border-slate-200/80 dark:border-stone-700 bg-white/95 dark:bg-stone-900 shadow-xl backdrop-blur-sm"
+                role="status"
+              >
+                <div className="flex items-start gap-3 p-3.5 pr-3">
+                  <span className={`mt-0.5 shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${cfg.ring}`}>
+                    <Icon className="w-5 h-5" />
+                  </span>
+                  <p className="flex-1 text-xs font-semibold text-slate-800 dark:text-stone-100 leading-relaxed pt-1.5">{toast.message}</p>
+                  <button
+                    onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                    className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-stone-800 transition"
+                    aria-label="Tutup notifikasi"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="h-1 w-full bg-slate-100 dark:bg-stone-800">
+                  <div className={`h-full ${cfg.bar} toast-progress`} />
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
 
       <AccessibilityWidget settings={useStore.getState().accessibility} onChange={useStore.getState().updateAccessibility} />

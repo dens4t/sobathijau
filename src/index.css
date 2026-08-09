@@ -159,6 +159,15 @@ html.grayscale {
   animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Progress bar auto-hilang toast (4.5s = durasi timeout di App.tsx) */
+@keyframes toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+.toast-progress {
+  animation: toast-progress 4.5s linear forwards;
+}
+
 /* Custom ring for keyboard accessibility focus-visible */
 *:focus-visible {
   outline: 3px solid #f59e0b !important;

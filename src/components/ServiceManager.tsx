@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Pencil, Trash2, Save, X, Package, AlertCircle, Plus, ChevronUp, ChevronDown, GripVertical, LayoutList } from 'lucide-react';
 import { ServiceTemplate, FieldDefinition, FieldType } from '../types';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface ServiceManagerProps {
   services: ServiceTemplate[];
@@ -52,6 +53,7 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpda
   const [newField, setNewField] = useState(emptyField());
   const [fieldErr, setFieldErr] = useState('');
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ServiceTemplate | null>(null);
 
   const openModal = (s: ServiceTemplate, mode: EditMode) => {
     setEditingId(s.id);
@@ -120,8 +122,14 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpda
   };
 
   const handleDelete = (s: ServiceTemplate) => {
-    if (!window.confirm(`Hapus layanan "${s.name}"? Formulir ini tidak bisa diajukan lagi.`)) return;
-    onDelete(s.id); onSpeak(`Layanan ${s.name} dihapus`);
+    setDeleteTarget(s);
+  };
+
+  const performDelete = () => {
+    if (!deleteTarget) return;
+    onDelete(deleteTarget.id);
+    onSpeak(`Layanan ${deleteTarget.name} dihapus`);
+    setDeleteTarget(null);
   };
 
   const isOpen = editingId && edit && editMode;
@@ -459,6 +467,17 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({ services, onUpda
           ))}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus Layanan?"
+        message={<>
+          Layanan <span className="font-bold text-slate-700 dark:text-stone-200">"{deleteTarget?.name}"</span> akan dihapus
+          permanen. Formulir ini tidak bisa diajukan lagi.
+        </>}
+        onConfirm={performDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </>
   );
 };

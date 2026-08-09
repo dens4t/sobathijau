@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Trash2, Save, ExternalLink, Globe, X, AlertCircle, GripVertical, Pencil } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { ConfirmDialog } from './ConfirmDialog';
 
 export const NetworkLinkManager: React.FC<{ onSpeak: (text: string) => void }> = ({ onSpeak }) => {
   const { networkLinks, addNetworkLink, updateNetworkLink, deleteNetworkLink } = useStore();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ title: '', url: '', description: '', id: '' });
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
   const resetForm = () => {
     setEditingId(null);
@@ -43,12 +45,17 @@ export const NetworkLinkManager: React.FC<{ onSpeak: (text: string) => void }> =
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Hapus jejaring "${title}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+    setDeleteTarget({ id, title });
+  };
+
+  const performDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteNetworkLink(id);
-      onSpeak(`Jejaring ${title} dihapus`);
-      setMsg({ type: 'success', text: `"${title}" dihapus.` });
+      await deleteNetworkLink(deleteTarget.id);
+      onSpeak(`Jejaring ${deleteTarget.title} dihapus`);
+      setMsg({ type: 'success', text: `"${deleteTarget.title}" dihapus.` });
     } catch { setMsg({ type: 'error', text: 'Gagal menghapus.' }); }
+    setDeleteTarget(null);
   };
 
   return (
@@ -132,6 +139,17 @@ export const NetworkLinkManager: React.FC<{ onSpeak: (text: string) => void }> =
           </AnimatePresence>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus Jejaring?"
+        message={<>
+          Tautan <span className="font-bold text-slate-700 dark:text-stone-200">"{deleteTarget?.title}"</span> akan dihapus
+          permanen dari daftar jejaring DLH. Tindakan ini tidak dapat dibatalkan.
+        </>}
+        onConfirm={performDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

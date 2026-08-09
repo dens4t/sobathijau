@@ -6,6 +6,7 @@ import { EnvironmentalMap } from './EnvironmentalMap';
 import { IconPicker } from './IconPicker';
 import { motion, AnimatePresence } from 'motion/react';
 import { downloadExport } from '../lib/api';
+import { ConfirmDialog } from './ConfirmDialog';
 import L from 'leaflet';
 
 interface LocationManagerProps {
@@ -49,6 +50,7 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pickMode, setPickMode] = useState(false);
   const [pickedPosition, setPickedPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -128,16 +130,26 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
   };
 
   const handleDelete = async (id: string) => {
+    askDelete(id);
+  };
+
+  const askDelete = (id: string) => {
     const loc = locations.find(l => l.id === id);
-    if (!window.confirm(`Hapus titik "${loc?.name || id}"? Tindakan ini tidak dapat dibatalkan.`)) return;
-    setDeletingId(id);
+    setDeleteTarget({ id, name: loc?.name || id });
+  };
+
+  const performDelete = async () => {
+    if (!deleteTarget) return;
+    setDeletingId(deleteTarget.id);
     try {
-      await onDelete(id);
-      addToast(`"${loc?.name}" berhasil dihapus.`, 'info');
+      await onDelete(deleteTarget.id);
+      addToast(`"${deleteTarget.name}" berhasil dihapus.`, 'info');
     } catch {
       addToast('Gagal menghapus titik. Cek koneksi dan coba lagi.', 'error');
+    } finally {
+      setDeletingId(null);
+      setDeleteTarget(null);
     }
-    setDeletingId(null);
   };
 
   // Tutup dropdown ekspor saat klik di luar.
@@ -620,6 +632,17 @@ export const LocationManager: React.FC<LocationManagerProps> = ({
           })
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus Titik?"
+        message={<>
+          Titik <span className="font-bold text-slate-700 dark:text-stone-200">"{deleteTarget?.name}"</span> akan dihapus
+          permanen dari peta. Tindakan ini tidak dapat dibatalkan.
+        </>}
+        onConfirm={performDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import * as Icons from 'lucide-react';
 import { Layers, Plus, Pencil, Trash2, X, Check, GripVertical } from 'lucide-react';
 import type { GeoCategory } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface CategoryManagerProps {
   categories: GeoCategory[];
@@ -39,6 +40,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<GeoCategory>>(emptyCat());
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<GeoCategory | null>(null);
 
   const sorted = [...categories].sort((a, b) => a.order - b.order);
 
@@ -88,13 +90,18 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
   };
 
   const handleDelete = async (cat: GeoCategory) => {
-    if (!window.confirm(`Hapus kategori "${cat.name}"? Titik lokasi dengan kategori ini tidak akan terhapus, tapi kategorinya akan hilang.`)) return;
+    setDeleteTarget(cat);
+  };
+
+  const performDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await onDelete(cat.id);
-      addToast(`Kategori "${cat.name}" dihapus.`, 'info');
+      await onDelete(deleteTarget.id);
+      addToast(`Kategori "${deleteTarget.name}" dihapus.`, 'info');
     } catch {
       addToast('Gagal menghapus kategori. Cek koneksi dan coba lagi.', 'error');
     }
+    setDeleteTarget(null);
   };
 
   return (
@@ -254,6 +261,17 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
           );
         })}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus Kategori?"
+        message={<>
+          Kategori <span className="font-bold text-slate-700 dark:text-stone-200">"{deleteTarget?.name}"</span> akan dihapus.
+          Titik lokasi dengan kategori ini <span className="font-semibold">tidak ikut terhapus</span>, tapi kategorinya akan hilang dari peta.
+        </>}
+        onConfirm={performDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };
