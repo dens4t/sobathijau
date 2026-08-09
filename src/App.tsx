@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Activity, ExternalLink, CheckCircle2, XCircle, Info } from 'lucide-react';
+import { X, Activity, ExternalLink, CheckCircle2, XCircle, Info, Loader2 } from 'lucide-react';
 import { useStore } from './store/useStore';
 import type { Submission } from './types';
 import { nowSql, createTimeline } from './lib/timeline';
@@ -20,6 +20,17 @@ import { AdminLogin } from './components/AdminLogin';
 // Lazy load heavy components
 const EcoCarousel = React.lazy(() => import('./components/EcoCarousel').then(m => ({ default: m.EcoCarousel })));
 const MapView = React.lazy(() => import('./components/MapView').then(m => ({ default: m.MapView })));
+
+// Skeleton placeholder utk komponen lazy (carousel, peta)
+const LoadingBlock: React.FC<{ label: string; height?: string }> = ({ label, height = 'h-64' }) => (
+  <div className={`${height} rounded-2xl overflow-hidden relative border border-slate-100 dark:border-stone-800`}>
+    <div className="absolute inset-0 skeleton-shimmer" />
+    <div className="absolute inset-0 flex items-center justify-center gap-2 text-[10px] font-mono text-slate-400 dark:text-stone-500">
+      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+      {label}
+    </div>
+  </div>
+);
 
 export default function App() {
   const {
@@ -182,17 +193,43 @@ export default function App() {
   };
 
   if (!isInitialized) return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950">
-      <div className="text-center space-y-5">
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-emerald-600 animate-bounce [animation-delay:0ms]" />
-          <div className="w-3 h-3 rounded-full bg-emerald-500 animate-bounce [animation-delay:150ms]" />
-          <div className="w-3 h-3 rounded-full bg-emerald-400 animate-bounce [animation-delay:300ms]" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#081C15] via-[#0D2E21] to-[#081C15] relative overflow-hidden">
+      {/* partikel dekoratif */}
+      <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl animate-pulse" />
+      <div className="absolute -bottom-32 -right-20 w-96 h-96 rounded-full bg-teal-400/10 blur-3xl animate-pulse [animation-delay:1s]" />
+      <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full bg-emerald-400/20 blur-2xl animate-float-y" />
+
+      <div className="text-center space-y-5 relative z-10 px-6">
+        {/* Logo dengan cincin berputar */}
+        <div className="relative w-24 h-36 mx-auto">
+          <div className="absolute -inset-4 rounded-[36px] border-2 border-dashed border-emerald-400/30 animate-spin-slow" />
+          <div className="absolute -inset-1.5 rounded-[30px] border border-emerald-300/20 animate-spin-slower" />
+          <div className="absolute inset-0 rounded-[26px] bg-emerald-400/15 blur-xl animate-pulse" />
+          <img
+            src="/logo.png"
+            alt="Logo Sobat Hijau"
+            className="relative w-24 h-36 object-contain rounded-2xl shadow-2xl shadow-emerald-500/30 animate-float-y"
+          />
         </div>
+
         <div>
-          <h2 className="text-lg font-extrabold text-[#1B4332] dark:text-emerald-400 tracking-tight">Sobat Hijau</h2>
-          <p className="text-xs text-stone-400 dark:text-stone-500 mt-1 font-mono">Memuat sistem pelayanan DLH...</p>
+          <h2 className="text-2xl font-black tracking-tight text-white">
+            Sobat <span className="text-emerald-400">Hijau</span>
+          </h2>
+          <p className="text-[10px] text-emerald-100/50 font-mono uppercase tracking-[0.2em] mt-1">Dinas Lingkungan Hidup Kota Pontianak</p>
         </div>
+
+        {/* progress dots */}
+        <div className="flex items-center justify-center gap-1.5 pt-1">
+          {[0, 1, 2, 3, 4].map(i => (
+            <span
+              key={i}
+              className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"
+              style={{ animationDelay: `${i * 0.12}s` }}
+            />
+          ))}
+        </div>
+        <p className="text-[10px] text-emerald-100/40 font-mono">Memuat sistem pelayanan DLH...</p>
       </div>
     </div>
   );
@@ -319,11 +356,11 @@ export default function App() {
                       </div>
                     </div>
 
-                    <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse rounded-2xl"></div>}>
+                    <Suspense fallback={<LoadingBlock label="Memuat sorotan layanan..." />}>
                       <EcoCarousel slides={carouselSlides} />
                     </Suspense>
 
-                    <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse rounded-2xl"></div>}>
+                    <Suspense fallback={<LoadingBlock label="Menyiapkan peta interaktif..." />}>
                       <MapView locations={locations} categories={categories} />
                     </Suspense>
 
@@ -360,7 +397,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'peta' && (
-                  <Suspense fallback={<div className="h-96 bg-slate-50 animate-pulse rounded-2xl"></div>}>
+                  <Suspense fallback={<LoadingBlock label="Menyiapkan peta interaktif..." />}>
                     <MapView locations={locations} categories={categories} />
                   </Suspense>
                 )}

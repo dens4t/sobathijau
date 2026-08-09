@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\ActivityLog;
 use App\Models\AppNotification;
+use App\Models\AssistantQuestion;
 use App\Models\CarouselSlide;
 use App\Models\GeoCategory;
 use App\Models\GeoLocation;
@@ -28,6 +29,10 @@ final class DatabaseSeeder extends Seeder
         // Template balasan: selalu di-seed idempoten (updateOrCreate) agar DB lama ikut terisi.
         foreach (\App\Support\ReplyTemplates::defaults() as $row) {
             ReplyTemplate::updateOrCreate(['id' => $row['id']], $row);
+        }
+        // Pertanyaan asisten (FAQ): selalu di-seed idempoten agar DB lama ikut terisi.
+        foreach ($this->assistantQuestions() as $row) {
+            AssistantQuestion::updateOrCreate(['id' => $row['id']], $row);
         }
         User::updateOrCreate(
             ['email' => 'densat98@gmail.com'],
@@ -560,6 +565,48 @@ HTML,
             'timestamp' => $r[2],
             'iconType' => $r[3],
         ], $rows);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function assistantQuestions(): array
+    {
+        return [
+            [
+                'id' => 'faq-1',
+                'question' => 'Bagaimana cara mendaftar SPPL untuk UMKM?',
+                'keywords' => ['sppl', 'izin', 'rekomendasi'],
+                'answer' => 'Untuk mendaftar rekomendasi SPPL di Sobat Hijau, Anda perlu menyiapkan: 1. NIK/KTP pemohon, 2. Nama & alamat kegiatan usaha, 3. Ukuran luas bangunan usaha. Anda dapat mengisi formulir dinamis langsung pada menu "Layanan Kami > Rekomendasi Dokumen Lingkungan SPPL". Setelah dikirim, Anda akan menerima Kode Pelacakan (misal: SH-2026-XXXXX) untuk melacak kemajuan dokumen secara real-time!',
+                'sort_order' => 1,
+            ],
+            [
+                'id' => 'faq-2',
+                'question' => 'Apa saja syarat uji sampel air limbah?',
+                'keywords' => ['uji', 'air', 'lab', 'parameter', 'sampel'],
+                'answer' => 'Sobat Hijau menyediakan layanan laboratorium DLH untuk uji air bersih, air limbah, tanah, maupun tingkat kebisingan. Anda cukup mengisi formulir pada kategori "Laboratorium", memilih parameter uji seperti pH, BOD/COD atau logam berat, lalu mengantarkan sampel fisik Anda ke kantor DLH sesuai tanggal rencana pengantaran yang Anda input.',
+                'sort_order' => 2,
+            ],
+            [
+                'id' => 'faq-3',
+                'question' => 'Cara mendapatkan bibit tanaman pelindung gratis?',
+                'keywords' => ['bibit', 'tanaman', 'pohon', 'gratis', 'hutan'],
+                'answer' => 'Dinas Lingkungan Hidup membagikan bibit tanaman GRATIS untuk aksi penghijauan masyarakat, organisasi, atau sekolah. Di portal Sobat Hijau, pilih menu "Permohonan Bibit Tanaman", tentukan jumlah dan jenis bibit (pohon buah, tanaman hias, atau pelindung), serta tanggal aksi penanaman Anda. Tim kami akan memverifikasi dan menyiapkan bibit untuk diambil!',
+                'sort_order' => 3,
+            ],
+            [
+                'id' => 'faq-4',
+                'question' => 'Cara melacak berkas permohonan?',
+                'keywords' => ['lacak', 'pelacakan', 'kode', 'tracking'],
+                'answer' => 'Untuk melacak status permohonan Anda, silakan catat Kode Pelacakan (contoh: SH-2026-04981) yang didapat setelah mengirim formulir. Masukkan kode tersebut di menu "Lacak Permohonan" di navigasi atas. Anda akan dapat melihat timeline proses pengerjaan dari pembukaan berkas, survei lapangan, hingga penerbitan surat selesai.',
+                'sort_order' => 4,
+            ],
+            [
+                'id' => 'faq-5',
+                'question' => 'Cara melaporkan pembakaran sampah liar?',
+                'keywords' => ['lapork', 'aduan', 'pencemaran', 'bakar', 'limbah'],
+                'answer' => 'Jika Anda menemukan pencemaran lingkungan (misalnya pembuangan limbah sisa pabrik ke sungai atau pembakaran sampah liar secara besar-besaran), silakan buat laporan di menu "Pengaduan Kasus Pencemaran". Anda bisa memilih nama "Anonim" demi privasi, sertakan lokasi detail, kronologi kejadian, dan no WA aktif agar pengawas lingkungan DLH kami dapat berkoordinasi langsung.',
+                'sort_order' => 5,
+            ],
+        ];
     }
 
     /** @return array<int, array<string, mixed>> */

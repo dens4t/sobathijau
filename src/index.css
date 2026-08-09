@@ -168,6 +168,41 @@ html.grayscale {
   animation: toast-progress 4.5s linear forwards;
 }
 
+/* Loading page: ring berputar pelan di sekeliling logo */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 3.2s linear infinite;
+}
+.animate-spin-slower {
+  animation: spin-slow 6s linear infinite reverse;
+}
+
+/* Shimmer utk skeleton placeholder (map/carousel/berita) */
+@keyframes shimmer {
+  0% { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #eef2f1 25%, #dde7e2 50%, #eef2f1 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+.dark .skeleton-shimmer {
+  background: linear-gradient(90deg, #1c1917 25%, #292524 50%, #1c1917 75%);
+  background-size: 1200px 100%;
+}
+
+/* Teks brand bergelombang di loading page */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-y {
+  animation: float-y 2.4s ease-in-out infinite;
+}
+
 /* Custom ring for keyboard accessibility focus-visible */
 *:focus-visible {
   outline: 3px solid #f59e0b !important;

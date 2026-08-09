@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Models\AppNotification;
 use App\Models\Submission;
 use App\Support\Timeline;
-use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,45 +16,31 @@ final class SubmissionController extends ResourceController
         return Submission::class;
     }
 
-    // Endpoint publik: wajib validasi penuh agar payload cacat tidak masuk DB / 500.
-    // ponytail: validasi per-field layanan (syarat isian dinamis) tetap di frontend;
-    // tambah rules per-service di sini bila perlu server-side strict.
+    // Endpoint publik: whitelist field agar attacker tidak bisa mengirim status/timeline
+    // arbitrer (mis. SELESAI) — server selalu memaksa status DIAJUKAN + timeline awal.
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'id' => 'required|string|max:50',
-            'serviceId' => 'required|string|max:50',
+            'id' => 'required|string|max:40',
+            'serviceId' => 'required|string',
             'serviceName' => 'required|string',
-            'applicantName' => 'required|string',
-            'status' => ['required', Rule::in(array_keys(Timeline::STATUS_LABELS))],
-            'formData' => 'required|array',
-            'submittedAt' => 'required|date',
-            'timeline' => ['required', 'array', function (string $attr, mixed $value, Closure $fail): void {
-                $steps = array_values($value);
-                if (count($steps) !== count(Timeline::STATUS_ORDER)) {
-                    $fail('Timeline harus memuat seluruh tahapan proses.');
-
-                    return;
-                }
-                foreach (array_values($steps) as $i => $step) {
-                    $expected = Timeline::STATUS_ORDER[$i];
-                    foreach (['status', 'title', 'description', 'updatedAt', 'isCompleted'] as $key) {
-                        if (! array_key_exists($key, $step)) {
-                            $fail("Step $i: field \"$key\" wajib ada.");
-
-                            return;
-                        }
-                    }
-                    if ($step['status'] !== $expected) {
-                        $fail("Step $i harus berstatus $expected.");
-
-                        return;
-                    }
-                }
-            }],
+            'applicantName' => 'required|string|max:120',
+            'formData' => 'nullable|array',
+            'submittedAt' => 'nullable|string',
         ]);
 
-        return response()->json(Submission::create($data), 201);
+        $sub = Submission::create([
+            'id' => $data['id'],
+            'serviceId' => $data['serviceId'],
+            'serviceName' => $data['serviceName'],
+            'applicantName' => $data['applicantName'],
+            'formData' => $data['formData'] ?? [],
+            'submittedAt' => $data['submittedAt'] ?? Timeline::now(),
+            'status' => 'DIAJUKAN',
+            'timeline' => Timeline::build(Timeline::now()),
+        ]);
+
+        return response()->json($sub, 201);
     }
 
     public function updateStatus(Request $request, string $id): JsonResponse
@@ -65,8 +50,10 @@ final class SubmissionController extends ResourceController
             'adminNote' => 'sometimes|string',
         ]);
 
-        $sub = Submission::findOrFail($id);
         $status = $data['status'];
+        abort_unless(array_key_exists($status, Timeline::STATUS_LABELS), 422, 'Status tidak valid.');
+
+        $sub = Submission::findOrFail($id);
         $adminNote = $request->input('adminNote');
         $date = Timeline::now();
 
