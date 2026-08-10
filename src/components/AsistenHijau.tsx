@@ -25,7 +25,7 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
     {
       id: 'welcome',
       sender: 'ai',
-      text: 'Halo! Saya Asisten Hijau, AI pelayanan Dinas Lingkungan Hidup. Saya siap membantu Anda berkonsultasi mengenai perizinan SPPL, uji laboratorium, pengaduan pencemaran, atau pengajuan bibit tanaman. Apa yang ingin Anda tanyakan hari ini?',
+      text: 'Halo! Saya Asisten Hijau, asisten virtual layanan Dinas Lingkungan Hidup. Saya siap membantu Anda berkonsultasi mengenai perizinan SPPL, uji laboratorium, pengaduan pencemaran, atau pengajuan bibit tanaman. Apa yang ingin Anda tanyakan hari ini?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);

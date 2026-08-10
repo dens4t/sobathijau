@@ -25,6 +25,17 @@ final class SobatHijauApiTest extends TestCase
 
     private string $adminToken;
 
+    protected function tearDown(): void
+    {
+        // Bersihkan berkas uji upload agar tidak mengotori run berikutnya.
+        Storage::disk('local')->deleteDirectory('uploads');
+        foreach (glob(storage_path('app/uploads/*')) ?: [] as $f) {
+            @unlink($f);
+        }
+
+        parent::tearDown();
+    }
+
     /** Buat berkas uji via API (server memaksa status/timeline sendiri). */
     protected function createSubmission(string $id, array $formData = []): void
     {

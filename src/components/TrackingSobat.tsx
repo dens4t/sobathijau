@@ -187,17 +187,17 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
                         <div className="mt-3 p-3 rounded-lg bg-green-50 border border-green-200 text-[11px] text-green-900 dark:bg-green-950/20 dark:border-green-800 dark:text-green-300">
                           <p className="font-bold mb-1 flex items-center gap-1">
                             <ShieldCheck className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            Dokumen Rekomendasi Terverifikasi Digital
+                            Berkas Selesai — Siap Diambil / Diunduh
                           </p>
-                          <p className="opacity-90">Sertifikat kelayakan atau izin Anda telah dikeluarkan resmi oleh Kepala Dinas Lingkungan Hidup.</p>
+                          <p className="opacity-90">Rekomendasi Anda telah selesai diproses. Dokumen resmi dapat diambil di kantor DLH atau diunduh sebagai ringkasan digital.</p>
                           <button
                             onClick={() => {
-                              onSpeak("Mengunduh salinan berkas rekomendasi DLH");
+                              onSpeak("Mengunduh ringkasan berkas DLH");
                               const lines = [
                                 'SOBAT HIJAU — DLH KOTA PONTIANAK',
-                                'SURAT KEPUTUSAN / REKOMENDASI DIGITAL',
+                                'RINGKASAN STATUS BERKAS',
                                 '='.repeat(52),
-                                `Nomor: SH/DLH-${foundSubmission.id}`,
+                                `Kode Berkas: ${foundSubmission.id}`,
                                 `Layanan: ${foundSubmission.serviceName}`,
                                 `Pemohon: ${foundSubmission.applicantName}`,
                                 `Status: ${foundSubmission.status.replace('_', ' ')}`,
@@ -206,7 +206,7 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
                                 'Tahapan:',
                                 ...foundSubmission.timeline.map(s => `- [${s.isCompleted ? 'X' : ' '}] ${s.title} (${s.updatedAt})`),
                                 '',
-                                'Dokumen ini adalah salinan digital. Hubungi DLH untuk dokumen resmi.',
+                                'Ringkasan ini bukan dokumen resmi. Hubungi DLH untuk dokumen asli.',
                               ].join('\n');
                               const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
                               const url = URL.createObjectURL(blob);
@@ -219,7 +219,7 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
                             className="mt-2 text-xs flex items-center gap-1 text-emerald-800 hover:text-emerald-950 dark:text-amber-400 font-bold underline"
                           >
                             <Download className="w-3.5 h-3.5" />
-                            Unduh Surat Keputusan / SPPL Digital
+                            Unduh Ringkasan Berkas (TXT)
                           </button>
                         </div>
                       )}
