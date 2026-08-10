@@ -22,15 +22,28 @@ final class SobatHijauApiTest extends TestCase
         $this->withHeader('Authorization', 'Bearer '.$token);
     }
 
+    /** Buat berkas uji via API (server memaksa status/timeline sendiri). */
+    protected function createSubmission(string $id, array $formData = []): void
+    {
+        $this->postJson('/api/submissions', [
+            'id' => $id,
+            'serviceId' => 'sppl',
+            'serviceName' => 'Rekomendasi Dokumen Lingkungan SPPL',
+            'applicantName' => 'Pemohon Test',
+            'formData' => $formData ?: ['nama_pemohon' => 'Pemohon Test', 'nik' => '6171012809880002'],
+            'submittedAt' => '2026-08-01 10:00',
+        ])->assertStatus(201);
+    }
+
     public function test_bootstrap_returns_all_seeded_collections(): void
     {
         $response = $this->getJson('/api/bootstrap');
 
         $response->assertOk()
             ->assertJsonCount(4, 'services')
-            ->assertJsonCount(8, 'submissions')
-            ->assertJsonCount(2, 'notifications')
-            ->assertJsonCount(5, 'activityLogs')
+            ->assertJsonCount(0, 'submissions')
+            ->assertJsonCount(0, 'notifications')
+            ->assertJsonCount(0, 'activityLogs')
             ->assertJsonCount(12, 'locations')
             ->assertJsonCount(4, 'categories')
             ->assertJsonCount(5, 'networkLinks')
@@ -38,7 +51,6 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonCount(1, 'siteMetrics')
             ->assertJsonCount(5, 'assistantQuestions')
             ->assertJsonPath('services.0.id', 'aduan-lingkungan')
-            ->assertJsonPath('submissions.0.id', 'SH-2026-04981')
             ->assertJsonPath('services.0.isCustom', false)
             ->assertJsonPath('carouselSlides.0.icon', 'water')
             ->assertJsonPath('carouselSlides.0.colorBg', 'from-teal-900/90 to-[#1B4332]')
@@ -66,21 +78,22 @@ final class SobatHijauApiTest extends TestCase
 
     public function test_bootstrap_masks_sensitive_form_data(): void
     {
+        $this->createSubmission('SH-MASK-0001', ['nama_pelapor' => 'Anonim', 'kontak_pelapor' => '081234567890', 'nik' => '6171012809880002']);
         $resp = $this->getJson('/api/bootstrap');
-        $sppl = collect($resp->json('submissions'))->firstWhere('id', 'SH-2026-04981');
+        $sppl = collect($resp->json('submissions'))->firstWhere('id', 'SH-MASK-0001');
 
         $this->assertSame('6171**********02', $sppl['formData']['nik']);
         $this->assertStringNotContainsString('2809880002', $sppl['formData']['nik']);
 
         // Kontak pada aduan ikut ter-mask.
-        $aduan = collect($resp->json('submissions'))->firstWhere('id', 'SH-2026-11508');
-        $this->assertStringContainsString('*', $aduan['formData']['kontak_pelapor']);
+        $this->assertStringContainsString('*', $sppl['formData']['kontak_pelapor']);
     }
 
     public function test_admin_endpoint_returns_full_form_data(): void
     {
+        $this->createSubmission('SH-FULL-0001');
         $rows = $this->getJson('/api/submissions')->assertOk()->json();
-        $sppl = collect($rows)->firstWhere('id', 'SH-2026-04981');
+        $sppl = collect($rows)->firstWhere('id', 'SH-FULL-0001');
 
         $this->assertSame('6171012809880002', $sppl['formData']['nik']);
         $this->assertStringNotContainsString('*', $sppl['formData']['nik']);
@@ -123,7 +136,7 @@ final class SobatHijauApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('action', 'Admin menguji audit log');
 
-        $this->assertDatabaseCount('activity_logs', 6);
+        $this->assertDatabaseCount('activity_logs', 1);
     }
 
     public function test_service_crud_roundtrip(): void
@@ -156,6 +169,7 @@ final class SobatHijauApiTest extends TestCase
 
     public function test_status_update_advances_timeline_and_creates_notification(): void
     {
+        $this->createSubmission('SH-2026-08123');
         $response = $this->putJson('/api/submissions/SH-2026-08123/status', [
             'status' => 'PROSES_REKOMENDASI',
             'adminNote' => 'Berkas lengkap',
@@ -169,11 +183,12 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonPath('notification.isRead', false)
             ->assertJsonPath('notification.message', 'Berkas lengkap');
 
-        $this->assertDatabaseCount('notifications', 3);
+        $this->assertDatabaseCount('notifications', 1);
     }
 
     public function test_rejection_marks_verification_step_with_note(): void
     {
+        $this->createSubmission('SH-2026-09255');
         $this->putJson('/api/submissions/SH-2026-09255/status', [
             'status' => 'DITOLAK',
             'adminNote' => 'Berkas tidak lengkap',
@@ -186,7 +201,9 @@ final class SobatHijauApiTest extends TestCase
 
     public function test_deleting_submission_removes_orphan_notifications(): void
     {
-        $this->assertDatabaseCount('notifications', 2);
+        $this->createSubmission('SH-2026-08123');
+        $this->putJson('/api/submissions/SH-2026-08123/status', ['status' => 'SURVEY_TEKNIS'])->assertOk();
+        $this->assertDatabaseCount('notifications', 1);
 
         $this->deleteJson('/api/submissions/SH-2026-08123')
             ->assertOk()
@@ -194,12 +211,16 @@ final class SobatHijauApiTest extends TestCase
 
         $this->assertDatabaseMissing('submissions', ['id' => 'SH-2026-08123']);
         $this->assertDatabaseMissing('notifications', ['submissionId' => 'SH-2026-08123']);
-        $this->assertDatabaseCount('notifications', 1); // hanya notif-2 (SH-2026-04981) tersisa
+        $this->assertDatabaseCount('notifications', 0); // notif yatim ikut terhapus
     }
 
     public function test_notification_read_flow(): void
     {
-        $this->putJson('/api/notifications/notif-1/read')
+        $this->createSubmission('SH-NOTIF-0001');
+        $notifId = $this->putJson('/api/submissions/SH-NOTIF-0001/status', ['status' => 'VERIFIKASI_ADMIN'])
+            ->assertOk()->json('notification.id');
+
+        $this->putJson('/api/notifications/'.$notifId.'/read')
             ->assertOk()
             ->assertJsonPath('isRead', true);
 
@@ -300,6 +321,7 @@ final class SobatHijauApiTest extends TestCase
 
     public function test_return_status_marks_verification_step(): void
     {
+        $this->createSubmission('SH-2026-09255');
         $this->putJson('/api/submissions/SH-2026-09255/status', [
             'status' => 'DIKEMBALIKAN',
             'adminNote' => 'Lampiran KTP kurang jelas, mohon perbaiki',

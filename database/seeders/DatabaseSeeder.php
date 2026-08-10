@@ -45,15 +45,13 @@ final class DatabaseSeeder extends Seeder
             Service::updateOrCreate(['id' => $row['id']], $row);
         }
 
-        // Guard seeding ulang: layanan sudah idempoten (updateOrCreate) di atas;
-        // tabel lain pakai create() — cukup sekali.
-        if (Submission::exists()) {
+        // Master data (peta/kategori/jejaring): seed sekali pakai create().
+        // Berkas pemohon TIDAK di-seed — data transaksi milik pengguna; bila
+        // dihapus admin, tidak akan muncul kembali (deploy/seed apa pun).
+        if (GeoLocation::exists()) {
             return;
         }
 
-        foreach ($this->submissions() as $row) {
-            Submission::create($row);
-        }
         foreach ($this->locations() as $row) {
             GeoLocation::create($row);
         }
@@ -62,12 +60,6 @@ final class DatabaseSeeder extends Seeder
         }
         foreach ($this->networkLinks() as $row) {
             NetworkLink::create($row);
-        }
-        foreach ($this->notifications() as $row) {
-            AppNotification::create($row);
-        }
-        foreach ($this->activityLogs() as $row) {
-            ActivityLog::create($row);
         }
     }
 
@@ -142,217 +134,6 @@ final class DatabaseSeeder extends Seeder
                     ['id' => 'jenis_pencemaran', 'label' => 'Kategori Kasus', 'type' => 'select', 'required' => true, 'options' => ['Pembuangan Limbah Cair ke Parit/Sungai', 'Polusi Udara / Asap Cerobong Pabrik', 'Aktivitas Pembakaran Sampah Liar Sekala Besar', 'Pencemaran Suara / Kebisingan Industri', 'Penumpukan Sampah Ilegal di Fasilitas Publik']],
                     ['id' => 'lokasi_kejadian', 'label' => 'Lokasi Detail Kejadian', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Sebutkan Kelurahan, Kecamatan, dan ciri/patokan lokasi terdekat'],
                     ['id' => 'deskripsi_kronologi', 'label' => 'Deskripsi Singkat Keadaan / Kronologi', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Tuliskan seberapa sering polusi terjadi, dampaknya pada warga, dll.'],
-                ],
-            ],
-        ];
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    private function submissions(): array
-    {
-        $step = static fn (string $status, string $title, string $description, string $updatedAt, bool $completed): array => [
-            'status' => $status,
-            'title' => $title,
-            'description' => $description,
-            'updatedAt' => $updatedAt,
-            'isCompleted' => $completed,
-        ];
-        $berkas = 'Berkas Diterima';
-        $deskBerkas = 'Permohonan Anda berhasil masuk ke database Sobat Hijau DLH.';
-        $verif = 'Verifikasi Administrasi';
-        $deskVerif = 'Pemeriksaan kesesuaian berkas dan kelengkapan data oleh petugas.';
-        $survei = 'Pemeriksaan Teknis / Lapangan';
-        $deskSurvei = 'Peninjauan langsung ke lokasi dan identifikasi parameter lapangan.';
-        $rekom = 'Penerbitan Surat Rekomendasi';
-        $deskRekom = 'Format naskah surat dan validasi dari kepala dinas.';
-        $selesai = 'Selesai & Serah Terima';
-        $deskSelesai = 'Dokumen final telah diterbitkan dan siap diunduh atau diambil.';
-
-        return [
-            [
-                'id' => 'SH-2026-04981',
-                'serviceId' => 'sppl',
-                'serviceName' => 'Rekomendasi Dokumen Lingkungan SPPL',
-                'submittedAt' => '2026-05-28 08:30',
-                'status' => 'SELESAI',
-                'applicantName' => 'Joko Susilo, S.H.',
-                'formData' => [
-                    'nama_pemohon' => 'Joko Susilo, S.H.',
-                    'nik' => '6171012809880002',
-                    'nama_usaha' => 'CV. Berkah Abadi Sejahtera',
-                    'jenis_usaha' => 'Kuliner / Restoran',
-                    'alamat_usaha' => 'Jl. Ahmad Yani No. 12, Kel. Akraya, Kec. Pontianak Selatan',
-                    'luas_bangunan' => '150',
-                    'kapasitas_produksi' => '5',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-05-28 08:30', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-05-28 15:30', true),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '2026-05-29 11:00', true),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '2026-05-30 09:15', true),
-                    $step('SELESAI', $selesai, $deskSelesai, '2026-06-01 14:00', true),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-08123',
-                'serviceId' => 'lab-air',
-                'serviceName' => 'Pengujian Sampah / Air / Udara Laboratorium',
-                'submittedAt' => '2026-05-26 09:12',
-                'status' => 'SURVEY_TEKNIS',
-                'applicantName' => 'PT. Pontianak Tirta Agung',
-                'formData' => [
-                    'nama_instansi' => 'PT. Pontianak Tirta Agung',
-                    'no_kontak' => '08125439123',
-                    'jenis_sampel' => 'Air Sungai / Danau',
-                    'parameter_uji' => ['pH & Suhu', 'BOD & COD (Beban Organik)', 'Total Suspended Solids (TSS)'],
-                    'jumlah_titik' => '2',
-                    'tanggal_antar' => '2026-06-05',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-01 08:30', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-01 14:15', true),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '2026-06-02 09:00', true),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
-                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-09255',
-                'serviceId' => 'bibit-gratis',
-                'serviceName' => 'Permohonan Bibit Tanaman Penghijauan',
-                'submittedAt' => '2026-06-02 07:45',
-                'status' => 'DIAJUKAN',
-                'applicantName' => 'Karang Taruna Banjar Serasan',
-                'formData' => [
-                    'nama_organisasi' => 'Karang Taruna Banjar Serasan',
-                    'alamat_tujuan' => 'Jl. Tritura Gg. Lingkungan Sehat No. 4, Pontianak Timur',
-                    'jenis_bibit' => 'Pohon Buah (Mangga, Rambutan, Jambu)',
-                    'jumlah_pohon' => '30',
-                    'rencana_tanam' => '2026-06-14',
-                    'deskripsi_kegiatan' => 'Gerakan Penghijauan Lingkungan RW 05 Pontianak Timur dalam rangka menyambut Hari Lingkungan Hidup.',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-02 08:30', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-02 14:15', false),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '-', false),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
-                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-10442',
-                'serviceId' => 'lab-air',
-                'serviceName' => 'Pengujian Sampah / Air / Udara Laboratorium',
-                'submittedAt' => '2026-06-10 10:05',
-                'status' => 'VERIFIKASI_ADMIN',
-                'applicantName' => 'PT. Borneo Alam Lestari',
-                'formData' => [
-                    'nama_instansi' => 'PT. Borneo Alam Lestari',
-                    'no_kontak' => '08135789012',
-                    'jenis_sampel' => 'Air Limbah Industri',
-                    'parameter_uji' => ['pH & Suhu', 'BOD & COD (Beban Organik)', 'Kadar Logam Berat (Pb, Cd, Hg)'],
-                    'jumlah_titik' => '3',
-                    'tanggal_antar' => '2026-06-15',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-10 10:05', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-10 15:40', true),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '-', false),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
-                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-11508',
-                'serviceId' => 'aduan-lingkungan',
-                'serviceName' => 'Pengaduan Kasus Pencemaran Lingkungan',
-                'submittedAt' => '2026-06-18 09:20',
-                'status' => 'DIAJUKAN',
-                'applicantName' => 'Anonim',
-                'formData' => [
-                    'nama_pelapor' => 'Anonim',
-                    'kontak_pelapor' => '081234567890',
-                    'jenis_pencemaran' => 'Aktivitas Pembakaran Sampah Liar Sekala Besar',
-                    'lokasi_kejadian' => 'Jl. Khatulistiwa, Pontianak Utara, dekat lahan kosong eks pasar',
-                    'deskripsi_kronologi' => 'Pembakaran sampah setiap sore, asap mengganggu warga sekitar dan berbau menyengat.',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-18 09:20', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '-', false),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '-', false),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
-                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-12677',
-                'serviceId' => 'sppl',
-                'serviceName' => 'Rekomendasi Dokumen Lingkungan SPPL',
-                'submittedAt' => '2026-06-20 13:45',
-                'status' => 'DITOLAK',
-                'applicantName' => 'Siti Rahayu',
-                'formData' => [
-                    'nama_pemohon' => 'Siti Rahayu',
-                    'nik' => '6171015508910004',
-                    'nama_usaha' => 'Warung Kopi Sehat',
-                    'jenis_usaha' => 'Kuliner / Restoran',
-                    'alamat_usaha' => 'Jl. Tanjungpura No. 88, Pontianak Timur',
-                    'luas_bangunan' => '60',
-                    'kapasitas_produksi' => '2',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-20 13:45', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-21 09:30', true),
-                    ['status' => 'DITOLAK', 'title' => 'Pemberitahuan Ditolak', 'description' => 'Berkas tidak lengkap: NIK tidak sesuai KTP dan luas bangunan tidak tercantum.', 'updatedAt' => '2026-06-22 10:00', 'isCompleted' => true],
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '-', false),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '-', false),
-                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-13901',
-                'serviceId' => 'bibit-gratis',
-                'serviceName' => 'Permohonan Bibit Tanaman Penghijauan',
-                'submittedAt' => '2026-06-25 08:10',
-                'status' => 'PROSES_REKOMENDASI',
-                'applicantName' => 'Sekolah Dasar Negeri 14 Pontianak',
-                'formData' => [
-                    'nama_organisasi' => 'SDN 14 Pontianak Selatan',
-                    'alamat_tujuan' => 'Jl. Imam Bonjol, Pontianak Selatan',
-                    'jenis_bibit' => 'Pohon Pelindung (Mahoni, Angsana)',
-                    'jumlah_pohon' => '50',
-                    'rencana_tanam' => '2026-07-05',
-                    'deskripsi_kegiatan' => 'Penghijauan halaman sekolah dan program Adiwiyata.',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-25 08:10', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-25 13:20', true),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '2026-06-27 09:00', true),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '2026-06-30 11:30', true),
-                    $step('SELESAI', $selesai, $deskSelesai, '-', false),
-                ],
-            ],
-            [
-                'id' => 'SH-2026-14233',
-                'serviceId' => 'lab-air',
-                'serviceName' => 'Pengujian Sampah / Air / Udara Laboratorium',
-                'submittedAt' => '2026-06-28 14:00',
-                'status' => 'SELESAI',
-                'applicantName' => 'Rumah Sakit Umum Daerah Sultan Syarif Mohamad Alkadrie',
-                'formData' => [
-                    'nama_instansi' => 'RSUD Sultan Syarif Mohamad Alkadrie',
-                    'no_kontak' => '081277788899',
-                    'jenis_sampel' => 'Air Limbah Industri',
-                    'parameter_uji' => ['pH & Suhu', 'Kadar Logam Berat (Pb, Cd, Hg)', 'Total Suspended Solids (TSS)'],
-                    'jumlah_titik' => '4',
-                    'tanggal_antar' => '2026-07-02',
-                ],
-                'timeline' => [
-                    $step('DIAJUKAN', $berkas, $deskBerkas, '2026-06-28 14:00', true),
-                    $step('VERIFIKASI_ADMIN', $verif, $deskVerif, '2026-06-28 16:20', true),
-                    $step('SURVEY_TEKNIS', $survei, $deskSurvei, '2026-06-30 09:00', true),
-                    $step('PROSES_REKOMENDASI', $rekom, $deskRekom, '2026-07-01 10:15', true),
-                    $step('SELESAI', $selesai, $deskSelesai, '2026-07-03 08:30', true),
                 ],
             ],
         ];
@@ -520,52 +301,6 @@ HTML,
             'description' => $r[3],
             'sortOrder' => $r[4],
             'isActive' => true,
-        ], $rows);
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    private function notifications(): array
-    {
-        return [
-            [
-                'id' => 'notif-1',
-                'submissionId' => 'SH-2026-08123',
-                'applicantName' => 'PT. Pontianak Tirta Agung',
-                'serviceName' => 'Pengujian Sampah / Air / Udara Laboratorium',
-                'newStatus' => 'SURVEY_TEKNIS',
-                'message' => 'Status permohonan Laboratorium (SH-2026-08123) milik PT. Pontianak Tirta Agung diperbarui oleh Admin menjadi SURVEY TEKNIS.',
-                'timestamp' => '2026-06-01 09:12',
-                'isRead' => false,
-            ],
-            [
-                'id' => 'notif-2',
-                'submissionId' => 'SH-2026-04981',
-                'applicantName' => 'Bapak Ahmad Subardjo',
-                'serviceName' => 'Izin Rekomendasi Upaya Pemantauan Lingkungan Hidup (UKL-UPL)',
-                'newStatus' => 'SELESAI',
-                'message' => 'Selamat! Dokumen Kelayakan UKL-UPL (SH-2026-04981) atas nama Bapak Ahmad Subardjo telah SELESAI diterbitkan dan siap diunduh.',
-                'timestamp' => '2026-06-02 07:45',
-                'isRead' => false,
-            ],
-        ];
-    }
-
-    /** @return array<int, array<string, mixed>> */
-    private function activityLogs(): array
-    {
-        $rows = [
-            ['log-1', 'Login berhasil sebagai Administrator DLH Pontianak', '2026-06-03 12:44', 'success'],
-            ['log-2', 'Memverifikasi kelayakan teknis berkas PT. Pontianak Tirta Agung', '2026-06-03 11:20', 'info'],
-            ['log-3', 'Menerbitkan rekomendasi kelayakan UKL-UPL Bapak Ahmad Subardjo', '2026-06-03 09:12', 'success'],
-            ['log-4', 'Memperbarui koordinat sebaran TPS 3R di peta lingkungan', '2026-06-02 16:30', 'info'],
-            ['log-5', 'Menambahkan kuesioner baru untuk layanan Pengujian Kebisingan', '2026-06-02 14:15', 'success'],
-        ];
-
-        return array_map(static fn (array $r): array => [
-            'id' => $r[0],
-            'action' => $r[1],
-            'timestamp' => $r[2],
-            'iconType' => $r[3],
         ], $rows);
     }
 
