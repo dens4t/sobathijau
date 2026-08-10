@@ -23,7 +23,7 @@ Route::post('/submissions', [SubmissionController::class, 'store']);
 Route::get('/assistant/questions', [AssistantController::class, 'questions']);
 Route::post('/assistant', [AssistantController::class, 'answer']);
 Route::get('/feed', [FeedController::class, 'index']);
-Route::post('/uploads', [UploadController::class, 'store'])->middleware('throttle:uploads');
+Route::post('/uploads', [UploadController::class, 'store'])->middleware('throttle:10,1');
 
 Route::middleware('auth.token')->group(function (): void {
     Route::get('/services', [ServiceController::class, 'index']);
