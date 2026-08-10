@@ -33,24 +33,19 @@ final class UploadController extends Controller
     /** Unduh berkas lampiran — hanya untuk admin (auth.token). */
     public function download(string $fileId)
     {
-        try {
-            $disk = Storage::disk('local');
-            $match = null;
-            foreach ($disk->files('uploads') as $f) {
-                if (str_starts_with(basename($f), $fileId.'.')) {
-                    $match = $f;
-                    break;
-                }
+        $disk = Storage::disk('local');
+        $match = null;
+        foreach ($disk->files('uploads') as $f) {
+            if (str_starts_with(basename($f), $fileId.'.')) {
+                $match = $f;
+                break;
             }
-
-            if (! $match) {
-                abort(404, 'Berkas tidak ditemukan.');
-            }
-
-            return response()->download($disk->path($match));
-        } catch (\Throwable $e) {
-            // TODO: diagnostik sementara — ganti dengan penanganan normal.
-            return response()->json(['err' => $e->getMessage(), 'at' => $e->getFile().':'.$e->getLine(), 'disk' => config('filesystems.disks.local.root')], 500);
         }
+
+        if (! $match) {
+            abort(404, 'Berkas tidak ditemukan.');
+        }
+
+        return response()->download($disk->path($match));
     }
 }
