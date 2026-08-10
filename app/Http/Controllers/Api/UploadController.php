@@ -33,12 +33,19 @@ final class UploadController extends Controller
     /** Unduh berkas lampiran — hanya untuk admin (auth.token). */
     public function download(string $fileId)
     {
-        $files = glob(config('filesystems.disks.local.root').'/uploads/'.$fileId.'.*');
+        $disk = Storage::disk('local');
+        $match = null;
+        foreach ($disk->files('uploads') as $f) {
+            if (str_starts_with(basename($f), $fileId.'.')) {
+                $match = $f;
+                break;
+            }
+        }
 
-        if (! $files) {
+        if (! $match) {
             abort(404, 'Berkas tidak ditemukan.');
         }
 
-        return response()->download($files[0]);
+        return response()->download($disk->path($match));
     }
 }

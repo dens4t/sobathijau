@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 final class SobatHijauApiTest extends TestCase
@@ -376,7 +377,7 @@ final class SobatHijauApiTest extends TestCase
         $id = $resp->json('id');
         $this->assertSame('ktp-uji.pdf', $resp->json('name'));
 
-        $this->assertNotEmpty(glob(config('filesystems.disks.local.root').'/uploads/'.$id.'.*'));
+        $this->assertNotEmpty(Storage::disk('local')->files('uploads'));
 
         // Unduh tanpa token → 401; dengan token → 200 berisi isi berkas.
         $this->withHeader('Authorization', 'Bearer invalid')
@@ -386,12 +387,10 @@ final class SobatHijauApiTest extends TestCase
         $this->get('/api/uploads/'.$id)->assertOk();
 
         // Isi berkas tersimpan utuh di disk.
-        $stored = glob(config('filesystems.disks.local.root').'/uploads/'.$id.'.*')[0];
-        $this->assertSame("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF", file_get_contents($stored));
+        $stored = collect(Storage::disk('local')->files('uploads'))->first(fn (string $f): bool => str_starts_with(basename($f), $id.'.'));
+        $this->assertSame("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF", file_get_contents(Storage::disk('local')->path($stored)));
 
-        foreach (glob(storage_path('app/uploads/'.$id.'.*')) as $f) {
-            @unlink($f);
-        }
+        Storage::disk('local')->delete($stored);
         @unlink($path);
     }
 
@@ -414,11 +413,11 @@ final class SobatHijauApiTest extends TestCase
             ->assertStatus(201)->json();
 
         $this->createSubmission('SH-UPL-0001', ['nama_pemohon' => 'X', 'lampiran' => ['id' => $meta['id'], 'name' => 'lampiran.png', 'size' => 3, 'type' => 'image/png']]);
-        $this->assertNotEmpty(glob(config('filesystems.disks.local.root').'/uploads/'.$meta['id'].'.*'));
+        $this->assertNotEmpty(Storage::disk('local')->files('uploads'));
 
         $this->deleteJson('/api/submissions/SH-UPL-0001')->assertOk();
 
-        $this->assertEmpty(glob(config('filesystems.disks.local.root').'/uploads/'.$meta['id'].'.*'));
+        $this->assertEmpty(Storage::disk('local')->files('uploads'));
         @unlink($path);
     }
 

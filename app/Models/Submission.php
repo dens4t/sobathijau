@@ -29,9 +29,11 @@ final class Submission extends Model
 
             $lampiran = is_array($sub->formData) ? ($sub->formData['lampiran'] ?? null) : null;
             if (is_array($lampiran) && isset($lampiran['id'])) {
-                $root = \Illuminate\Support\Facades\Config::get('filesystems.disks.local.root');
-                foreach (glob($root.'/uploads/'.$lampiran['id'].'.*') as $f) {
-                    @unlink($f);
+                $disk = \Illuminate\Support\Facades\Storage::disk('local');
+                foreach ($disk->files('uploads') as $f) {
+                    if (str_starts_with(basename($f), $lampiran['id'].'.')) {
+                        $disk->delete($f);
+                    }
                 }
             }
         });
