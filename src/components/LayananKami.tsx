@@ -21,9 +21,9 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [submittedCode, setSubmittedCode] = useState<string | null>(null);
 
-  // File uploading feedback simulator
-  const [uploadedFiles, setUploadedFiles] = useState<Record<string, string>>({});
-  const [isUploading, setIsUploading] = useState<string | null>(null);
+  // Unggah lampiran nyata ke server (metadata tersimpan di formData.lampiran).
+  const [uploadMeta, setUploadMeta] = useState<{ id: string; name: string; size: number; type: string } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const categories = ['ALL', ...new Set(services.map(s => s.category).filter(Boolean))];
 
@@ -40,14 +40,16 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
       setExternalService(service);
       setSelectedService(null);
       setFormData({});
-      setUploadedFiles({});
+      setUploadMeta(null);
+      setUploadProgress(null);
       setSubmittedCode(null);
       onSpeak(`Membuka informasi layanan ${service.name}. Anda akan diarahkan ke situs eksternal.`);
       return;
     }
     setSelectedService(service);
     setFormData({});
-    setUploadedFiles({});
+    setUploadMeta(null);
+    setUploadProgress(null);
     setSubmittedCode(null);
     onSpeak(`Membuka formulir permohonan ${service.name}. Silakan isi data secara lengkap.`);
   };
@@ -67,15 +69,42 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
     handleInputChange(fieldId, currentList);
   };
 
-  const handleFileUploadMock = (fieldId: string, fileName: string) => {
-    setIsUploading(fieldId);
-    onSpeak(`Sedang mengunggah dokumen ${fileName}`);
-    setTimeout(() => {
-      setUploadedFiles(prev => ({ ...prev, [fieldId]: fileName }));
-      setIsUploading(null);
-      onSpeak(`Dokumen ${fileName} sukses diunggah!`);
-    }, 1500);
+  const handleFileUpload = (file: File) => {
+    setUploadProgress(0);
+    setUploadMeta(null);
+    onSpeak(`Mengunggah dokumen ${file.name}`);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/uploads');
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) setUploadProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      setUploadProgress(null);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const meta = JSON.parse(xhr.responseText);
+          setUploadMeta(meta);
+          onSpeak(`Dokumen ${meta.name} sukses diunggah!`);
+        } catch {
+          setUploadMeta(null);
+        }
+      } else {
+        setUploadMeta(null);
+        onSpeak('Gagal mengunggah berkas');
+      }
+    };
+    xhr.onerror = () => {
+      setUploadProgress(null);
+      setUploadMeta(null);
+    };
+    const fd = new FormData();
+    fd.append('file', file);
+    xhr.send(fd);
   };
+
+  const fmtSize = (bytes: number) => bytes >= 1048576
+    ? (bytes / 1048576).toFixed(1) + ' MB'
+    : Math.max(1, Math.round(bytes / 1024)) + ' KB';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +141,7 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
     // Pack details and submit to root handler
     onSubmitForm(selectedService!, {
       ...formData,
+      ...(uploadMeta ? { lampiran: uploadMeta } : {}),
       __applicantName: applicantName,
       __code: code
     });
@@ -437,41 +467,54 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                 ))}
               </div>
 
-              {/* Standard File Upload Area For Premium Experience */}
+              {/* Unggah Lampiran — nyata, tersimpan di server */}
               <div className="space-y-1.5 border-t border-slate-100 dark:border-stone-800 pt-5">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-stone-300" htmlFor="mock-file-uploader">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-stone-300" htmlFor="real-file-uploader">
                   Unggah Dokumen Lampiran Tambahan (PDF/KTP/Sertifikat Lahan)
                 </label>
                 <div className="p-5 border-2 border-dashed border-emerald-100 dark:border-stone-800 rounded-2xl text-center bg-[#F9FBFA] dark:bg-stone-850 text-xs">
-                  <LucideIcons.UploadCloud className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  
-                  {isUploading ? (
+                  {uploadProgress !== null ? (
                     <div className="space-y-1.5">
-                      <p className="text-[10px] text-slate-400 animate-pulse">Mengupload berkas...</p>
-                      <div className="w-32 h-1 bg-slate-200 rounded-full mx-auto overflow-hidden">
-                        <div className="h-full bg-emerald-600 animate-infinite-loading w-1/3"></div>
+                      <p className="text-[10px] text-slate-400 animate-pulse">Mengunggah berkas... {uploadProgress}%</p>
+                      <div className="w-40 h-1.5 bg-slate-200 rounded-full mx-auto overflow-hidden">
+                        <div className="h-full bg-emerald-600 rounded-full transition-all" style={{ width: `${uploadProgress}%` }}></div>
                       </div>
                     </div>
-                  ) : uploadedFiles['lampiran'] ? (
-                    <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400 flex items-center justify-center gap-1">
-                      <LucideIcons.Check className="w-4 h-4" />
-                      <span>{uploadedFiles['lampiran']} Berhasil Diunggah</span>
-                    </p>
+                  ) : uploadMeta ? (
+                    <div className="flex items-center justify-center gap-2.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-stone-800 border border-emerald-200 dark:border-stone-700 text-emerald-800 dark:text-emerald-300 font-bold">
+                        <LucideIcons.FileText className="w-4 h-4" />
+                        {uploadMeta.name}
+                        <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400">({fmtSize(uploadMeta.size)})</span>
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <LucideIcons.Check className="w-3.5 h-3.5" /> Berhasil Diunggah
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMeta(null)}
+                        className="p-1 rounded-md text-rose-500 hover:bg-rose-50 transition" aria-label="Hapus lampiran"
+                      >
+                        <LucideIcons.Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   ) : (
                     <div>
                       <p className="font-semibold text-slate-500">Pilih berkas dari perangkat Anda</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Sandi maksimal 10MB. Format PDF, PNG atau JPEG</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Maksimal 5MB. Format PDF, PNG, JPEG, DOC/DOCX</p>
                       <input
                         type="file"
-                        id="mock-file-uploader"
+                        id="real-file-uploader"
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleFileUploadMock('lampiran', file.name);
+                          if (file) handleFileUpload(file);
+                          e.target.value = '';
                         }}
                         className="hidden"
                       />
                       <label
-                        htmlFor="mock-file-uploader"
+                        htmlFor="real-file-uploader"
                         className="mt-3 inline-block px-3.5 py-1.5 bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-700 text-[10px] rounded-lg text-slate-600 hover:bg-slate-50 font-bold transition cursor-pointer"
                       >
                         Pilih Berkas Lampiran

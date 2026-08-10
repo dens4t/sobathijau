@@ -23,9 +23,17 @@ final class Submission extends Model
 
     protected static function booted(): void
     {
-        // Hapus notifikasi yatim saat berkas dihapus (data hygiene).
+        // Hapus notifikasi yatim + berkas lampiran saat berkas dihapus (data hygiene).
         static::deleting(static function (Submission $sub): void {
             \App\Models\AppNotification::where('submissionId', $sub->id)->delete();
+
+            $lampiran = is_array($sub->formData) ? ($sub->formData['lampiran'] ?? null) : null;
+            if (is_array($lampiran) && isset($lampiran['id'])) {
+                $root = \Illuminate\Support\Facades\Config::get('filesystems.disks.local.root');
+                foreach (glob($root.'/uploads/'.$lampiran['id'].'.*') as $f) {
+                    @unlink($f);
+                }
+            }
         });
     }
 

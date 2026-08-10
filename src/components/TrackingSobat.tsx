@@ -11,10 +11,11 @@ interface TrackingSobatProps {
   submissions: Submission[];
   initialSearchCode?: string;
   readonly?: boolean;
+  canDownload?: boolean;
   onSpeak: (text: string) => void;
 }
 
-export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initialSearchCode = '', readonly = false, onSpeak }) => {
+export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initialSearchCode = '', readonly = false, canDownload = false, onSpeak }) => {
   const [searchCode, setSearchCode] = useState(initialSearchCode);
   const [foundSubmission, setFoundSubmission] = useState<Submission | null>(() => {
     if (initialSearchCode) {
@@ -305,6 +306,37 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
                               {item}
                             </span>
                           ))}
+                        </div>
+                      ) : typeof value === 'object' && value !== null && (value as { id?: string; name?: string }).id && (value as { name?: string }).name ? (
+                        <div className="mt-1.5 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50/80 dark:bg-stone-800 border border-emerald-200 dark:border-stone-700">
+                          <FileText className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                          <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200 break-all">{(value as { name: string }).name}</span>
+                          {canDownload && (
+                            <button
+                              onClick={async () => {
+                                const token = sessionStorage.getItem('sh_admin_token');
+                                try {
+                                  const res = await fetch(`/api/uploads/${(value as { id: string }).id}`, {
+                                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                                  });
+                                  if (!res.ok) throw new Error();
+                                  const blob = await res.blob();
+                                  const url = URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = (value as { name: string }).name;
+                                  a.click();
+                                  URL.revokeObjectURL(url);
+                                  onSpeak('Mengunduh berkas lampiran');
+                                } catch {
+                                  onSpeak('Gagal mengunduh berkas');
+                                }
+                              }}
+                              className="ml-1 px-2.5 py-1 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-[10px] font-bold rounded-lg transition flex items-center gap-1"
+                            >
+                              <Download className="w-3 h-3" /> Unduh
+                            </button>
+                          )}
                         </div>
                       ) : (
                         <p className="font-semibold text-slate-800 mt-0.5 dark:text-stone-200 break-words">

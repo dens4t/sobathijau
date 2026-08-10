@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ReplyTemplateController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SubmissionController;
+use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/bootstrap', [BootstrapController::class, 'index']);
@@ -22,6 +23,7 @@ Route::post('/submissions', [SubmissionController::class, 'store']);
 Route::get('/assistant/questions', [AssistantController::class, 'questions']);
 Route::post('/assistant', [AssistantController::class, 'answer']);
 Route::get('/feed', [FeedController::class, 'index']);
+Route::post('/uploads', [UploadController::class, 'store'])->middleware('throttle:uploads');
 
 Route::middleware('auth.token')->group(function (): void {
     Route::get('/services', [ServiceController::class, 'index']);
@@ -55,6 +57,8 @@ Route::middleware('auth.token')->group(function (): void {
 
     Route::get('/export/locations/{format}', [ExportController::class, 'locations'])
         ->where('format', 'csv|kml|kmz|xlsx|shp');
+
+    Route::get('/uploads/{fileId}', [UploadController::class, 'download']);
 
     Route::get('/reply-templates', [ReplyTemplateController::class, 'index']);
     Route::post('/reply-templates', [ReplyTemplateController::class, 'store']);

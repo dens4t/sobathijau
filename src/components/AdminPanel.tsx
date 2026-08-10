@@ -334,7 +334,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </button>
               </div>
               <div className="overflow-y-auto p-4 md:p-8 flex-1">
-                <TrackingSobat submissions={submissions} initialSearchCode={trackingId} readonly onSpeak={onSpeak} />
+                <TrackingSobat submissions={submissions} initialSearchCode={trackingId} readonly canDownload onSpeak={onSpeak} />
               </div>
             </motion.div>
           </div>

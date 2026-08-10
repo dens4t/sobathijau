@@ -14,13 +14,15 @@ final class SobatHijauApiTest extends TestCase
         parent::setUp();
         $this->seed();
 
-        $token = $this->postJson('/api/login', [
+        $this->adminToken = $this->postJson('/api/login', [
             'email' => 'densat98@gmail.com',
             'password' => 'deni1998',
         ])->assertOk()->json('token');
 
-        $this->withHeader('Authorization', 'Bearer '.$token);
+        $this->withHeader('Authorization', 'Bearer '.$this->adminToken);
     }
+
+    private string $adminToken;
 
     /** Buat berkas uji via API (server memaksa status/timeline sendiri). */
     protected function createSubmission(string $id, array $formData = []): void
@@ -362,6 +364,62 @@ final class SobatHijauApiTest extends TestCase
             'status' => 'HACKED',
             'text' => 'Teks',
         ])->assertStatus(422);
+    }
+
+    public function test_upload_store_and_download(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'upl').'.pdf';
+        file_put_contents($path, "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF");
+
+        $resp = $this->post('/api/uploads', ['file' => new \Illuminate\Http\UploadedFile($path, 'ktp-uji.pdf', 'application/pdf', null, true)])
+            ->assertStatus(201);
+        $id = $resp->json('id');
+        $this->assertSame('ktp-uji.pdf', $resp->json('name'));
+
+        $this->assertNotEmpty(glob(config('filesystems.disks.local.root').'/uploads/'.$id.'.*'));
+
+        // Unduh tanpa token → 401; dengan token → 200 berisi isi berkas.
+        $this->withHeader('Authorization', 'Bearer invalid')
+            ->getJson('/api/uploads/'.$id)->assertStatus(401);
+
+        $this->withHeader('Authorization', 'Bearer '.$this->adminToken);
+        $this->get('/api/uploads/'.$id)->assertOk();
+
+        // Isi berkas tersimpan utuh di disk.
+        $stored = glob(config('filesystems.disks.local.root').'/uploads/'.$id.'.*')[0];
+        $this->assertSame("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF", file_get_contents($stored));
+
+        foreach (glob(storage_path('app/uploads/'.$id.'.*')) as $f) {
+            @unlink($f);
+        }
+        @unlink($path);
+    }
+
+    public function test_upload_rejects_invalid_file(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'upl').'.exe';
+        file_put_contents($path, 'x');
+
+        $this->post('/api/uploads', ['file' => new \Illuminate\Http\UploadedFile($path, 'jahat.exe', 'application/octet-stream', null, true)])
+            ->assertStatus(422);
+
+        @unlink($path);
+    }
+
+    public function test_deleting_submission_removes_upload_file(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'upl').'.png';
+        file_put_contents($path, "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01");
+        $meta = $this->post('/api/uploads', ['file' => new \Illuminate\Http\UploadedFile($path, 'lampiran.png', 'image/png', null, true)])
+            ->assertStatus(201)->json();
+
+        $this->createSubmission('SH-UPL-0001', ['nama_pemohon' => 'X', 'lampiran' => ['id' => $meta['id'], 'name' => 'lampiran.png', 'size' => 3, 'type' => 'image/png']]);
+        $this->assertNotEmpty(glob(config('filesystems.disks.local.root').'/uploads/'.$meta['id'].'.*'));
+
+        $this->deleteJson('/api/submissions/SH-UPL-0001')->assertOk();
+
+        $this->assertEmpty(glob(config('filesystems.disks.local.root').'/uploads/'.$meta['id'].'.*'));
+        @unlink($path);
     }
 
     public function test_dlh_feed_parser_extracts_berita(): void

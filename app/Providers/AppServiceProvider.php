@@ -22,5 +22,9 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(20)->by((string) ($request->ip() ?: 'unknown')),
             ];
         });
+
+        RateLimiter::for('uploads', function (Request $request): Limit {
+            return Limit::perMinute(10)->by((string) ($request->ip() ?: 'unknown'));
+        });
     }
 }
