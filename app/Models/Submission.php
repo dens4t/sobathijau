@@ -35,6 +35,11 @@ final class Submission extends Model
                         $disk->delete($f);
                     }
                 }
+                foreach ([storage_path('app/uploads'), storage_path('app/private/uploads')] as $dir) {
+                    foreach (glob($dir.'/'.$lampiran['id'].'.*') ?: [] as $f) {
+                        @unlink($f);
+                    }
+                }
             }
         });
     }
