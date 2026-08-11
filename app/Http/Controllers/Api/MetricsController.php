@@ -27,7 +27,37 @@ final class MetricsController extends Controller
 
     public function updateCarouselSlide(Request $request, string $id): JsonResponse
     {
-        $data = $request->validate([
+        $data = $request->validate($this->slideRules());
+
+        $slide = CarouselSlide::findOrFail($id);
+        $this->fillSlide($slide, $data)->save();
+
+        return response()->json($slide->fresh());
+    }
+
+    public function storeCarouselSlide(Request $request): JsonResponse
+    {
+        $data = $request->validate($this->slideRules());
+
+        $slide = $this->fillSlide(new CarouselSlide, $data);
+        $slide->id = 'slide-'.uniqid();
+        $slide->sort_order = (int) (CarouselSlide::max('sort_order') ?? 0) + 1;
+        $slide->save();
+
+        return response()->json($slide->fresh(), 201);
+    }
+
+    public function destroyCarouselSlide(string $id): JsonResponse
+    {
+        CarouselSlide::findOrFail($id)->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** @return array<string, mixed> */
+    private function slideRules(): array
+    {
+        return [
             'tag' => 'required|string|max:60',
             'title' => 'required|string|max:120',
             'subtitle' => 'required|string|max:200',
@@ -37,11 +67,12 @@ final class MetricsController extends Controller
             'metricLabel' => 'required|string|max:80',
             'bulletPoints' => 'array',
             'bulletPoints.*' => 'string|max:200',
-        ]);
+        ];
+    }
 
-        $slide = CarouselSlide::findOrFail($id);
-
-        $slide->fill([
+    private function fillSlide(CarouselSlide $slide, array $data): CarouselSlide
+    {
+        return $slide->fill([
             'tag' => $data['tag'],
             'title' => $data['title'],
             'subtitle' => $data['subtitle'],
@@ -50,8 +81,6 @@ final class MetricsController extends Controller
             'metric' => $data['metric'],
             'metric_label' => $data['metricLabel'],
             'bullet_points' => $data['bulletPoints'] ?? [],
-        ])->save();
-
-        return response()->json($slide->fresh());
+        ]);
     }
 }

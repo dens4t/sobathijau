@@ -32,7 +32,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
     addLocation, updateLocation, deleteLocation,
     addCategory, updateCategory, deleteCategory,
     addReplyTemplate, updateReplyTemplate, deleteReplyTemplate,
-    siteMetrics, carouselSlides, updateSiteMetric, updateCarouselSlide,
+    siteMetrics, carouselSlides, updateSiteMetric, updateCarouselSlide, addCarouselSlide, deleteCarouselSlide,
   } = useStore();
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -144,6 +144,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                   carouselSlides={carouselSlides}
                   onUpdateMetric={updateSiteMetric}
                   onUpdateSlide={updateCarouselSlide}
+                  onAddSlide={addCarouselSlide}
+                  onDeleteSlide={deleteCarouselSlide}
                   addToast={addToast}
                 />
               ) : adminSubTab === 'kelola' ? (

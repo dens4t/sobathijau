@@ -44,6 +44,8 @@ interface AppState {
   loadFullSubmissions: () => Promise<void>;
   updateSiteMetric: (key: string, value: string, label: string) => Promise<void>;
   updateCarouselSlide: (slide: CarouselSlide) => Promise<void>;
+  addCarouselSlide: (slide: CarouselSlide) => Promise<void>;
+  deleteCarouselSlide: (id: string) => Promise<void>;
 
   updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
   refreshActivityLogs: () => Promise<void>;
@@ -344,6 +346,23 @@ export const useStore = create<AppState>((set, get) => ({
     await commit(set,
       s => ({ carouselSlides: s.carouselSlides.map(x => x.id === slide.id ? slide : x) }),
       () => api.updateCarouselSlide(slide),
+      () => ({ carouselSlides: prev }),
+    );
+  },
+
+  addCarouselSlide: async (slide) => {
+    await commit(set,
+      s => ({ carouselSlides: [...s.carouselSlides, slide] }),
+      () => api.addCarouselSlide(slide),
+      s => ({ carouselSlides: s.carouselSlides.filter(x => x.id !== slide.id) }),
+    );
+  },
+
+  deleteCarouselSlide: async (id) => {
+    const prev = get().carouselSlides;
+    await commit(set,
+      s => ({ carouselSlides: s.carouselSlides.filter(x => x.id !== id) }),
+      () => api.deleteCarouselSlide(id),
       () => ({ carouselSlides: prev }),
     );
   },

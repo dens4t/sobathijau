@@ -62,7 +62,9 @@ Route::middleware('auth.token')->group(function (): void {
     Route::get('/uploads/{fileId}', [UploadController::class, 'download']);
 
     Route::put('/site-metrics/{key}', [MetricsController::class, 'updateSiteMetric']);
+    Route::post('/carousel-slides', [MetricsController::class, 'storeCarouselSlide']);
     Route::put('/carousel-slides/{id}', [MetricsController::class, 'updateCarouselSlide']);
+    Route::delete('/carousel-slides/{id}', [MetricsController::class, 'destroyCarouselSlide']);
 
     Route::get('/reply-templates', [ReplyTemplateController::class, 'index']);
     Route::post('/reply-templates', [ReplyTemplateController::class, 'store']);

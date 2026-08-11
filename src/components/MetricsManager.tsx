@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Gauge, Save, X, Pencil, TrendingUp, AlertCircle } from 'lucide-react';
+import { Gauge, Save, X, Pencil, TrendingUp, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from './ConfirmDialog';
 import { CarouselSlide, SiteMetric } from '../types';
 
 interface MetricsManagerProps {
@@ -8,14 +9,34 @@ interface MetricsManagerProps {
   carouselSlides: CarouselSlide[];
   onUpdateMetric: (key: string, value: string, label: string) => Promise<void>;
   onUpdateSlide: (slide: CarouselSlide) => Promise<void>;
+  onAddSlide: (slide: CarouselSlide) => Promise<void>;
+  onDeleteSlide: (id: string) => Promise<void>;
   addToast: (msg: string, type: 'success' | 'info' | 'error') => void;
 }
 
+// Preset warna latar (kelas Tailwind — harus berupa string literal agar ter-generate di build).
+const COLOR_PRESETS = [
+  'from-teal-900/90 to-[#1B4332]',
+  'from-amber-950/90 to-stone-900',
+  'from-[#1B4332] to-emerald-950/95',
+  'from-emerald-900/90 to-[#0B3D2E]',
+  'from-blue-900/90 to-[#1E3A5F]',
+  'from-rose-900/90 to-[#4A1D2E]',
+];
+
+const ICON_OPTIONS = ['water', 'trash', 'trees'];
+
 export const MetricsManager: React.FC<MetricsManagerProps> = ({
-  siteMetrics, carouselSlides, onUpdateMetric, onUpdateSlide, addToast,
+  siteMetrics, carouselSlides, onUpdateMetric, onUpdateSlide, onAddSlide, onDeleteSlide, addToast,
 }) => {
   const [metricDraft, setMetricDraft] = useState<Record<string, { value: string; label: string }>>({});
-  const [editingSlide, setEditingSlide] = useState<CarouselSlide | null>(null);
+  const [slideForm, setSlideForm] = useState<CarouselSlide | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<CarouselSlide | null>(null);
+
+  const emptySlide = (): CarouselSlide => ({
+    id: '', tag: '', title: '', subtitle: '', colorBg: COLOR_PRESETS[0], icon: 'water', metric: '', metricLabel: '', bulletPoints: [],
+  });
 
   const saveMetric = async (m: SiteMetric) => {
     const d = metricDraft[m.key] || { value: m.value, label: m.label };
@@ -30,15 +51,21 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
   };
 
   const saveSlide = async () => {
-    if (!editingSlide) return;
-    if (!editingSlide.metric.trim() || !editingSlide.metricLabel.trim() || !editingSlide.title.trim()) {
+    if (!slideForm) return;
+    if (!slideForm.metric.trim() || !slideForm.metricLabel.trim() || !slideForm.title.trim()) {
       addToast('Metrik, label metrik, dan judul wajib diisi.', 'error');
       return;
     }
     try {
-      await onUpdateSlide(editingSlide);
-      addToast(`Slide "${editingSlide.tag}" diperbarui.`, 'success');
-      setEditingSlide(null);
+      if (isAdding) {
+        await onAddSlide({ ...slideForm, id: slideForm.id || `slide-${Date.now().toString(36)}` });
+        addToast('Slide carousel baru ditambahkan.', 'success');
+      } else {
+        await onUpdateSlide(slideForm);
+        addToast(`Slide "${slideForm.tag}" diperbarui.`, 'success');
+      }
+      setSlideForm(null);
+      setIsAdding(false);
     } catch {
       addToast('Gagal menyimpan slide. Cek koneksi.', 'error');
     }
@@ -101,6 +128,12 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
         <div className="px-5 py-4 border-b border-slate-100 dark:border-stone-800 flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-emerald-600" />
           <h4 className="text-xs font-extrabold text-[#1B4332] dark:text-emerald-400 uppercase tracking-wide">Sorotan Carousel ({carouselSlides.length})</h4>
+          <button
+            onClick={() => { setSlideForm(emptySlide()); setIsAdding(true); }}
+            className="ml-auto px-3 py-1.5 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-[10px] font-bold rounded-lg transition flex items-center gap-1"
+          >
+            <Plus className="w-3 h-3" /> Tambah Slide
+          </button>
         </div>
         <div className="divide-y divide-slate-100 dark:divide-stone-800">
           {carouselSlides.length === 0 && <p className="p-6 text-center text-xs text-slate-400">Belum ada slide.</p>}
@@ -117,11 +150,18 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
                 </p>
               </div>
               <button
-                onClick={() => setEditingSlide({ ...s })}
+                onClick={() => { setSlideForm({ ...s }); setIsAdding(false); }}
                 className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition shrink-0"
                 title="Edit"
               >
                 <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setDeleteTarget(s)}
+                className="p-2 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition shrink-0"
+                title="Hapus"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}
@@ -130,11 +170,11 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
 
       {/* Modal edit slide */}
       <AnimatePresence>
-        {editingSlide && (
+        {slideForm && (
           <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setEditingSlide(null)}
+              onClick={() => { setSlideForm(null); setIsAdding(false); }}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
@@ -144,8 +184,8 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
               className="relative z-10 bg-white dark:bg-stone-900 rounded-2xl border border-slate-200 dark:border-stone-700 shadow-2xl w-full max-w-lg overflow-hidden"
             >
               <div className="px-6 py-4 border-b border-slate-100 dark:border-stone-800 flex items-center justify-between">
-                <h4 className="text-sm font-extrabold text-[#1B4332] dark:text-white">Edit Slide — {editingSlide.id}</h4>
-                <button onClick={() => setEditingSlide(null)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition">
+                <h4 className="text-sm font-extrabold text-[#1B4332] dark:text-white">{isAdding ? '➕ Tambah Slide Baru' : `Edit Slide — ${slideForm.id}`}</h4>
+                <button onClick={() => { setSlideForm(null); setIsAdding(false); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -153,35 +193,55 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-500 block mb-1">Tag</label>
-                    <input value={editingSlide.tag} onChange={e => setEditingSlide({ ...editingSlide, tag: e.target.value })}
+                    <input value={slideForm.tag} onChange={e => setSlideForm({ ...slideForm, tag: e.target.value })}
+                      placeholder="Contoh: KONSERVASI AIR"
                       className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-500 block mb-1">Ikon</label>
-                    <input value={editingSlide.icon} onChange={e => setEditingSlide({ ...editingSlide, icon: e.target.value })}
-                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 font-mono" />
+                    <select
+                      value={slideForm.icon}
+                      onChange={e => setSlideForm({ ...slideForm, icon: e.target.value })}
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                    >
+                      {ICON_OPTIONS.map(i => <option key={i} value={i}>{i}</option>)}
+                    </select>
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 block mb-1">Judul</label>
-                  <input value={editingSlide.title} onChange={e => setEditingSlide({ ...editingSlide, title: e.target.value })}
+                  <label className="text-[10px] font-bold text-slate-500 block mb-1">Judul *</label>
+                  <input value={slideForm.title} onChange={e => setSlideForm({ ...slideForm, title: e.target.value })}
                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200" />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 block mb-1">Subjudul</label>
-                  <textarea value={editingSlide.subtitle} onChange={e => setEditingSlide({ ...editingSlide, subtitle: e.target.value })} rows={2}
+                  <textarea value={slideForm.subtitle} onChange={e => setSlideForm({ ...slideForm, subtitle: e.target.value })} rows={2}
                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 resize-none" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 block mb-1">Warna Latar</label>
+                  <div className="flex flex-wrap gap-2">
+                    {COLOR_PRESETS.map(c => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setSlideForm({ ...slideForm, colorBg: c })}
+                        className={`h-8 w-14 rounded-lg bg-gradient-to-br ${c} border-2 transition ${slideForm.colorBg === c ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-transparent'}`}
+                        title={c}
+                      />
+                    ))}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-emerald-700 block mb-1">Nilai Metrik *</label>
-                    <input value={editingSlide.metric} onChange={e => setEditingSlide({ ...editingSlide, metric: e.target.value })}
+                    <input value={slideForm.metric} onChange={e => setSlideForm({ ...slideForm, metric: e.target.value })}
                       placeholder="Contoh: 65.69"
                       className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 font-mono" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-emerald-700 block mb-1">Label Metrik *</label>
-                    <input value={editingSlide.metricLabel} onChange={e => setEditingSlide({ ...editingSlide, metricLabel: e.target.value })}
+                    <input value={slideForm.metricLabel} onChange={e => setSlideForm({ ...slideForm, metricLabel: e.target.value })}
                       placeholder="Contoh: Indeks Kualitas Air"
                       className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200" />
                   </div>
@@ -189,27 +249,43 @@ export const MetricsManager: React.FC<MetricsManagerProps> = ({
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 block mb-1">Poin (satu per baris)</label>
                   <textarea
-                    value={editingSlide.bulletPoints.join('\n')}
-                    onChange={e => setEditingSlide({ ...editingSlide, bulletPoints: e.target.value.split('\n').map(x => x.trim()).filter(Boolean) })}
+                    value={slideForm.bulletPoints.join('\n')}
+                    onChange={e => setSlideForm({ ...slideForm, bulletPoints: e.target.value.split('\n').map(x => x.trim()).filter(Boolean) })}
                     rows={4}
                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 resize-none"
                   />
                 </div>
-                <div className="flex items-start gap-2 text-[10px] text-slate-400 bg-slate-50 rounded-xl p-2.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                  <span>Warna latar & urutan slide dikelola lewat data awal; fokus halaman ini pada nilai metrik & teks.</span>
-                </div>
               </div>
               <div className="px-6 py-4 border-t border-slate-100 dark:border-stone-800 flex gap-2 justify-end">
-                <button onClick={() => setEditingSlide(null)} className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                <button onClick={() => { setSlideForm(null); setIsAdding(false); }} className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition">Batal</button>
                 <button onClick={saveSlide} className="px-5 py-2 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
-                  <Save className="w-3.5 h-3.5" /> Simpan Slide
+                  <Save className="w-3.5 h-3.5" /> {isAdding ? 'Tambah Slide' : 'Simpan Slide'}
                 </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus Slide?"
+        message={<>
+          Slide <span className="font-bold text-slate-700 dark:text-stone-200">"{deleteTarget?.tag}"</span> akan dihapus
+          permanen dari carousel beranda.
+        </>}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          try {
+            await onDeleteSlide(deleteTarget.id);
+            addToast('Slide carousel dihapus.', 'info');
+          } catch {
+            addToast('Gagal menghapus slide.', 'error');
+          }
+          setDeleteTarget(null);
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

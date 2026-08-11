@@ -455,6 +455,26 @@ final class SobatHijauApiTest extends TestCase
         $this->putJson('/api/site-metrics/iklh', ['value' => '', 'label' => 'X'])->assertStatus(422);
     }
 
+    public function test_carousel_slide_create_and_delete(): void
+    {
+        $resp = $this->postJson('/api/carousel-slides', [
+            'tag' => 'TAG BARU',
+            'title' => 'Slide Baru',
+            'subtitle' => 'Sub baru',
+            'colorBg' => 'from-teal-900/90 to-[#1B4332]',
+            'icon' => 'water',
+            'metric' => '42',
+            'metricLabel' => 'Metrik Baru',
+            'bulletPoints' => ['Poin 1'],
+        ])->assertStatus(201)->assertJsonPath('metric', '42');
+
+        $id = $resp->json('id');
+        $this->assertDatabaseHas('carousel_slides', ['id' => $id]);
+
+        $this->deleteJson('/api/carousel-slides/'.$id)->assertOk()->assertJsonPath('ok', true);
+        $this->assertDatabaseMissing('carousel_slides', ['id' => $id]);
+    }
+
     public function test_metrics_requires_token(): void
     {
         $this->withHeader('Authorization', 'Bearer invalid')
