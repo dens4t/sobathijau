@@ -22,10 +22,15 @@ const badge = (status: string) =>
 export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, services }) => {
   const [filterService, setFilterService] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | 'ALL'>('ALL');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Kolom menyesuaikan field layanan yang dipilih (hanya saat filter layanan aktif).
   const selectedService = filterService === 'ALL' ? null : services.find(s => s.id === filterService) || null;
   const dynamicColumns = selectedService?.fields ?? [];
+
+  const fmtLabel = (key: string) => key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
 
   const fmtValue = (v: unknown): string => {
     if (v === null || v === undefined || v === '') return '—';
@@ -120,11 +125,13 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
                 </td></tr>
               )}
               {sorted.map(sub => (
+                <React.Fragment key={sub.id}>
                 <motion.tr
-                  key={sub.id}
+                  
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="hover:bg-slate-50/60 dark:hover:bg-stone-800/30 transition"
+                  onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}
+                  className={`hover:bg-emerald-50/50 dark:hover:bg-stone-800/40 transition cursor-pointer ${expandedId === sub.id ? 'bg-emerald-50/60 dark:bg-stone-800/50' : ''}`}
                 >
                   <td className="py-3 px-4 font-mono font-bold text-emerald-700 dark:text-emerald-400">{sub.id}</td>
                   <td className="py-3 px-4 text-slate-500">{sub.submittedAt}</td>
@@ -136,6 +143,46 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
                   ))}
                   <td className="py-3 px-4 text-right"><span className={badge(sub.status)}>{sub.status.replace('_', ' ')}</span></td>
                 </motion.tr>
+                {expandedId === sub.id && (
+                  <tr>
+                    <td colSpan={4 + dynamicColumns.length} className="px-6 py-5 bg-emerald-50/40 dark:bg-stone-850/60">
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+                          <div className="lg:col-span-2">
+                            <p className="text-[10px] font-extrabold text-[#1B4332] dark:text-emerald-400 uppercase tracking-wide mb-3">Rincian Formulir</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+                              {Object.entries(sub.formData || {}).filter(([k]) => !k.startsWith('__')).map(([k, v]) => (
+                                <div key={k} className="text-xs">
+                                  <p className="text-slate-400 text-[10px] font-medium">{fmtLabel(k)}</p>
+                                  <p className="font-semibold text-slate-800 dark:text-stone-200 mt-0.5 break-words">{fmtValue(v)}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-[#1B4332] dark:text-emerald-400 uppercase tracking-wide mb-3">Progres Berkas</p>
+                            <div className="space-y-2">
+                              {sub.timeline?.map(step => (
+                                <div key={step.status} className="flex items-start gap-2">
+                                  <span className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${step.isCompleted ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-stone-700'}`} />
+                                  <div className="min-w-0">
+                                    <p className={`text-[11px] font-semibold ${step.isCompleted ? 'text-slate-800 dark:text-stone-200' : 'text-slate-400'}`}>{step.title}</p>
+                                    <p className="text-[9px] text-slate-400 font-mono">{step.updatedAt === '-' ? 'Belum' : step.updatedAt}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </td>
+                  </tr>
+                )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
