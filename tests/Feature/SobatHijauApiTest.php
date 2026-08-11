@@ -54,8 +54,8 @@ final class SobatHijauApiTest extends TestCase
         $response = $this->getJson('/api/bootstrap');
 
         $response->assertOk()
-            ->assertJsonCount(4, 'services')
-            ->assertJsonCount(0, 'submissions')
+            ->assertJsonCount(5, 'services')
+            ->assertJsonCount(4, 'submissions')
             ->assertJsonCount(0, 'notifications')
             ->assertJsonCount(0, 'activityLogs')
             ->assertJsonCount(12, 'locations')
@@ -64,7 +64,8 @@ final class SobatHijauApiTest extends TestCase
             ->assertJsonCount(3, 'carouselSlides')
             ->assertJsonCount(1, 'siteMetrics')
             ->assertJsonCount(5, 'assistantQuestions')
-            ->assertJsonPath('services.0.id', 'aduan-lingkungan')
+            ->assertJsonPath('services.0.id', 'magang')
+            ->assertJsonPath('services.1.id', 'aduan-lingkungan')
             ->assertJsonPath('services.0.isCustom', false)
             ->assertJsonPath('carouselSlides.0.icon', 'water')
             ->assertJsonPath('carouselSlides.0.colorBg', 'from-teal-900/90 to-[#1B4332]')
@@ -479,6 +480,26 @@ final class SobatHijauApiTest extends TestCase
     {
         $this->withHeader('Authorization', 'Bearer invalid')
             ->putJson('/api/site-metrics/iklh', ['value' => '1', 'label' => 'X'])->assertStatus(401);
+    }
+
+    public function test_magang_seeder_creates_service_and_submissions(): void
+    {
+        $this->assertDatabaseHas('services', ['id' => 'magang', 'name' => 'Permohonan Magang / Praktik Kerja']);
+        $this->assertDatabaseCount('submissions', 4);
+        $this->assertDatabaseHas('submissions', ['id' => 'SH-MG-2026-001', 'status' => 'SURVEY_TEKNIS']);
+        $this->assertDatabaseHas('submissions', ['id' => 'SH-MG-2026-003', 'status' => 'DIAJUKAN']);
+
+        // Idempoten: seed ulang tidak menggandakan magang.
+        $this->seed();
+        $this->assertDatabaseCount('submissions', 4);
+    }
+
+    public function test_bootstrap_includes_magang(): void
+    {
+        $resp = $this->getJson('/api/bootstrap');
+        $magang = collect($resp->json('services'))->firstWhere('id', 'magang');
+        $this->assertSame('Permohonan Magang / Praktik Kerja', $magang['name']);
+        $this->assertSame(4, collect($resp->json('submissions'))->where('serviceId', 'magang')->count());
     }
 
     public function test_dlh_feed_parser_extracts_berita(): void

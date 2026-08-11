@@ -45,6 +45,14 @@ final class DatabaseSeeder extends Seeder
             Service::updateOrCreate(['id' => $row['id']], $row);
         }
 
+        // Permohonan magang: seed awal SEKALI (hanya bila belum ada).
+        // Bila dihapus admin, tidak dibuat ulang.
+        if (! Submission::where('serviceId', 'magang')->exists()) {
+            foreach ($this->magangSubmissions() as $row) {
+                Submission::create($row);
+            }
+        }
+
         // Master data (peta/kategori/jejaring): seed sekali pakai create().
         // Berkas pemohon TIDAK di-seed — data transaksi milik pengguna; bila
         // dihapus admin, tidak akan muncul kembali (deploy/seed apa pun).
@@ -136,6 +144,76 @@ final class DatabaseSeeder extends Seeder
                     ['id' => 'deskripsi_kronologi', 'label' => 'Deskripsi Singkat Keadaan / Kronologi', 'type' => 'textarea', 'required' => true, 'placeholder' => 'Tuliskan seberapa sering polusi terjadi, dampaknya pada warga, dll.'],
                 ],
             ],
+            [
+                'id' => 'magang',
+                'name' => 'Permohonan Magang / Praktik Kerja',
+                'category' => 'Kemitraan & Edukasi',
+                'icon' => 'Briefcase',
+                'description' => 'Permohonan magang / praktik kerja lapangan di lingkungan Dinas Lingkungan Hidup Kota Pontianak untuk pelajar, mahasiswa, atau umum.',
+                'isCustom' => false,
+                'createdAt' => '2026-08-11 08:00',
+
+                'fields' => [
+                    ['id' => 'nama_pemohon', 'label' => 'Nama Lengkap Pemohon', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Budi Santoso'],
+                    ['id' => 'asal_institusi', 'label' => 'Asal Institusi (Sekolah / Kampus / Umum)', 'type' => 'text', 'required' => true, 'placeholder' => 'Contoh: Universitas Tanjungpura'],
+                    ['id' => 'program_studi', 'label' => 'Program Studi / Jurusan', 'type' => 'text', 'required' => false, 'placeholder' => 'Contoh: Teknik Lingkungan'],
+                    ['id' => 'durasi_magang', 'label' => 'Durasi Magang', 'type' => 'select', 'required' => true, 'options' => ['1 Bulan', '2 Bulan', '3 Bulan', '6 Bulan']],
+                    ['id' => 'tanggal_mulai', 'label' => 'Rencana Tanggal Mulai', 'type' => 'date', 'required' => true],
+                    ['id' => 'tujuan_magang', 'label' => 'Tujuan & Bidang yang Diminati', 'type' => 'textarea', 'required' => false, 'placeholder' => 'Contoh: Mempelajari pengelolaan sampah dan laboratorium lingkungan'],
+                ],
+            ],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function magangSubmissions(): array
+    {
+        $build = static fn (string $id, string $applicant, string $status, string $submittedAt, array $formData, ?string $note = null): array => [
+            'id' => $id,
+            'serviceId' => 'magang',
+            'serviceName' => 'Permohonan Magang / Praktik Kerja',
+            'applicantName' => $applicant,
+            'status' => $status,
+            'submittedAt' => $submittedAt,
+            'formData' => $formData,
+            'timeline' => $status === 'DIAJUKAN'
+                ? \App\Support\Timeline::build($submittedAt)
+                : \App\Support\Timeline::update(\App\Support\Timeline::build($submittedAt), $status, $note, $submittedAt),
+        ];
+
+        return [
+            $build('SH-MG-2026-001', 'Budi Santoso', 'SURVEY_TEKNIS', '2026-08-05 09:00', [
+                'nama_pemohon' => 'Budi Santoso',
+                'asal_institusi' => 'Universitas Tanjungpura',
+                'program_studi' => 'Teknik Lingkungan',
+                'durasi_magang' => '3 Bulan',
+                'tanggal_mulai' => '2026-09-01',
+                'tujuan_magang' => 'Mempelajari pengelolaan sampah kota dan praktik laboratorium lingkungan.',
+            ], 'Berkas lengkap, jadwal wawancara akan dihubungi.'),
+            $build('SH-MG-2026-002', 'Siti Nurhaliza', 'VERIFIKASI_ADMIN', '2026-08-07 10:30', [
+                'nama_pemohon' => 'Siti Nurhaliza',
+                'asal_institusi' => 'SMK Negeri 4 Pontianak',
+                'program_studi' => 'Kimia Analisis',
+                'durasi_magang' => '2 Bulan',
+                'tanggal_mulai' => '2026-09-14',
+                'tujuan_magang' => 'Praktik kerja laboratorium uji air dan limbah.',
+            ], 'Berkas diterima, sedang diverifikasi.'),
+            $build('SH-MG-2026-003', 'Ahmad Fauzi', 'DIAJUKAN', '2026-08-09 14:15', [
+                'nama_pemohon' => 'Ahmad Fauzi',
+                'asal_institusi' => 'Politeknik Negeri Pontianak',
+                'program_studi' => 'Teknologi Pengolahan Hasil Bumi',
+                'durasi_magang' => '6 Bulan',
+                'tanggal_mulai' => '2026-10-01',
+                'tujuan_magang' => 'Pengelolaan limbah padat dan program bank sampah.',
+            ]),
+            $build('SH-MG-2026-004', 'Dewi Lestari', 'DIAJUKAN', '2026-08-10 08:45', [
+                'nama_pemohon' => 'Dewi Lestari',
+                'asal_institusi' => 'Umum',
+                'program_studi' => '',
+                'durasi_magang' => '1 Bulan',
+                'tanggal_mulai' => '2026-08-24',
+                'tujuan_magang' => 'Belajar administrasi perkantoran dan layanan informasi lingkungan.',
+            ]),
         ];
     }
 

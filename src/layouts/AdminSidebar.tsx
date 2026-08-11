@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Activity, Plus, FolderOpen, FolderSync, Settings, LogOut, HelpCircle, X, Map, Globe, Layers, MessageSquareText, LayoutDashboard, Gauge } from 'lucide-react';
+import { Search, Activity, Plus, FolderOpen, FolderSync, Settings, LogOut, HelpCircle, X, Map, Globe, Layers, MessageSquareText, LayoutDashboard, Gauge, ClipboardList } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 interface AdminSidebarProps {
-  adminSubTab: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics';
-  goAdmin: (sub: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics') => void;
+  adminSubTab: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics' | 'rekap';
+  goAdmin: (sub: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics' | 'rekap') => void;
   goGuest: (tab: string) => void;
   speakText: (text: string) => void;
   isSidebarOpen: boolean;
@@ -144,6 +144,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin
             {isCollapsed
               ? collapsedItem(<Gauge className="w-4 h-4" />, 'Metrik & Sorotan', () => navigate(() => goAdmin('metrics')), adminSubTab === 'metrics')
               : <SidebarItem active={adminSubTab === 'metrics'} onClick={() => navigate(() => goAdmin('metrics'))} icon={<Gauge className="w-4 h-4" />} label="Metrik & Sorotan" />
+            }
+            {isCollapsed
+              ? collapsedItem(<ClipboardList className="w-4 h-4" />, 'Rekap Permohonan', () => navigate(() => goAdmin('rekap')), adminSubTab === 'rekap')
+              : <SidebarItem active={adminSubTab === 'rekap'} onClick={() => navigate(() => goAdmin('rekap'))} icon={<ClipboardList className="w-4 h-4" />} label="Rekap Permohonan" />
             }
             {showKelolaBerkas && (isCollapsed
               ? collapsedItem(<FolderOpen className="w-4 h-4" />, 'Berkas Masuk', () => navigate(() => goAdmin('kelola')), adminSubTab === 'kelola', pendingCount)
