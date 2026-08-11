@@ -43,7 +43,7 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
   const sorted = [...filtered].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Ringkasan */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
