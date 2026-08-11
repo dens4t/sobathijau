@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ClipboardList, Filter, FileText, Download, FileSpreadsheet, Printer, FileDown } from 'lucide-react';
+import { ClipboardList, Filter, FileText, Download, FileSpreadsheet, Printer, FileDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { downloadSubmissionsExport } from '../lib/api';
 import { ServiceTemplate, Submission, SubmissionStatus } from '../types';
 
@@ -27,6 +27,8 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dateStart, setDateStart] = useState('');
   const [dateEnd, setDateEnd] = useState('');
+  const [sortKey, setSortKey] = useState<string>('submittedAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [exporting, setExporting] = useState<'csv' | 'xlsx' | null>(null);
 
   const currentFilters = () => ({
@@ -89,6 +91,35 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
     return String(v);
   };
 
+  const getSortValue = (sub: Submission, key: string): string => {
+    if (key === 'id') return sub.id;
+    if (key === 'submittedAt') return sub.submittedAt;
+    if (key === 'applicantName') return sub.applicantName;
+    if (key === 'status') return sub.status;
+    return fmtValue(sub.formData?.[key]);
+  };
+
+  const toggleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir(key === 'submittedAt' ? 'desc' : 'asc');
+    }
+  };
+
+  const sortable = (key: string, label: string) => (
+    <button
+      onClick={() => toggleSort(key)}
+      className="inline-flex items-center gap-1 hover:text-[#1B4332] dark:hover:text-emerald-400 transition"
+    >
+      {label}
+      {sortKey === key && (sortDir === 'asc'
+        ? <ArrowUp className="w-3 h-3 text-emerald-600" />
+        : <ArrowDown className="w-3 h-3 text-emerald-600" />)}
+    </button>
+  );
+
   const filtered = submissions.filter(s => {
     const d = (s.submittedAt || '').slice(0, 10);
     const okService = filterService === 'ALL' || s.serviceId === filterService;
@@ -99,7 +130,12 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
   });
 
   const byStatus = (st: SubmissionStatus) => filtered.filter(s => s.status === st).length;
-  const sorted = [...filtered].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
+  const sorted = [...filtered].sort((a, b) => {
+    const va = getSortValue(a, sortKey);
+    const vb = getSortValue(b, sortKey);
+    const cmp = va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
 
   return (
     <div className="max-w-[1600px] mx-auto w-full space-y-6">
@@ -197,13 +233,13 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
           <table className="w-full text-xs text-left">
             <thead className="bg-slate-50 dark:bg-stone-850 text-slate-500 dark:text-stone-400 uppercase font-bold text-[10px]">
               <tr>
-                <th className="py-3 px-4">Kode</th>
-                <th className="py-3 px-4">Tanggal</th>
-                <th className="py-3 px-4">Pemohon</th>
+                <th className="py-3 px-4">{sortable('id', 'Kode')}</th>
+                <th className="py-3 px-4">{sortable('submittedAt', 'Tanggal')}</th>
+                <th className="py-3 px-4">{sortable('applicantName', 'Pemohon')}</th>
                 {dynamicColumns.map(f => (
-                  <th key={f.id} className="py-3 px-4 whitespace-nowrap">{f.label}</th>
+                  <th key={f.id} className="py-3 px-4 whitespace-nowrap">{sortable(f.id, f.label)}</th>
                 ))}
-                <th className="py-3 px-4 text-right">Status</th>
+                <th className="py-3 px-4 text-right">{sortable('status', 'Status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
