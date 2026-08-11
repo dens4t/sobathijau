@@ -137,13 +137,15 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
               Timeline Status Berkas
             </h4>
 
-            {/* Vertical timeline */}
+            {/* Vertical timeline — tampilkan step selesai (sampai yang aktif), sembunyikan yang belum tercapai */}
             <div className="relative pl-6 space-y-6 border-l-2 border-slate-100 dark:border-stone-800 ml-3">
               {foundSubmission.timeline.map((step, idx) => {
                 const isActive = step.isCompleted;
                 const nextStep = foundSubmission.timeline[idx + 1];
                 const isCurrent = step.isCompleted && (!nextStep || !nextStep.isCompleted);
-                
+
+                if (!isActive) return null; // step mendatang disembunyikan
+
                 return (
                   <div key={idx} className="relative">
                     {/* Circle mark */}
