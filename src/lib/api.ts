@@ -47,6 +47,33 @@ export const api = {
   deleteCarouselSlide: (id: string) => call<{ ok: true }>(`/carousel-slides/${id}`, { method: 'DELETE' }),
 };
 
+// Unduh rekap permohonan (CSV/XLSX) — ikut filter aktif.
+export const downloadSubmissionsExport = async (
+  format: 'csv' | 'xlsx',
+  filters: { serviceId?: string; status?: string; dateStart?: string; dateEnd?: string },
+): Promise<void> => {
+  const params = new URLSearchParams();
+  if (filters.serviceId) params.set('serviceId', filters.serviceId);
+  if (filters.status) params.set('status', filters.status);
+  if (filters.dateStart) params.set('dateStart', filters.dateStart);
+  if (filters.dateEnd) params.set('dateEnd', filters.dateEnd);
+  const qs = params.toString();
+  const res = await fetch(`/api/export/submissions/${format}${qs ? '?' + qs : ''}`, {
+    headers: token() ? { Authorization: `Bearer ${token()}` } : {},
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const blob = await res.blob();
+  const cd = res.headers.get('Content-Disposition') || '';
+  const m = cd.match(/filename="([^"]+)"/);
+  const filename = m ? m[1] : `rekap-permohonan.${format}`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
 // Unduh ekspor lokasi (admin) — fetch blob + trigger download browser.
 export const downloadExport = async (format: string, ids?: string[]): Promise<void> => {
   const params = ids && ids.length ? `?ids=${ids.join(',')}` : '';

@@ -433,6 +433,40 @@ final class SobatHijauApiTest extends TestCase
         @unlink($path);
     }
 
+    public function test_export_submissions_csv_and_xlsx(): void
+    {
+        $csv = $this->get('/api/export/submissions/csv')->getContent();
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        $this->assertStringContainsString('"Kode","Tanggal","Pemohon","Layanan","Status"', $csv);
+        $this->assertStringContainsString('SH-MG-2026-001', $csv);
+
+        // Filter layanan magang → kolom dinamis ikut.
+        $csvMg = $this->get('/api/export/submissions/csv?serviceId=magang')->getContent();
+        $this->assertStringContainsString('Asal Institusi', $csvMg);
+        $this->assertStringContainsString('Universitas Tanjungpura', $csvMg);
+
+        // Filter tanggal.
+        $csvDate = $this->get('/api/export/submissions/csv?dateStart=2026-08-08&dateEnd=2026-08-10')->getContent();
+        $this->assertStringNotContainsString('SH-MG-2026-001', $csvDate);
+        $this->assertStringContainsString('SH-MG-2026-003', $csvDate);
+
+        // XLSX valid (zip berisi sheet).
+        $bytes = $this->get('/api/export/submissions/xlsx')->getContent();
+        $tmp = tempnam(sys_get_temp_dir(), 'exp');
+        file_put_contents($tmp, $bytes);
+        $zip = new \ZipArchive;
+        $this->assertTrue($zip->open($tmp) === true);
+        $this->assertNotNull($zip->getFromName('xl/worksheets/sheet1.xml'));
+        $zip->close();
+        unlink($tmp);
+    }
+
+    public function test_export_submissions_requires_token(): void
+    {
+        $this->withHeader('Authorization', 'Bearer invalid')
+            ->getJson('/api/export/submissions/csv')->assertStatus(401);
+    }
+
     public function test_metrics_update_persists(): void
     {
         $this->putJson('/api/site-metrics/iklh', ['value' => '70.10', 'label' => 'BAIK'])

@@ -59,6 +59,9 @@ Route::middleware('auth.token')->group(function (): void {
     Route::get('/export/locations/{format}', [ExportController::class, 'locations'])
         ->where('format', 'csv|kml|kmz|xlsx|shp');
 
+    Route::get('/export/submissions/{format}', [ExportController::class, 'submissions'])
+        ->where('format', 'csv|xlsx');
+
     Route::get('/uploads/{fileId}', [UploadController::class, 'download']);
 
     Route::put('/site-metrics/{key}', [MetricsController::class, 'updateSiteMetric']);

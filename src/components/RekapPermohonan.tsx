@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ClipboardList, Filter, FileText } from 'lucide-react';
+import { ClipboardList, Filter, FileText, Download, FileSpreadsheet, Printer, FileDown } from 'lucide-react';
+import { downloadSubmissionsExport } from '../lib/api';
 import { ServiceTemplate, Submission, SubmissionStatus } from '../types';
 
 const STATUS_OPTIONS: (SubmissionStatus | 'ALL')[] = ['ALL', 'DIAJUKAN', 'VERIFIKASI_ADMIN', 'SURVEY_TEKNIS', 'PROSES_REKOMENDASI', 'SELESAI', 'DITOLAK', 'DIKEMBALIKAN'];
@@ -8,6 +9,7 @@ const STATUS_OPTIONS: (SubmissionStatus | 'ALL')[] = ['ALL', 'DIAJUKAN', 'VERIFI
 interface RekapPermohonanProps {
   submissions: Submission[];
   services: ServiceTemplate[];
+  addToast: (msg: string, type: 'success' | 'info' | 'error') => void;
 }
 
 const badge = (status: string) =>
@@ -19,10 +21,58 @@ const badge = (status: string) =>
     : 'bg-amber-100 text-amber-800'
   }`;
 
-export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, services }) => {
+export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, services, addToast }) => {
   const [filterService, setFilterService] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | 'ALL'>('ALL');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [dateStart, setDateStart] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
+  const [exporting, setExporting] = useState<'csv' | 'xlsx' | null>(null);
+
+  const currentFilters = () => ({
+    serviceId: filterService === 'ALL' ? undefined : filterService,
+    status: filterStatus === 'ALL' ? undefined : filterStatus,
+    dateStart: dateStart || undefined,
+    dateEnd: dateEnd || undefined,
+  });
+
+  const handleExport = async (format: 'csv' | 'xlsx') => {
+    setExporting(format);
+    try {
+      await downloadSubmissionsExport(format, currentFilters());
+    } catch {
+      addToast('Gagal mengekspor. Cek koneksi dan coba lagi.', 'error');
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handlePrintPdf = () => {
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const rowsHtml = sorted.map(sub =>
+      `<tr><td>${esc(sub.id)}</td><td>${esc(sub.submittedAt)}</td><td>${esc(sub.applicantName)}</td><td>${esc(sub.serviceName)}</td><td>${esc(sub.status.replace('_', ' '))}</td></tr>`
+    ).join('');
+    const w = window.open('', '_blank');
+    if (!w) { addToast('Blokir popup menghalangi cetak. Izinkan popup lalu coba lagi.', 'error'); return; }
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Rekap Permohonan</title><style>
+      body{font-family:Arial,sans-serif;margin:24px;color:#111;}
+      h1{font-size:16px;margin:0 0 4px;} .meta{font-size:11px;color:#555;margin-bottom:14px;}
+      table{width:100%;border-collapse:collapse;font-size:10px;}
+      th,td{border:1px solid #999;padding:4px 6px;text-align:left;}
+      th{background:#1B4332;color:#fff;}
+      .footer{font-size:9px;color:#888;margin-top:14px;text-align:center;}
+      @media print { body{margin:8mm;} }
+    </style></head><body>
+      <h1>Rekap Data Permohonan — DLH Kota Pontianak</h1>
+      <div class="meta">Dicetak: ${new Date().toLocaleString('id-ID')} · Jumlah: ${sorted.length} permohonan</div>
+      <table><thead><tr><th>Kode</th><th>Tanggal</th><th>Pemohon</th><th>Layanan</th><th>Status</th></tr></thead>
+      <tbody>${rowsHtml}</tbody></table>
+      <div class="footer">Sobat Hijau — Dinas Lingkungan Hidup Kota Pontianak</div>
+    </body></html>`);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
 
   // Kolom menyesuaikan field layanan yang dipilih (hanya saat filter layanan aktif).
   const selectedService = filterService === 'ALL' ? null : services.find(s => s.id === filterService) || null;
@@ -39,10 +89,14 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
     return String(v);
   };
 
-  const filtered = submissions.filter(s =>
-    (filterService === 'ALL' || s.serviceId === filterService)
-    && (filterStatus === 'ALL' || s.status === filterStatus)
-  );
+  const filtered = submissions.filter(s => {
+    const d = (s.submittedAt || '').slice(0, 10);
+    const okService = filterService === 'ALL' || s.serviceId === filterService;
+    const okStatus = filterStatus === 'ALL' || s.status === filterStatus;
+    const okStart = !dateStart || d >= dateStart;
+    const okEnd = !dateEnd || d <= dateEnd;
+    return okService && okStatus && okStart && okEnd;
+  });
 
   const byStatus = (st: SubmissionStatus) => filtered.filter(s => s.status === st).length;
   const sorted = [...filtered].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
@@ -66,9 +120,12 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
 
       {/* Filter */}
       <div className="bg-white dark:bg-stone-900 rounded-2xl border border-slate-200 dark:border-stone-800 p-4 shadow-sm flex flex-col sm:flex-row gap-3 sm:items-end">
-        <div className="flex items-center gap-2 text-slate-500">
-          <Filter className="w-4 h-4" />
-          <span className="text-xs font-extrabold text-[#1B4332] dark:text-emerald-400 uppercase tracking-wide">Filter</span>
+        <div className="flex flex-col">
+          <label className="text-[10px] font-bold text-slate-400 block mb-1">&nbsp;</label>
+          <div className="flex items-center gap-2 text-slate-500 h-[34px]">
+            <Filter className="w-4 h-4" />
+            <span className="text-xs font-extrabold text-[#1B4332] dark:text-emerald-400 uppercase tracking-wide">Filter</span>
+          </div>
         </div>
         <div className="flex-1">
           <label className="text-[10px] font-bold text-slate-400 block mb-1">Jenis Layanan</label>
@@ -84,7 +141,25 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
             })}
           </select>
         </div>
-        <div className="sm:w-56">
+        <div className="sm:w-40">
+          <label className="text-[10px] font-bold text-slate-400 block mb-1">Dari Tanggal</label>
+          <input
+            type="date"
+            value={dateStart}
+            onChange={e => setDateStart(e.target.value)}
+            className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white dark:bg-stone-900"
+          />
+        </div>
+        <div className="sm:w-40">
+          <label className="text-[10px] font-bold text-slate-400 block mb-1">Sampai Tanggal</label>
+          <input
+            type="date"
+            value={dateEnd}
+            onChange={e => setDateEnd(e.target.value)}
+            className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white dark:bg-stone-900"
+          />
+        </div>
+        <div className="sm:w-44">
           <label className="text-[10px] font-bold text-slate-400 block mb-1">Status</label>
           <select
             value={filterStatus}
@@ -103,6 +178,20 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
           <h4 className="text-xs font-extrabold text-[#1B4332] dark:text-emerald-400 uppercase tracking-wide">
             Rekap Data Permohonan ({filtered.length})
           </h4>
+          <div className="ml-auto flex items-center gap-1.5">
+            <button onClick={() => handleExport('csv')} disabled={!!exporting}
+              className="px-3 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-200 text-[#1B4332] text-[10px] font-bold rounded-lg transition flex items-center gap-1.5 disabled:opacity-60">
+              <FileDown className="w-3 h-3" /> {exporting === 'csv' ? '...' : 'CSV'}
+            </button>
+            <button onClick={() => handleExport('xlsx')} disabled={!!exporting}
+              className="px-3 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-200 text-[#1B4332] text-[10px] font-bold rounded-lg transition flex items-center gap-1.5 disabled:opacity-60">
+              <FileSpreadsheet className="w-3 h-3" /> {exporting === 'xlsx' ? '...' : 'Excel'}
+            </button>
+            <button onClick={handlePrintPdf}
+              className="px-3 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-200 text-[#1B4332] text-[10px] font-bold rounded-lg transition flex items-center gap-1.5">
+              <Printer className="w-3 h-3" /> PDF
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeoLocation;
+use App\Models\Service;
+use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -36,6 +38,140 @@ final class ExportController extends Controller
             'xlsx' => $this->xlsx($rows, $name),
             'shp' => $this->shp($rows, $name),
         };
+    }
+
+    /** Rekap permohonan (admin): CSV/XLSX — ikut filter serviceId/status/dateStart/dateEnd. */
+    public function submissions(Request $request, string $format): Response
+    {
+        abort_unless(in_array($format, ['csv', 'xlsx'], true), 404, 'Format tidak didukung.');
+
+        $query = Submission::query();
+        if ($serviceId = $request->query('serviceId')) {
+            $query->where('serviceId', $serviceId);
+        }
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+        if ($start = $request->query('dateStart')) {
+            $query->where('submittedAt', '>=', $start);
+        }
+        if ($end = $request->query('dateEnd')) {
+            $query->where('submittedAt', '<=', $end.' 23:59');
+        }
+        $rows = $query->orderByDesc('submittedAt')->get();
+
+        // Kolom dinamis mengikuti layanan terpilih (label field sebagai header).
+        $fields = [];
+        if ($serviceId && $svc = Service::find($serviceId)) {
+            foreach ((array) $svc->fields as $f) {
+                $fields[$f['id'] ?? ''] = $f['label'] ?? $f['id'] ?? '';
+            }
+        }
+
+        $header = ['Kode', 'Tanggal', 'Pemohon', 'Layanan', 'Status'];
+        $data = [];
+        foreach ($rows as $sub) {
+            $row = [$sub->id, $sub->submittedAt, $sub->applicantName, $sub->serviceName, $sub->status];
+            foreach (array_keys($fields) as $fid) {
+                $row[] = self::formValue($sub->formData[$fid] ?? null);
+            }
+            $data[] = $row;
+        }
+        $header = array_merge($header, array_values($fields));
+
+        $name = 'rekap-permohonan-'.date('Y-m-d');
+
+        return $format === 'csv'
+            ? $this->csvFromData($header, $data, "$name.csv")
+            : $this->xlsxFromData($header, $data, "$name.xlsx");
+    }
+
+    private static function formValue(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (is_array($value)) {
+            if (isset($value['name'])) {
+                return (string) $value['name'];
+            }
+
+            return implode(', ', array_map(static fn ($x): string => is_array($x) ? ($x['name'] ?? '') : (string) $x, $value));
+        }
+
+        return (string) $value;
+    }
+
+    private function csvFromData(array $header, array $rows, string $filename): Response
+    {
+        $out = "\xEF\xBB\xBF";
+        $out .= implode(',', array_map(static fn ($h): string => '"'.str_replace('"', '""', (string) $h).'"', $header))."\r\n";
+        foreach ($rows as $row) {
+            $out .= implode(',', array_map(static fn ($v): string => '"'.str_replace('"', '""', (string) $v).'"', $row))."\r\n";
+        }
+
+        return $this->fileResponse($out, $filename, 'text/csv');
+    }
+
+    private function xlsxFromData(array $header, array $rows, string $name): Response
+    {
+        $cell = static function (int $r, int $c, string $v): string {
+            $ref = chr(65 + $c).$r;
+
+            return '<c r="'.$ref.'" t="inlineStr"><is><t xml:space="preserve">'.htmlspecialchars($v, ENT_XML1 | ENT_QUOTES, 'UTF-8').'</t></is></c>';
+        };
+
+        $sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'."\n"
+            .'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+        $sheet .= '<row r="1">';
+        foreach ($header as $c => $h) {
+            $sheet .= $cell(1, $c, (string) $h);
+        }
+        $sheet .= '</row>';
+        $r = 2;
+        foreach ($rows as $row) {
+            $cells = '';
+            foreach ($row as $c => $v) {
+                $cells .= $cell($r, $c, (string) $v);
+            }
+            $sheet .= '<row r="'.$r.'">'.$cells.'</row>';
+            $r++;
+        }
+        $sheet .= '</sheetData></worksheet>';
+
+        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            .'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            .'<Default Extension="xml" ContentType="application/xml"/>'
+            .'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+            .'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            .'</Types>';
+        $rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            .'</Relationships>';
+        $workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            .'<sheets><sheet name="Rekap" sheetId="1" r:id="rId1"/></sheets>'
+            .'</workbook>';
+        $workbookRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            .'</Relationships>';
+
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx');
+        $zip = new ZipArchive;
+        $zip->open($tmp, ZipArchive::OVERWRITE);
+        $zip->addFromString('[Content_Types].xml', $contentTypes);
+        $zip->addFromString('_rels/.rels', $rels);
+        $zip->addFromString('xl/workbook.xml', $workbook);
+        $zip->addFromString('xl/_rels/workbook.xml.rels', $workbookRels);
+        $zip->addFromString('xl/worksheets/sheet1.xml', $sheet);
+        $zip->close();
+        $bytes = (string) file_get_contents($tmp);
+        unlink($tmp);
+
+        return $this->fileResponse($bytes, "$name.xlsx", 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     }
 
     private function csv(Collection $rows, string $name): Response

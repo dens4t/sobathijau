@@ -140,7 +140,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
               {adminSubTab === 'dashboard' ? (
                 <AdminDashboard goAdmin={goAdmin} onOpenActivityLog={onOpenActivityLog} />
               ) : adminSubTab === 'rekap' ? (
-                <RekapPermohonan submissions={submissions} services={services} />
+                <RekapPermohonan submissions={submissions} services={services} addToast={addToast} />
               ) : adminSubTab === 'metrics' ? (
                 <MetricsManager
                   siteMetrics={siteMetrics}
