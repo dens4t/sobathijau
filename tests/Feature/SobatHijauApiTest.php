@@ -432,6 +432,35 @@ final class SobatHijauApiTest extends TestCase
         @unlink($path);
     }
 
+    public function test_metrics_update_persists(): void
+    {
+        $this->putJson('/api/site-metrics/iklh', ['value' => '70.10', 'label' => 'BAIK'])
+            ->assertOk()->assertJsonPath('value', '70.10');
+        $this->assertDatabaseHas('site_metrics', ['key' => 'iklh', 'value' => '70.10']);
+
+        $this->putJson('/api/carousel-slides/slide-1', [
+            'tag' => 'KONSERVASI AIR',
+            'title' => 'Judul Baru',
+            'subtitle' => 'Sub baru',
+            'colorBg' => 'from-teal-900/90 to-[#1B4332]',
+            'icon' => 'water',
+            'metric' => '71.5%',
+            'metricLabel' => 'Indeks Mutu Air (Live)',
+            'bulletPoints' => ['Poin A', 'Poin B'],
+        ])->assertOk()->assertJsonPath('metric', '71.5%');
+
+        $this->assertDatabaseHas('carousel_slides', ['id' => 'slide-1', 'metric' => '71.5%']);
+        $this->assertDatabaseHas('carousel_slides', ['bullet_points' => '["Poin A","Poin B"]']);
+
+        $this->putJson('/api/site-metrics/iklh', ['value' => '', 'label' => 'X'])->assertStatus(422);
+    }
+
+    public function test_metrics_requires_token(): void
+    {
+        $this->withHeader('Authorization', 'Bearer invalid')
+            ->putJson('/api/site-metrics/iklh', ['value' => '1', 'label' => 'X'])->assertStatus(401);
+    }
+
     public function test_dlh_feed_parser_extracts_berita(): void
     {
         $service = new \App\Services\DlhFeed;

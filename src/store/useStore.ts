@@ -42,6 +42,8 @@ interface AppState {
   clearNotifications: () => Promise<void>;
   addLocalNotification: (notif: AppNotification) => void;
   loadFullSubmissions: () => Promise<void>;
+  updateSiteMetric: (key: string, value: string, label: string) => Promise<void>;
+  updateCarouselSlide: (slide: CarouselSlide) => Promise<void>;
 
   updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
   refreshActivityLogs: () => Promise<void>;
@@ -325,6 +327,24 @@ export const useStore = create<AppState>((set, get) => ({
       s => ({ replyTemplates: s.replyTemplates.filter(x => x.id !== id) }),
       () => api.deleteReplyTemplate(id),
       () => ({ replyTemplates: prev }),
+    );
+  },
+
+  updateSiteMetric: async (key, value, label) => {
+    const prev = get().siteMetrics;
+    await commit(set,
+      s => ({ siteMetrics: s.siteMetrics.map(m => m.key === key ? { ...m, value, label } : m) }),
+      () => api.updateSiteMetric(key, value, label),
+      () => ({ siteMetrics: prev }),
+    );
+  },
+
+  updateCarouselSlide: async (slide) => {
+    const prev = get().carouselSlides;
+    await commit(set,
+      s => ({ carouselSlides: s.carouselSlides.map(x => x.id === slide.id ? slide : x) }),
+      () => api.updateCarouselSlide(slide),
+      () => ({ carouselSlides: prev }),
     );
   },
 }));

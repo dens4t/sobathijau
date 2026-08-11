@@ -11,10 +11,11 @@ import { Menu, PanelLeftClose, PanelLeftOpen, LogOut } from 'lucide-react';
 import { AdminSidebar } from './AdminSidebar';
 import { ReplyTemplateManager } from '../components/ReplyTemplateManager';
 import { AdminDashboard } from '../components/AdminDashboard';
+import { MetricsManager } from '../components/MetricsManager';
 
 interface AdminLayoutProps {
-  adminSubTab: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template';
-  goAdmin: (sub: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template') => void;
+  adminSubTab: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics';
+  goAdmin: (sub: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics') => void;
   goGuest: (tab: string) => void;
   speakText: (text: string) => void;
   routeToTracking: (code: string) => void;
@@ -31,6 +32,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
     addLocation, updateLocation, deleteLocation,
     addCategory, updateCategory, deleteCategory,
     addReplyTemplate, updateReplyTemplate, deleteReplyTemplate,
+    siteMetrics, carouselSlides, updateSiteMetric, updateCarouselSlide,
   } = useStore();
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -75,7 +77,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
             </button>
             <div className="text-left">
               <h1 className="text-xs sm:text-sm font-bold text-[#1B4332] dark:text-stone-100 flex items-center gap-2 uppercase tracking-wide">
-                {adminSubTab === 'dashboard' ? '📊 Dashboard Administrator' : adminSubTab === 'kelola' ? '📋 Manajemen Berkas & Dokumen Publik' : adminSubTab === 'layanan' ? '📦 Kelola Semua Layanan Terdaftar' : adminSubTab === 'peta' ? '🗺️ Kelola Peta Sebaran Titik' : adminSubTab === 'kategori' ? '🏷️ Kelola Kategori Peta' : adminSubTab === 'jejaring' ? '🌐 Kelola Jejaring DLH' : adminSubTab === 'template' ? '💬 Template Balasan Pemohon' : '🛠️ Design Studio & Custom Form Creator'}
+                {adminSubTab === 'dashboard' ? '📊 Dashboard Administrator' : adminSubTab === 'metrics' ? '📈 Metrik & Sorotan' : adminSubTab === 'kelola' ? '📋 Manajemen Berkas & Dokumen Publik' : adminSubTab === 'layanan' ? '📦 Kelola Semua Layanan Terdaftar' : adminSubTab === 'peta' ? '🗺️ Kelola Peta Sebaran Titik' : adminSubTab === 'kategori' ? '🏷️ Kelola Kategori Peta' : adminSubTab === 'jejaring' ? '🌐 Kelola Jejaring DLH' : adminSubTab === 'template' ? '💬 Template Balasan Pemohon' : '🛠️ Design Studio & Custom Form Creator'}
               </h1>
               <p className="text-[11px] text-slate-400 dark:text-stone-500 mt-1 hidden sm:block">
                 {adminSubTab === 'kelola' 
@@ -122,7 +124,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
             </span>
             <span className="text-stone-300 dark:text-stone-700">/</span>
             <span className="text-emerald-650 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-900/40">
-              {adminSubTab === 'dashboard' ? 'Dashboard' : adminSubTab === 'kelola' ? 'Kelola Berkas Masuk' : adminSubTab === 'layanan' ? 'Kelola Semua Layanan' : adminSubTab === 'peta' ? 'Kelola Peta Sebaran' : adminSubTab === 'kategori' ? 'Kelola Kategori Peta' : adminSubTab === 'jejaring' ? 'Kelola Jejaring DLH' : adminSubTab === 'template' ? 'Template Balasan' : 'Rancang Layanan Baru'}
+              {adminSubTab === 'dashboard' ? 'Dashboard' : adminSubTab === 'metrics' ? 'Metrik & Sorotan' : adminSubTab === 'kelola' ? 'Kelola Berkas Masuk' : adminSubTab === 'layanan' ? 'Kelola Semua Layanan' : adminSubTab === 'peta' ? 'Kelola Peta Sebaran' : adminSubTab === 'kategori' ? 'Kelola Kategori Peta' : adminSubTab === 'jejaring' ? 'Kelola Jejaring DLH' : adminSubTab === 'template' ? 'Template Balasan' : 'Rancang Layanan Baru'}
             </span>
           </div>
 
@@ -136,6 +138,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
             >
               {adminSubTab === 'dashboard' ? (
                 <AdminDashboard goAdmin={goAdmin} onOpenActivityLog={onOpenActivityLog} />
+              ) : adminSubTab === 'metrics' ? (
+                <MetricsManager
+                  siteMetrics={siteMetrics}
+                  carouselSlides={carouselSlides}
+                  onUpdateMetric={updateSiteMetric}
+                  onUpdateSlide={updateCarouselSlide}
+                  addToast={addToast}
+                />
               ) : adminSubTab === 'kelola' ? (
                 <AdminPanel 
                   submissions={submissions}

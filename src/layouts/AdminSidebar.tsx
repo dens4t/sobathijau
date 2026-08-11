@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Activity, Plus, FolderOpen, FolderSync, Settings, LogOut, HelpCircle, X, Map, Globe, Layers, MessageSquareText, LayoutDashboard } from 'lucide-react';
+import { Search, Activity, Plus, FolderOpen, FolderSync, Settings, LogOut, HelpCircle, X, Map, Globe, Layers, MessageSquareText, LayoutDashboard, Gauge } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 interface AdminSidebarProps {
-  adminSubTab: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template';
-  goAdmin: (sub: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template') => void;
+  adminSubTab: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics';
+  goAdmin: (sub: 'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics') => void;
   goGuest: (tab: string) => void;
   speakText: (text: string) => void;
   isSidebarOpen: boolean;
@@ -140,6 +140,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ adminSubTab, goAdmin
             {isCollapsed
               ? collapsedItem(<LayoutDashboard className="w-4 h-4" />, 'Dashboard', () => navigate(() => goAdmin('dashboard')), adminSubTab === 'dashboard')
               : <SidebarItem active={adminSubTab === 'dashboard'} onClick={() => navigate(() => goAdmin('dashboard'))} icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" />
+            }
+            {isCollapsed
+              ? collapsedItem(<Gauge className="w-4 h-4" />, 'Metrik & Sorotan', () => navigate(() => goAdmin('metrics')), adminSubTab === 'metrics')
+              : <SidebarItem active={adminSubTab === 'metrics'} onClick={() => navigate(() => goAdmin('metrics'))} icon={<Gauge className="w-4 h-4" />} label="Metrik & Sorotan" />
             }
             {showKelolaBerkas && (isCollapsed
               ? collapsedItem(<FolderOpen className="w-4 h-4" />, 'Berkas Masuk', () => navigate(() => goAdmin('kelola')), adminSubTab === 'kelola', pendingCount)

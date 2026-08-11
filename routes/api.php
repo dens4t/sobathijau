@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\MetricsController;
 use App\Http\Controllers\Api\NetworkLinkController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ReplyTemplateController;
@@ -59,6 +60,9 @@ Route::middleware('auth.token')->group(function (): void {
         ->where('format', 'csv|kml|kmz|xlsx|shp');
 
     Route::get('/uploads/{fileId}', [UploadController::class, 'download']);
+
+    Route::put('/site-metrics/{key}', [MetricsController::class, 'updateSiteMetric']);
+    Route::put('/carousel-slides/{id}', [MetricsController::class, 'updateCarouselSlide']);
 
     Route::get('/reply-templates', [ReplyTemplateController::class, 'index']);
     Route::post('/reply-templates', [ReplyTemplateController::class, 'store']);

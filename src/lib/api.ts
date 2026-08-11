@@ -41,6 +41,8 @@ export const api = {
   addReplyTemplate: (t: ReplyTemplate) => call<ReplyTemplate>('/reply-templates', { method: 'POST', headers: json, body: JSON.stringify(t) }),
   updateReplyTemplate: (t: ReplyTemplate) => call<ReplyTemplate>(`/reply-templates/${t.id}`, { method: 'PUT', headers: json, body: JSON.stringify(t) }),
   deleteReplyTemplate: (id: string) => call<{ ok: true }>(`/reply-templates/${id}`, { method: 'DELETE' }),
+  updateSiteMetric: (key: string, value: string, label: string) => call<SiteMetric>(`/site-metrics/${key}`, { method: 'PUT', headers: json, body: JSON.stringify({ value, label }) }),
+  updateCarouselSlide: (slide: CarouselSlide) => call<CarouselSlide>(`/carousel-slides/${slide.id}`, { method: 'PUT', headers: json, body: JSON.stringify(slide) }),
 };
 
 // Unduh ekspor lokasi (admin) — fetch blob + trigger download browser.
