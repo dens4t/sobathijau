@@ -23,6 +23,17 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
   const [filterService, setFilterService] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | 'ALL'>('ALL');
 
+  // Kolom menyesuaikan field layanan yang dipilih (hanya saat filter layanan aktif).
+  const selectedService = filterService === 'ALL' ? null : services.find(s => s.id === filterService) || null;
+  const dynamicColumns = selectedService?.fields ?? [];
+
+  const fmtValue = (v: unknown): string => {
+    if (v === null || v === undefined || v === '') return '—';
+    if (Array.isArray(v)) return v.join(', ');
+    if (typeof v === 'object') return (v as { name?: string }).name || '—';
+    return String(v);
+  };
+
   const filtered = submissions.filter(s =>
     (filterService === 'ALL' || s.serviceId === filterService)
     && (filterStatus === 'ALL' || s.status === filterStatus)
@@ -96,12 +107,15 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
                 <th className="py-3 px-4">Tanggal</th>
                 <th className="py-3 px-4">Pemohon</th>
                 <th className="py-3 px-4">Layanan</th>
+                {dynamicColumns.map(f => (
+                  <th key={f.id} className="py-3 px-4 whitespace-nowrap">{f.label}</th>
+                ))}
                 <th className="py-3 px-4 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-stone-800">
               {sorted.length === 0 && (
-                <tr><td colSpan={5} className="text-center py-10 text-slate-400">
+                <tr><td colSpan={5 + dynamicColumns.length} className="text-center py-10 text-slate-400">
                   <FileText className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                   Tidak ada permohonan dengan filter ini.
                 </td></tr>
@@ -117,6 +131,11 @@ export const RekapPermohonan: React.FC<RekapPermohonanProps> = ({ submissions, s
                   <td className="py-3 px-4 text-slate-500">{sub.submittedAt}</td>
                   <td className="py-3 px-4 font-semibold text-slate-800 dark:text-stone-200">{sub.applicantName}</td>
                   <td className="py-3 px-4 text-slate-500 max-w-[220px] truncate">{sub.serviceName}</td>
+                  {dynamicColumns.map(f => (
+                    <td key={f.id} className="py-3 px-4 text-slate-600 dark:text-stone-300 max-w-[180px] truncate whitespace-nowrap">
+                      {fmtValue(sub.formData?.[f.id])}
+                    </td>
+                  ))}
                   <td className="py-3 px-4 text-right"><span className={badge(sub.status)}>{sub.status.replace('_', ' ')}</span></td>
                 </motion.tr>
               ))}
