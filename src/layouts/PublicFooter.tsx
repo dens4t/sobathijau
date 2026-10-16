@@ -15,6 +15,10 @@ export const PublicFooter: React.FC<{ changeTab: (tab: string) => void }> = ({ c
           <p className="text-gray-400 dark:text-stone-500 leading-relaxed text-[11px]">
             Inovasi sistem perizinan mandiri & pengawasan lingkungan berkelanjutan.
           </p>
+          <div className="pt-1 space-y-0.5 text-[11px] text-slate-500 dark:text-stone-400">
+            <p>Email: <a href="mailto:dlh@pontianak.go.id" className="font-semibold hover:text-emerald-700">dlh@pontianak.go.id</a></p>
+            <p>Jam layanan: Senin–Jumat, 07.00–16.00 WIB</p>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -33,11 +37,11 @@ export const PublicFooter: React.FC<{ changeTab: (tab: string) => void }> = ({ c
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-[11px]">
-          <a href="#about" onClick={(e) => { e.preventDefault(); changeTab('beranda'); }} className="hover:text-[#1B4332] dark:hover:text-emerald-400 font-semibold transition">Hubungi Pengawas</a>
+          <a href="mailto:dlh@pontianak.go.id" className="hover:text-[#1B4332] dark:hover:text-emerald-400 font-semibold transition">Hubungi Pengawas</a>
           <span className="text-slate-200 hidden sm:inline">|</span>
-          <a href="#about" onClick={(e) => { e.preventDefault(); changeTab('asisten'); }} className="hover:text-[#1B4332] dark:hover:text-emerald-400 font-semibold transition">Edukasi UU Lingkungan</a>
+          <a href="/asisten" onClick={(e) => { e.preventDefault(); changeTab('asisten'); }} className="hover:text-[#1B4332] dark:hover:text-emerald-400 font-semibold transition">Edukasi UU Lingkungan</a>
           <span className="text-slate-200 hidden sm:inline">|</span>
-          <p className="text-gray-400 dark:text-stone-500">© 2026 DLH Pontianak</p>
+          <p className="text-gray-400 dark:text-stone-500">© {new Date().getFullYear()} DLH Kota Pontianak</p>
         </div>
       </div>
     </footer>
