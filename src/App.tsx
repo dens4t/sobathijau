@@ -351,7 +351,7 @@ export default function App() {
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-center bg-white border p-6 md:p-8 rounded-2xl shadow-sm text-left">
                       <div className="xl:col-span-7 space-y-4">
                         <h2 className="text-xl md:text-3xl font-bold text-[#1B4332] leading-tight">Pelayanan Responsif, <br /><span className="text-[#2D6A4F]">Bebas Hambatan & Terbuka</span> Untuk Semua</h2>
-                        <p className="text-xs text-slate-500 leading-relaxed">Sobat Hijau adalah portal pelayanan publik Dinas Lingkungan Hidup Kabupaten/Kota Pontianak. Didesain secara khusus untuk memenuhi standar kegunaan tertinggi demi melayani pengurusan SPPL mikro, pengaduan lingkungan hidup, serta permintaan bibit tanaman penghijauan dengan andal dan transparan.</p>
+                        <p className="text-xs text-slate-500 leading-relaxed">Sobat Hijau adalah portal pelayanan publik Dinas Lingkungan Hidup Kota Pontianak. Didesain secara khusus untuk memenuhi standar kegunaan tertinggi demi melayani pengurusan SPPL mikro, pengaduan lingkungan hidup, serta permintaan bibit tanaman penghijauan dengan andal dan transparan.</p>
                         <div className="flex flex-wrap gap-2 pt-3">
                           <button onClick={() => changeTab('layanan')} className="px-5 py-2.5 bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold rounded-xl text-xs transition">Ajukan Permohonan Baru</button>
                           <button onClick={() => changeTab('lacak')} className="px-5 py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1B4332] font-bold rounded-xl text-xs border transition">Lacak Kemajuan Berkas</button>

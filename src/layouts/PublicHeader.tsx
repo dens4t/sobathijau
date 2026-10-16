@@ -38,7 +38,7 @@ export const PublicHeader: React.FC<PublicHeaderProps> = ({ activeTab, changeTab
             </div>
             <div className="hidden lg:block font-mono">
               <p className="text-[#2D6A4F] dark:text-emerald-400 text-[9px] tracking-widest uppercase font-bold">Jam Kerja Dinas</p>
-              <p className="font-bold text-slate-700 dark:text-stone-300 mt-0.5">Senin-Jum'at: 7am-16pm</p>
+              <p className="font-bold text-slate-700 dark:text-stone-300 mt-0.5">Senin–Jumat, 07.00–16.00 WIB</p>
             </div>
             <div>
               <button onClick={() => { goAdmin('kelola'); speakText("Beralih ke Portal Administrasi"); }} className="px-4 py-2 bg-[#E5F5EB] hover:bg-[#1B4332] dark:bg-stone-800 hover:text-white text-[#1B4332] dark:text-emerald-300 border border-emerald-200 dark:border-stone-700 text-xs font-bold rounded-xl transition flex items-center gap-1 shadow-sm">
