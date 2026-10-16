@@ -386,7 +386,11 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                     </label>
 
                     {/* Render based on field type */}
-                    {field.type === 'text' && (
+                    {field.type === 'text' && (() => {
+                      const key = `${field.id} ${field.label}`.toLowerCase();
+                      const isNik = key.includes('nik');
+                      const isName = key.includes('nama') && !key.includes('nama_organisasi') || key.includes('pemohon') || key.includes('pelapor');
+                      return (
                       <input
                         id={`field-id-${field.id}`}
                         type="text"
@@ -394,21 +398,27 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                         placeholder={field.placeholder || 'Silakan ketik...'}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
-                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity('Mohon isi kolom ini.'); }}
+                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity(isNik ? 'NIK harus 16 digit angka.' : 'Mohon isi kolom ini.'); }}
                         onInput={(e) => { (e.target as HTMLInputElement).setCustomValidity(''); }}
+                        pattern={isNik ? '[0-9]{16}' : undefined}
+                        maxLength={isNik ? 16 : isName ? 100 : 150}
+                        inputMode={isNik ? 'numeric' : undefined}
+                        title={isNik ? 'NIK 16 digit angka' : undefined}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] hover:border-emerald-300 focus:bg-white text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F]"
                       />
-                    )}
+                      );
+                    })()}
 
                     {field.type === 'number' && (
                       <input
                         id={`field-id-${field.id}`}
                         type="number"
                         required={field.required}
+                        min={0}
                         placeholder={field.placeholder || 'Ketik nominal angka...'}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
-                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity('Mohon isi kolom ini dengan angka.'); }}
+                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity('Mohon isi kolom ini dengan angka (minimal 0).'); }}
                         onInput={(e) => { (e.target as HTMLInputElement).setCustomValidity(''); }}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] hover:border-emerald-300 focus:bg-white text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F]"
                       />
