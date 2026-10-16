@@ -26,7 +26,7 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
       id: 'welcome',
       sender: 'ai',
       text: 'Halo! Saya Asisten Hijau, asisten virtual layanan Dinas Lingkungan Hidup. Saya siap membantu Anda berkonsultasi mengenai perizinan SPPL, uji laboratorium, pengaduan pencemaran, atau pengajuan bibit tanaman. Apa yang ingin Anda tanyakan hari ini?',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.') + ' WIB'
     }
   ]);
   const [input, setInput] = useState('');
@@ -45,7 +45,7 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
       id: `usr-${Date.now()}`,
       sender: 'user',
       text: textToSend,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.') + ' WIB'
     };
 
     setMessages(prev => [...prev, userMsg]);
@@ -57,7 +57,7 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.') + ' WIB'
       };
 
       setMessages(prev => [...prev, aiMsg]);
@@ -71,7 +71,7 @@ export const AsistenHijau: React.FC<AsistenHijauProps> = ({ ttsEnabled, onSpeak 
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text: 'Maaf, saya tidak dapat menjawab saat ini. Silakan coba lagi sebentar lagi.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', '.') + ' WIB'
       };
       setMessages(prev => [...prev, aiMsg]);
       setIsTyping(false);
