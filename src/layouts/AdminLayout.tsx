@@ -95,6 +95,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
                   ? 'Kelola template balasan cepat — status + teks yang dipilih admin saat membalas pemohon.'
                   : adminSubTab === 'dashboard'
                   ? 'Ringkasan kinerja layanan, berkas terbaru, dan aksi cepat pengelolaan.'
+                  : adminSubTab === 'metrics'
+                  ? 'Kelola nilai IKLH dan sorotan carousel yang tampil di beranda.'
+                  : adminSubTab === 'rekap'
+                  ? 'Rekap seluruh permohonan dengan filter layanan, status, dan tanggal.'
                   : 'Design parameter masukan input, syarat administrasi, dan jenis layanan baru.'}
               </p>
             </div>

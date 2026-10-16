@@ -40,6 +40,7 @@ export default function App() {
 
   const [portal, setPortal] = useState<'guest' | 'admin'>('guest');
   const [activeTab, setActiveTab] = useState<string>('beranda');
+  const [notFound, setNotFound] = useState(false);
   const [adminSubTab, setAdminSubTab] = useState<'dashboard' | 'kelola' | 'rancang' | 'layanan' | 'peta' | 'kategori' | 'jejaring' | 'template' | 'metrics' | 'rekap'>('dashboard');
   const [trackSearchCode, setTrackSearchCode] = useState<string>('');
   const [isActivityLogModalOpen, setIsActivityLogModalOpen] = useState(false);
@@ -164,7 +165,13 @@ export default function App() {
       } else {
         const valid = ['beranda', 'layanan', 'lacak', 'asisten', 'peta', 'jejaring', ''];
         setPortal('guest');
-        setActiveTab(valid.includes(page) ? page || 'beranda' : 'beranda');
+        if (valid.includes(page)) {
+          setActiveTab(page || 'beranda');
+          setNotFound(false);
+        } else {
+          setActiveTab('beranda');
+          setNotFound(true);
+        }
       }
     };
     // Daftarkan listener DULU agar navigateTo() dari dalam readPath() mount
@@ -342,6 +349,14 @@ export default function App() {
           <PublicHeader activeTab={activeTab} changeTab={changeTab} goAdmin={goAdmin} speakText={speakText} setTrackSearchCode={setTrackSearchCode} addToast={addToast} />
 
           <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full transition-colors duration-300">
+            {notFound ? (
+              <div className="max-w-lg mx-auto text-center py-16 space-y-4">
+                <p className="text-5xl font-black text-[#1B4332]">404</p>
+                <h2 className="text-lg font-bold">Halaman tidak ditemukan</h2>
+                <p className="text-xs text-slate-500">Alamat {currentPath} tidak tersedia di portal Sobat Hijau.</p>
+                <button onClick={() => changeTab('beranda')} className="px-5 py-2.5 bg-[#1B4332] text-white text-xs font-bold rounded-xl">Kembali ke Beranda</button>
+              </div>
+            ) : (
             <AnimatePresence mode="wait">
               <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                 
@@ -444,6 +459,7 @@ export default function App() {
                 
               </motion.div>
             </AnimatePresence>
+            )}
           </main>
 
           <PublicFooter changeTab={changeTab} />
