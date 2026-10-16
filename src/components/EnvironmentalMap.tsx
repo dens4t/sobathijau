@@ -264,7 +264,7 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
               )}
               <span className="relative z-10">SEMUA ({locations.length})</span>
             </motion.button>
-            {sortedCats.map(cat => (
+            {sortedCats.filter(cat => getCatCount(cat.name) > 0).map(cat => (
               <motion.button
                 key={cat.id}
                 layout
