@@ -116,6 +116,18 @@ export default function App() {
   }, [initStore]);
 
   useEffect(() => {
+    const base = 'Sobat Hijau - DLH Kota Pontianak';
+    if (portal === 'admin') {
+      const label = adminSubTab === 'dashboard' ? 'Dashboard' : adminSubTab === 'rekap' ? 'Rekap' : adminSubTab === 'metrics' ? 'Metrik' : adminSubTab === 'kelola' ? 'Kelola Berkas' : adminSubTab === 'layanan' ? 'Layanan' : adminSubTab === 'peta' ? 'Peta' : adminSubTab === 'kategori' ? 'Kategori' : adminSubTab === 'jejaring' ? 'Jejaring' : adminSubTab === 'template' ? 'Template' : 'Rancang';
+      document.title = `${label} Admin | ${base}`;
+    } else {
+      const label = activeTab === 'beranda' ? '' : activeTab === 'layanan' ? 'Layanan | ' : activeTab === 'lacak' ? 'Lacak Berkas | ' : activeTab === 'peta' ? 'Peta | ' : activeTab === 'jejaring' ? 'Jejaring | ' : activeTab === 'asisten' ? 'Asisten | ' : '';
+      document.title = `${label}${base}`;
+    }
+    document.documentElement.lang = 'id';
+  }, [portal, activeTab, adminSubTab]);
+
+  useEffect(() => {
     // Check stored auth on mount
     const stored = sessionStorage.getItem('sh_admin_auth');
     if (stored === 'authenticated') {
