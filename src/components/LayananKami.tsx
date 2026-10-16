@@ -394,6 +394,8 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                         placeholder={field.placeholder || 'Silakan ketik...'}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity('Mohon isi kolom ini.'); }}
+                        onInput={(e) => { (e.target as HTMLInputElement).setCustomValidity(''); }}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] hover:border-emerald-300 focus:bg-white text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F]"
                       />
                     )}
@@ -406,6 +408,8 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                         placeholder={field.placeholder || 'Ketik nominal angka...'}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity('Mohon isi kolom ini dengan angka.'); }}
+                        onInput={(e) => { (e.target as HTMLInputElement).setCustomValidity(''); }}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] hover:border-emerald-300 focus:bg-white text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F]"
                       />
                     )}
@@ -417,6 +421,8 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                         required={field.required}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        onInvalid={(e) => { (e.target as HTMLInputElement).setCustomValidity('Mohon pilih tanggal.'); }}
+                        onInput={(e) => { (e.target as HTMLInputElement).setCustomValidity(''); }}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] hover:border-emerald-300 focus:bg-white text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F]"
                       />
                     )}
@@ -429,6 +435,8 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                         rows={4}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        onInvalid={(e) => { (e.target as HTMLTextAreaElement).setCustomValidity('Mohon isi kolom ini.'); }}
+                        onInput={(e) => { (e.target as HTMLTextAreaElement).setCustomValidity(''); }}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] hover:border-emerald-300 focus:bg-white text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F] resize-none"
                       />
                     )}
@@ -439,6 +447,8 @@ export const LayananKami: React.FC<LayananKamiProps> = ({ services, onSubmitForm
                         required={field.required}
                         value={formData[field.id] || ''}
                         onChange={(e) => handleInputChange(field.id, e.target.value)}
+                        onInvalid={(e) => { (e.target as HTMLSelectElement).setCustomValidity('Mohon pilih salah satu opsi.'); }}
+                        onInput={(e) => { (e.target as HTMLSelectElement).setCustomValidity(''); }}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-100 dark:border-stone-700 bg-[#F9FBFA] text-slate-800 dark:bg-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#2D6A4F]"
                       >
                         <option value="">-- Pilih Opsi --</option>
