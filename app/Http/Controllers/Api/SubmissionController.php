@@ -56,6 +56,10 @@ final class SubmissionController extends ResourceController
         abort_unless(array_key_exists($status, Timeline::STATUS_LABELS), 422, 'Status tidak valid.');
 
         $sub = Submission::findOrFail($id);
+        // Guard: status terminal tidak boleh diubah lagi (mencegah SELESAI→DIAJUKAN dsb).
+        if (in_array($sub->status, ['SELESAI', 'DITOLAK'], true) && $status !== $sub->status) {
+            abort(response()->json(['message' => 'Berkas terminal ('.$sub->status.') tidak dapat diubah.'], 422));
+        }
         $adminNote = $request->input('adminNote');
         $date = Timeline::now();
 

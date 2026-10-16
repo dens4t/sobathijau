@@ -263,6 +263,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <option value="DITOLAK">DITOLAK</option>
                     <option value="DIKEMBALIKAN">DIKEMBALIKAN KE PEMOHON</option>
                   </select>
+                  {['SELESAI', 'DITOLAK'].includes(submissions.find(s => s.id === selectedSubId)?.status || '') && (
+                    <p className="text-[10px] text-amber-600 mt-1">Berkas terminal tidak dapat diubah lagi.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase mb-1">⚡ Balasan Cepat</label>
