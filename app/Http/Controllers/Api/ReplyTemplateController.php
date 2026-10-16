@@ -35,6 +35,7 @@ final class ReplyTemplateController extends Controller
             'text' => $data['text'],
             'sort_order' => $data['sortOrder'] ?? $this->nextSortOrder(),
         ]);
+        \App\Support\ActivityLogger::log('Template balasan ditambah: '.$template->label, 'success');
 
         return response()->json($template, 201);
     }
@@ -52,6 +53,7 @@ final class ReplyTemplateController extends Controller
             'text' => $data['text'],
             'sort_order' => $data['sortOrder'] ?? $template->sort_order,
         ])->save();
+        \App\Support\ActivityLogger::log('Template balasan diperbarui: '.$id, 'info');
 
         return response()->json($template->fresh());
     }
@@ -61,6 +63,7 @@ final class ReplyTemplateController extends Controller
         $this->ensureMigrated();
 
         ReplyTemplate::findOrFail($id)->delete();
+        \App\Support\ActivityLogger::log('Template balasan dihapus: '.$id, 'warning');
 
         return response()->json(['ok' => true]);
     }

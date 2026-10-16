@@ -125,7 +125,19 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
     mapInstanceRef.current = map;
     onMapReady?.(map);
 
+    // Beranda me-mount peta via React.lazy + AnimatePresence saat container
+    // belum berukuran final → tile abu/zoom-out. Paksa ukur ulang setelah mount.
+    const t1 = setTimeout(() => { map.invalidateSize(); }, 100);
+    const t2 = setTimeout(() => { map.invalidateSize(); }, 500);
+    const ro = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => { map.invalidateSize(); })
+      : null;
+    if (ro && mapRef.current) ro.observe(mapRef.current);
+
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      ro?.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -179,6 +191,7 @@ export const EnvironmentalMap: React.FC<EnvironmentalMapProps> = ({
     // titik sementara/pilihan berubah — mencegah zoom keluar saat klik map.
     const ids = filteredLocations.map(l => l.id).sort().join(',');
     if (filteredLocations.length > 0 && ids !== fittedIdsRef.current) {
+      map.invalidateSize();
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
       fittedIdsRef.current = ids;
     }

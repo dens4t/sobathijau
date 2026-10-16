@@ -40,6 +40,8 @@ final class SubmissionController extends ResourceController
             'timeline' => Timeline::build(Timeline::now()),
         ]);
 
+        \App\Support\ActivityLogger::log('Berkas masuk: '.$sub->id.' ('.$sub->serviceName.')', 'info');
+
         return response()->json($sub, 201);
     }
 
@@ -79,6 +81,8 @@ final class SubmissionController extends ResourceController
             'timestamp' => $date,
             'isRead' => false,
         ]);
+
+        \App\Support\ActivityLogger::log('Status '.$sub->id.' → '.$status, $status === 'SELESAI' ? 'success' : 'info');
 
         return response()->json(['submission' => $sub->fresh(), 'notification' => $notification]);
     }

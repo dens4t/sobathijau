@@ -127,14 +127,7 @@ export const NewsFeed: React.FC = () => {
         </div>
 
         {!feed.instagram.configured ? (
-          <div className="px-6 py-8 text-center space-y-2">
-            <p className="text-xs text-slate-500 font-semibold">Feed Instagram belum terhubung.</p>
-            <p className="text-[11px] text-slate-400 leading-relaxed max-w-lg mx-auto">
-              Hubungkan melalui Meta Graph API (akun Instagram Business/Creator + access token) lalu isi{' '}
-              <code className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded font-mono text-[10px]">META_ACCESS_TOKEN</code> dan{' '}
-              <code className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded font-mono text-[10px]">META_IG_USER_ID</code> di <code className="bg-slate-100 dark:bg-stone-800 px-1.5 py-0.5 rounded font-mono text-[10px]">.env</code>.
-            </p>
-          </div>
+          <p className="px-6 py-8 text-xs text-slate-400 text-center">Ikuti Instagram kami <a href="https://www.instagram.com/dinaslingkunganhidup_pontianak/" target="_blank" rel="noopener noreferrer" className="font-bold text-pink-600 hover:underline">@dinaslingkunganhidup_pontianak</a> untuk kabar terbaru.</p>
         ) : ig.length === 0 ? (
           <p className="px-6 py-8 text-xs text-slate-400 text-center">Belum ada postingan yang dapat dimuat.</p>
         ) : (

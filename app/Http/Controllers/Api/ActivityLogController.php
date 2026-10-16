@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 final class ActivityLogController extends Controller
 {
+    public function index(): JsonResponse
+    {
+        return response()->json(ActivityLog::orderBy('timestamp', 'desc')->limit(200)->get());
+    }
+
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate(['action' => 'required|string']);

@@ -21,6 +21,7 @@ final class MetricsController extends Controller
             ['key' => $key],
             ['value' => $data['value'], 'label' => $data['label']],
         );
+        \App\Support\ActivityLogger::log('Metrik diperbarui: '.$key.' = '.$data['value'], 'info');
 
         return response()->json($metric);
     }
@@ -31,6 +32,7 @@ final class MetricsController extends Controller
 
         $slide = CarouselSlide::findOrFail($id);
         $this->fillSlide($slide, $data)->save();
+        \App\Support\ActivityLogger::log('Slide carousel diperbarui: '.$id, 'info');
 
         return response()->json($slide->fresh());
     }
@@ -43,6 +45,7 @@ final class MetricsController extends Controller
         $slide->id = 'slide-'.uniqid();
         $slide->sort_order = (int) (CarouselSlide::max('sort_order') ?? 0) + 1;
         $slide->save();
+        \App\Support\ActivityLogger::log('Slide carousel ditambah: '.$slide->id, 'success');
 
         return response()->json($slide->fresh(), 201);
     }
@@ -50,6 +53,7 @@ final class MetricsController extends Controller
     public function destroyCarouselSlide(string $id): JsonResponse
     {
         CarouselSlide::findOrFail($id)->delete();
+        \App\Support\ActivityLogger::log('Slide carousel dihapus: '.$id, 'warning');
 
         return response()->json(['ok' => true]);
     }

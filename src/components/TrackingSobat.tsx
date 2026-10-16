@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Search, ChevronRight, CheckCircle2, Circle, AlertCircle, FileText, Download, Briefcase, Calendar, ShieldCheck, Clock, QrCode } from 'lucide-react';
 import { Submission } from '../types';
+import { api } from '../lib/api';
 
 interface TrackingSobatProps {
   submissions: Submission[];
@@ -24,19 +25,36 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
     return null;
   });
   const [errorMsg, setErrorMsg] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  const fetchPublic = async (code: string): Promise<Submission | null> => {
+    try {
+      return await api.track(code);
+    } catch {
+      return null;
+    }
+  };
 
   React.useEffect(() => {
     if (initialSearchCode) {
       setSearchCode(initialSearchCode);
-      const result = submissions.find(s => s.id.toLowerCase() === initialSearchCode.toLowerCase());
-      setFoundSubmission(result || null);
-      if (result) {
+      const local = submissions.find(s => s.id.toLowerCase() === initialSearchCode.toLowerCase());
+      if (local) {
+        setFoundSubmission(local);
         setErrorMsg('');
+      } else if (!readonly) {
+        setIsSearching(true);
+        fetchPublic(initialSearchCode.trim()).then(res => {
+          setFoundSubmission(res);
+          setErrorMsg(res ? '' : `Format kode salah atau berkas "${initialSearchCode}" tidak ditemukan. Silakan cek kembali atau coba salin dari riwayat permohonan.`);
+        }).finally(() => setIsSearching(false));
+      } else {
+        setFoundSubmission(null);
       }
     }
   }, [initialSearchCode, submissions]);
 
-  const handleSearch = (e?: React.FormEvent) => {
+  const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!searchCode.trim()) {
       setErrorMsg('Masukkan kode pelacakan terlebih dahulu.');
@@ -44,17 +62,29 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
     }
 
     const cleanedCode = searchCode.trim().toUpperCase();
-    const result = submissions.find(s => s.id === cleanedCode || s.id.toLowerCase() === cleanedCode.toLowerCase());
+    const local = submissions.find(s => s.id === cleanedCode || s.id.toLowerCase() === cleanedCode.toLowerCase());
+
+    if (local) {
+      setFoundSubmission(local);
+      setErrorMsg('');
+      onSpeak(`Berkas ditemukan! Atas nama ${local.applicantName} dengan layanan ${local.serviceName}. Status berkas saat ini adalah ${local.status.replace('_', ' ')}.`);
+      return;
+    }
+
+    // Guest: ambil per-berkas via endpoint publik ter-mask (tanpa mengunduh seluruh daftar).
+    setIsSearching(true);
+    const result = await fetchPublic(cleanedCode);
 
     if (result) {
       setFoundSubmission(result);
       setErrorMsg('');
-      onSpeak(`Berkas ditemukan! Atas nama ${result.applicantName} dengan layanan ${result.serviceName}. Status berkas saat ini adalah ${result.status.replace('_', ' ')}.`);
+      onSpeak(`Berkas ditemukan! Layanan ${result.serviceName}. Status berkas saat ini adalah ${result.status.replace('_', ' ')}.`);
     } else {
       setFoundSubmission(null);
       setErrorMsg(`Format kode salah atau berkas "${searchCode}" tidak ditemukan. Silakan cek kembali atau coba salin dari riwayat permohonan.`);
       onSpeak(`Maaf, berkas tidak ditemukan.`);
     }
+    setIsSearching(false);
   };
 
   const getStatusBadge = (status: string) => {
@@ -93,11 +123,12 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm"
+            disabled={isSearching}
+            className="px-6 py-3 bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition shadow-sm disabled:opacity-60"
             id="btn-search-tracking"
           >
             <Search className="w-4 h-4" />
-            Cari
+            {isSearching ? 'Mencari...' : 'Cari'}
           </button>
         </form>
 
@@ -107,7 +138,9 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
           </p>
         )}
 
-        {/* Quick links to sample codes */}
+        {/* Quick links to sample codes — hanya untuk admin/readonly (data penuh).
+            Guest tidak lagi menerima daftar ID agar tidak membocorkan kode berkas. */}
+        {submissions.length > 0 && (
         <div className="mt-5 flex justify-center items-center gap-2 text-[10px] text-gray-400">
           <span className="font-semibold">Rekomendasi Uji Coba Lacak:</span>
           {submissions.slice(0, 3).map(sub => (
@@ -125,6 +158,7 @@ export const TrackingSobat: React.FC<TrackingSobatProps> = ({ submissions, initi
             </button>
           ))}
         </div>
+        )}
       </div>
       )}
 

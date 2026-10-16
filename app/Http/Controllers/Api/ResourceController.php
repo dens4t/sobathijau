@@ -18,18 +18,25 @@ abstract class ResourceController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        return response()->json($this->upsert($request));
+        $model = $this->upsert($request);
+        \App\Support\ActivityLogger::log(class_basename($this->modelClass()).' ditambah: '.($model->id ?? ''), 'success');
+
+        return response()->json($model);
     }
 
     public function update(Request $request, string $id): JsonResponse
     {
-        return response()->json($this->upsert($request, $id));
+        $model = $this->upsert($request, $id);
+        \App\Support\ActivityLogger::log(class_basename($this->modelClass()).' diperbarui: '.$id, 'info');
+
+        return response()->json($model);
     }
 
     public function destroy(string $id): JsonResponse
     {
         $class = $this->modelClass();
         $class::findOrFail($id)->delete();
+        \App\Support\ActivityLogger::log(class_basename($class).' dihapus: '.$id, 'warning');
 
         return response()->json(['ok' => true]);
     }

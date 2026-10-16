@@ -261,6 +261,12 @@ export const useStore = create<AppState>((set, get) => ({
   loadFullSubmissions: async () => {
     const subs = await api.getSubmissions();
     set({ submissions: subs });
+    try {
+      const logs = await api.getActivityLogs();
+      set({ activityLogs: logs });
+    } catch {
+      // abaikan bila gagal (mis. token kedaluwarsa)
+    }
   },
 
   updateAccessibility: (settings) => {

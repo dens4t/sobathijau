@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
-use App\Models\AppNotification;
 use App\Models\CarouselSlide;
 use App\Models\GeoCategory;
 use App\Models\GeoLocation;
@@ -18,16 +16,15 @@ final class BootstrapController extends Controller
 {
     public function index(): JsonResponse
     {
+        // Payload publik minimal — TANPA submissions/notifications/activityLogs
+        // (privasi: sebelumnya seluruh daftar pemohon + log internal bocor ke publik).
+        // Admin memakai endpoint ber-token: /api/submissions, dst.
+        // Lacak per-berkas memakai endpoint publik: /api/track/{id} (ter-mask).
         return response()->json([
             'services' => Service::orderByDesc('createdAt')->get(),
-            'submissions' => Submission::all()->map(static function (Submission $sub): Submission {
-                // Publik: sembunyikan NIK/kontak; admin memakai /api/submissions (ber-token) utk data penuh.
-                $sub->formData = $sub->maskedFormData();
-
-                return $sub;
-            })->values(),
-            'notifications' => AppNotification::all(),
-            'activityLogs' => ActivityLog::orderBy('timestamp', 'desc')->get(),
+            'submissions' => [],
+            'notifications' => [],
+            'activityLogs' => [],
             'locations' => GeoLocation::all(),
             'categories' => GeoCategory::all(),
             'networkLinks' => NetworkLink::all(),
@@ -48,5 +45,12 @@ final class BootstrapController extends Controller
             'replyTemplates' => (new ReplyTemplateController)->index()->getData(true),
             'assistantQuestions' => (new AssistantController)->questions(),
         ]);
+    }
+
+    public function track(string $id): JsonResponse
+    {
+        $sub = Submission::findOrFail($id);
+
+        return response()->json($sub->forPublicTracking());
     }
 }

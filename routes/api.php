@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/bootstrap', [BootstrapController::class, 'index']);
+Route::get('/track/{id}', [BootstrapController::class, 'track'])->where('id', '[A-Za-z0-9\-]+');
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('/submissions', [SubmissionController::class, 'store']);
@@ -75,4 +76,5 @@ Route::middleware('auth.token')->group(function (): void {
     Route::delete('/reply-templates/{id}', [ReplyTemplateController::class, 'destroy']);
 
     Route::post('/activity-logs', [ActivityLogController::class, 'store']);
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
 });

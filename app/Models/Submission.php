@@ -65,8 +65,17 @@ final class Submission extends Model
                 || str_contains($k, 'no_hp')
                 || str_contains($k, '_wa');
 
+            $isName = str_contains($k, 'nama') || str_contains($k, 'pemohon') || str_contains($k, 'pelapor');
+            $isPrivate = $isName
+                || str_contains($k, 'alamat')
+                || str_contains($k, 'email')
+                || str_contains($k, 'ktp')
+                || str_contains($k, 'lahir');
+
             if ($sensitive && is_string($value) && $value !== '') {
                 $formData[$key] = self::maskValue($value);
+            } elseif ($isPrivate && is_string($value) && $value !== '') {
+                $formData[$key] = $isName ? self::maskName($value) : self::maskValue($value);
             }
         }
 
@@ -84,5 +93,37 @@ final class Submission extends Model
         $tail = min(2, $len - $head);
 
         return mb_substr($value, 0, $head).str_repeat('*', $len - $head - $tail).mb_substr($value, -$tail);
+    }
+
+    public static function maskName(string $name): string
+    {
+        $words = preg_split('/\s+/', trim($name)) ?: [];
+        $masked = array_map(static function (string $w): string {
+            $len = mb_strlen($w);
+            if ($len <= 2) {
+                return str_repeat('*', $len);
+            }
+
+            return mb_substr($w, 0, 2).str_repeat('*', $len - 2);
+        }, $words);
+
+        return implode(' ', $masked);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function forPublicTracking(): array
+    {
+        return [
+            'id' => $this->id,
+            'serviceId' => $this->serviceId,
+            'serviceName' => $this->serviceName,
+            'applicantName' => self::maskName((string) $this->applicantName),
+            'status' => $this->status,
+            'submittedAt' => $this->submittedAt,
+            'timeline' => $this->timeline,
+            'formData' => $this->maskedFormData(),
+        ];
     }
 }

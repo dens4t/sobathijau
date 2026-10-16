@@ -55,7 +55,7 @@ final class SobatHijauApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonCount(5, 'services')
-            ->assertJsonCount(4, 'submissions')
+            ->assertJsonCount(0, 'submissions')
             ->assertJsonCount(0, 'notifications')
             ->assertJsonCount(0, 'activityLogs')
             ->assertJsonCount(12, 'locations')
@@ -94,14 +94,23 @@ final class SobatHijauApiTest extends TestCase
     public function test_bootstrap_masks_sensitive_form_data(): void
     {
         $this->createSubmission('SH-MASK-0001', ['nama_pelapor' => 'Anonim', 'kontak_pelapor' => '081234567890', 'nik' => '6171012809880002']);
-        $resp = $this->getJson('/api/bootstrap');
-        $sppl = collect($resp->json('submissions'))->firstWhere('id', 'SH-MASK-0001');
+        // Bootstrap publik tidak lagi memuat daftar pemohon.
+        $this->getJson('/api/bootstrap')->assertOk()->assertJsonCount(0, 'submissions');
 
-        $this->assertSame('6171**********02', $sppl['formData']['nik']);
-        $this->assertStringNotContainsString('2809880002', $sppl['formData']['nik']);
+        // Lacak per-kode: NIK/kontak ter-mask, nama disamarkan.
+        $resp = $this->getJson('/api/track/SH-MASK-0001')->assertOk();
+
+        $this->assertSame('6171**********02', $resp->json('formData.nik'));
+        $this->assertStringNotContainsString('2809880002', $resp->json('formData.nik'));
 
         // Kontak pada aduan ikut ter-mask.
-        $this->assertStringContainsString('*', $sppl['formData']['kontak_pelapor']);
+        $this->assertStringContainsString('*', $resp->json('formData.kontak_pelapor'));
+
+        // Nama pemohon tidak dibuka mentah.
+        $this->assertSame('Pe***** Te**', $resp->json('applicantName'));
+
+        // Kode tak dikenal → 404, bukan bocor.
+        $this->getJson('/api/track/SH-TIDAK-ADA')->assertStatus(404);
     }
 
     public function test_admin_endpoint_returns_full_form_data(): void
@@ -533,7 +542,9 @@ final class SobatHijauApiTest extends TestCase
         $resp = $this->getJson('/api/bootstrap');
         $magang = collect($resp->json('services'))->firstWhere('id', 'magang');
         $this->assertSame('Permohonan Magang / Praktik Kerja', $magang['name']);
-        $this->assertSame(4, collect($resp->json('submissions'))->where('serviceId', 'magang')->count());
+        // Daftar pemohon hanya via endpoint ber-token, bukan bootstrap publik.
+        $rows = $this->getJson('/api/submissions')->assertOk()->json();
+        $this->assertSame(4, collect($rows)->where('serviceId', 'magang')->count());
     }
 
     public function test_dlh_feed_parser_extracts_berita(): void
