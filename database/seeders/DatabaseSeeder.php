@@ -369,7 +369,7 @@ HTML,
             ['link-2', 'Sistem Informasi Pengelolaan Sampah', 'https://sips.dlh.pontianakkota.go.id', 'Portal data dan monitoring pengelolaan sampah Kota Pontianak', 2],
             ['link-3', 'Informasi Indeks Kualitas Lingkungan Hidup', 'https://iklh.menlhk.go.id', 'Data IKLH nasional dari Kementerian Lingkungan Hidup', 3],
             ['link-4', 'Lapor Pengaduan Lingkungan Hidup', 'https://pengaduan.dlh.pontianakkota.go.id', 'Saluran aduan masyarakat seputar lingkungan hidup', 4],
-            ['link-5', 'Sobat Hijau - Portal Pelayanan', 'https://sobat.dst.my.id', 'Portal pelayanan online terpadu DLH Kota Pontianak', 5],
+            ['link-5', 'Sobat Hijau - Portal Pelayanan', 'https://sobat.ura.web.id', 'Portal pelayanan online terpadu DLH Kota Pontianak', 5],
         ];
 
         return array_map(static fn (array $r): array => [
