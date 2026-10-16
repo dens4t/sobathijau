@@ -15,15 +15,23 @@ interface AccessibilityWidgetProps {
 
 export const AccessibilityWidget: React.FC<AccessibilityWidgetProps> = ({ settings, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(() => {
+    try {
+      return sessionStorage.getItem('sh_a11y_tooltip_seen') !== '1';
+    } catch {
+      return true;
+    }
+  });
 
-  // Auto-hide tooltip after 8 seconds
+  // Tampilkan tooltip promo sekali per sesi + hormati prefers-reduced-motion.
   useEffect(() => {
+    if (!showTooltip) return;
     const timer = setTimeout(() => {
       setShowTooltip(false);
+      try { sessionStorage.setItem('sh_a11y_tooltip_seen', '1'); } catch {}
     }, 8000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [showTooltip]);
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);

@@ -227,7 +227,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ adminSubTab, goAdmin, 
         </main>
 
         <footer className="bg-white dark:bg-stone-900 border-t border-stone-200/55 dark:border-stone-850 py-4 px-8 text-center text-[10px] text-slate-400 font-mono">
-          PANEL ADMINISTRATOR SOBAT HIJAU DINAS LINGKUNGAN HIDUP KOTA PONTIANAK | © 2026 BASELINE
+          PANEL ADMINISTRATOR SOBAT HIJAU DINAS LINGKUNGAN HIDUP KOTA PONTIANAK | © {new Date().getFullYear()} DLH Kota Pontianak
         </footer>
       </div>
     </div>
